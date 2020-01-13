@@ -62,5 +62,11 @@ namespace VideoReg.Infra.Test
         {
             return encoding.GetString(files.First(x => x.fullName == file).body); 
         }
+
+        public MemoryStream ReadFileToMemory(string file)
+        {
+            var f = files.First(x => x.fullName == file);
+            return new MemoryStream(f.body);
+        }
     }
 }

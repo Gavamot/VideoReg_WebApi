@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using VideoReg.Domain.Archive.BrigadeHistory;
+using VideoReg.Domain.Archive.Config;
 using VideoReg.Domain.ValueType;
 
 namespace VideoReg.Domain.Archive.ArchiveFiles
@@ -24,9 +25,9 @@ namespace VideoReg.Domain.Archive.ArchiveFiles
         public const string EmptyDevice = "N";
 
         private readonly IBrigadeHistory brigadeHistory;
-        private readonly IArchiveFilesConfig config;
+        private readonly IArchiveConfig config;
 
-        public ArchiveFileFactory(IBrigadeHistoryRep brigadeHistoryRep, IArchiveFilesConfig config)
+        public ArchiveFileFactory(IBrigadeHistoryRep brigadeHistoryRep, IArchiveConfig config)
         {
             this.brigadeHistory = brigadeHistoryRep.GetBrigadeHistory();
             this.config = config;
@@ -34,13 +35,13 @@ namespace VideoReg.Domain.Archive.ArchiveFiles
 
         public FileChannelJson CreteJson(string fileFullName)
         {
-            var data = GetArchiveFileData(fileFullName, config.ChannelArchiveDirectory, FileChannelJson.Extension);
+            var data = GetArchiveFileData(fileFullName, config.ChannelArchivePath, FileChannelJson.Extension);
             return new FileChannelJson(data.brigade, data.pdt, data.serialNumber, data.fullArchiveName);
         }
 
         public FileVideoMp4 CreateVideoMp4(string fileFullName, int cameraNumber)
         {
-            var data = GetArchiveFileData(fileFullName, config.VideoArchiveDirectory, FileVideoMp4.Extension);
+            var data = GetArchiveFileData(fileFullName, config.VideoArchivePath, FileVideoMp4.Extension);
             int? duration = ParseDuration(data.filePats);
             return new FileVideoMp4(data.brigade, data.pdt, data.serialNumber, data.fullArchiveName, cameraNumber, duration);
         }

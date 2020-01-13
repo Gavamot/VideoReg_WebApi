@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\VideoReg.Infra\VideoReg.Infra.csproj" />
+    <ProjectReference Include="..\VideoReg.TestInfra\VideoReg.TestInfra.csproj" />
   </ItemGroup>
 
 </Project>

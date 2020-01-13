@@ -5,6 +5,7 @@ using FakeItEasy;
 using NUnit.Framework;
 using VideoReg.Domain.Archive.ArchiveFiles;
 using VideoReg.Domain.Archive.BrigadeHistory;
+using VideoReg.Domain.Archive.Config;
 using VideoReg.Domain.ValueType;
 
 namespace VideoReg.Domain.Test
@@ -35,12 +36,12 @@ namespace VideoReg.Domain.Test
             return Path.Combine(acrVideo, res);
         }
 
-        private IArchiveFilesConfig GetFakeConfig()
+        private IArchiveConfig GetFakeConfig()
         {
-            var config = A.Fake<IArchiveFilesConfig>();
-            A.CallTo(() => config.ChannelArchiveDirectory)
+            var config = A.Fake<IArchiveConfig>();
+            A.CallTo(() => config.ChannelArchivePath)
                 .Returns(acrJson);
-            A.CallTo(() => config.VideoArchiveDirectory)
+            A.CallTo(() => config.VideoArchivePath)
                 .Returns(acrVideo);
             return config;
         }
@@ -139,7 +140,6 @@ namespace VideoReg.Domain.Test
         {
             int duration = 60;
             int cameraNumber = 1;
-            DeviceSerialNumber? serial = null;
             var file = VideoFile(dt1Str, duration);
             var f = factory.CreateVideoMp4(file, cameraNumber);
             Assert.AreEqual(f.pdt, dt1);

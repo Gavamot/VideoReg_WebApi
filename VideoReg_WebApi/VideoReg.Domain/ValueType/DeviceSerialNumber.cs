@@ -16,7 +16,6 @@ namespace VideoReg.Domain.ValueType
         public DeviceSerialNumber(IEnumerable<ushort> values)
         {
             var v = values.ToArray();
-            
             if(v.Length != ArgsCount)
                 throw new ArgumentException($"DeviceSerialNumber constructor array argument must contains {ArgsCount} arguments");
             model = v[0];

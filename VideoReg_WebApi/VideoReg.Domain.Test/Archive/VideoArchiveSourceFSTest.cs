@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using FakeItEasy;
@@ -7,7 +6,7 @@ using NUnit.Framework;
 using VideoReg.Domain.Archive;
 using VideoReg.Domain.Archive.ArchiveFiles;
 using VideoReg.Domain.Archive.BrigadeHistory;
-using VideoReg.Domain.ValueType;
+using VideoReg.Domain.Archive.Config;
 using VideoReg.Infra.Services;
 using VideoReg.Infra.Test;
 
@@ -29,7 +28,6 @@ namespace VideoReg.Domain.Test.Archive
         private readonly string dt3Str = dt3.ToString(ArchiveFileFactory.FileNameDateFormat);
 
         private readonly int duration = 50;
-
         public VideoArchiveSourceFSTest()
         {
             string[] Files(string dir, string[] f) => f.Select(x => Path.Combine(dir, x)).ToArray();
@@ -62,7 +60,7 @@ namespace VideoReg.Domain.Test.Archive
         string dir1 = Path.Combine(root, "1");
         string dir2 = Path.Combine(root, "2");
         private string[] dirs => new[] { dir1, dir2, string.Empty, "qwe", "123" };
-        private IArchiveFilesConfig config;
+        private IArchiveConfig config;
         private ILog log;
         private IBrigadeHistory brigadeHistory;
         private IBrigadeHistoryRep brigadeHistoryRep;
@@ -72,9 +70,9 @@ namespace VideoReg.Domain.Test.Archive
         [SetUp]
         public void Setup()
         {
-            config = A.Fake<IArchiveFilesConfig>();
+            config = A.Fake<IArchiveConfig>();
             log = A.Fake<ILog>();
-            A.CallTo(() => config.VideoArchiveDirectory)
+            A.CallTo(() => config.VideoArchivePath)
                 .Returns(root);
 
             brigadeHistory = A.Fake<IBrigadeHistory>();
@@ -87,6 +85,21 @@ namespace VideoReg.Domain.Test.Archive
                 .Returns(brigadeHistory);
 
             videoArchiveSourceFs = new VideoArchiveSourceFS(log, config, brigadeHistoryRep, fs);
+        }
+
+        [Test]
+        public void Correct_CheckCalls()
+        {
+            var files = videoArchiveSourceFs.GetCompletedVideoFiles(Pattern).ToArray();
+
+            A.CallTo(() => config.VideoArchivePath)
+                .MustHaveHappened(1, Times.OrMore);
+
+            A.CallTo(() => brigadeHistory.GetBrigadeCode(A<DateTime>.Ignored))
+                .MustHaveHappened(files.Length, Times.OrMore);
+
+            A.CallTo(() => brigadeHistoryRep.GetBrigadeHistory())
+                .MustHaveHappened(1, Times.Exactly);
         }
 
         [Test]
@@ -107,7 +120,6 @@ namespace VideoReg.Domain.Test.Archive
                 new FileVideoMp4(1, dt1, default, f2[0], 2, duration),
                 new FileVideoMp4(1, dt3, default, f2[2], 2, duration)
             };
-            
             Assert.AreEqual(files, actual);
         }
     }

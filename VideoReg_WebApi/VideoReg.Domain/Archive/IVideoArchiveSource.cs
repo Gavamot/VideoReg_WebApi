@@ -7,6 +7,6 @@ namespace VideoReg.Domain.Archive
 {
     public interface IVideoArchiveSource
     {
-        FileVideoMp4[] GetCompletedVideoFiles(string pattern);
+        FileVideoMp4[] GetCompletedVideoFiles(string pattern = "*T*_*_*_*_*_*.mp4");
     }
 }

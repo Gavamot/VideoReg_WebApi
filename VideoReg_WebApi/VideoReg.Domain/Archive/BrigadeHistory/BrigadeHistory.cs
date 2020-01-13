@@ -52,8 +52,6 @@ namespace VideoReg.Domain.Archive.BrigadeHistory
             return res;
         }
 
-         
-
         private DateTime ParseVideoRegDateTime(string v)
         {
             if (v == "NULL")

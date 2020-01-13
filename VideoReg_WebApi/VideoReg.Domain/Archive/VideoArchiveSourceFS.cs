@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using VideoReg.Domain.Archive.ArchiveFiles;
 using VideoReg.Domain.Archive.BrigadeHistory;
+using VideoReg.Domain.Archive.Config;
 using VideoReg.Infra.Services;
 
 namespace VideoReg.Domain.Archive
@@ -9,8 +10,7 @@ namespace VideoReg.Domain.Archive
     public class VideoArchiveSourceFS : IVideoArchiveSource
     {
         public const string Pattern = "*T*_*_*_*_*_*.mp4";
-
-        private readonly IArchiveFilesConfig config;
+        private readonly IArchiveConfig config;
         private readonly ILog log;
         private readonly IFileSystemService fileSystem;
         private readonly IBrigadeHistoryRep brigadeHistoryRep;
@@ -18,7 +18,7 @@ namespace VideoReg.Domain.Archive
         readonly ArchiveFileFactory fileFactory;
 
         public VideoArchiveSourceFS(ILog log, 
-            IArchiveFilesConfig config, 
+            IArchiveConfig config, 
             IBrigadeHistoryRep brigadeHistoryRep,
             IFileSystemService fileSystem
             )
@@ -33,7 +33,7 @@ namespace VideoReg.Domain.Archive
         public FileVideoMp4[] GetCompletedVideoFiles(string pattern = Pattern)
         {
             var res = new List<FileVideoMp4>();
-            var directories = fileSystem.GetDirectories(config.VideoArchiveDirectory);
+            var directories = fileSystem.GetDirectories(config.VideoArchivePath);
             foreach (var camDir in directories)
             {
                 if (!TryParseIntFolder(camDir, "camera", out var cameraNumber)) continue;

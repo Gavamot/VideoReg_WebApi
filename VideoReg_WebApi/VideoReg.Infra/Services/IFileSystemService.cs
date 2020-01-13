@@ -12,5 +12,6 @@ namespace VideoReg.Infra.Services
         string GetFullFileName(string file);
         string GetDirName(string dir);
         string ReadFileText(string file, Encoding encoding);
+        MemoryStream ReadFileToMemory(string file);
     }
 }

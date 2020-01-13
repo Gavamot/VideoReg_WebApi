@@ -1,0 +1,10 @@
+﻿client=192.168.88.150:8000
+api=127.0.0.1:8000
+receiveBufferSizeBytes=2097152
+sendBufferSizeBytes=2097152
+bufferSizeBytes=4096
+receiveTimeoutMs=3000
+sendTimeoutMs=3000
+iterationDelayMs=5
+firstDelayMs=500
+exceptionDelayMs=1000

@@ -15,6 +15,7 @@ namespace VideoReg.Domain.Test
             FieldInfo field = obj.GetType().GetField(filedName, BindingFlags.Instance | BindingFlags.NonPublic);
             return (V)field.GetValue(obj);
         }
+
         public void SetNonPublicValue<T>(T obj, string filedName, object value)
         {
             FieldInfo field = obj.GetType().GetField(filedName, BindingFlags.Instance | BindingFlags.NonPublic);

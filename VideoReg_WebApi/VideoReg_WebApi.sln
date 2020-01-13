@@ -3,13 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29613.14
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoReg.Domain", "VideoReg.Domain\VideoReg.Domain.csproj", "{964E47D0-49AC-4A61-BF32-071F9AD364A4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VideoReg.Domain", "VideoReg.Domain\VideoReg.Domain.csproj", "{964E47D0-49AC-4A61-BF32-071F9AD364A4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoReg.Infra", "VideoReg.Infra\VideoReg.Infra.csproj", "{74EC3E60-8735-4314-85E0-ED6020FC4ADC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VideoReg.Infra", "VideoReg.Infra\VideoReg.Infra.csproj", "{74EC3E60-8735-4314-85E0-ED6020FC4ADC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoReg.Domain.Test", "VideoReg.Domain.Test\VideoReg.Domain.Test.csproj", "{D4A76E7E-F6B2-488D-90E0-13FAD3C02D20}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VideoReg.Domain.Test", "VideoReg.Domain.Test\VideoReg.Domain.Test.csproj", "{D4A76E7E-F6B2-488D-90E0-13FAD3C02D20}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoReg.Infra.Test", "VideoReg.Infra.Test\VideoReg.Infra.Test.csproj", "{F9ACC691-2F14-460C-BA7A-CB9393A4E7B7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VideoReg.Infra.Test", "VideoReg.Infra.Test\VideoReg.Infra.Test.csproj", "{F9ACC691-2F14-460C-BA7A-CB9393A4E7B7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VideoReg.TestInfra", "VideoReg.TestInfra\VideoReg.TestInfra.csproj", "{C5B95F18-68AE-49DE-AA74-1DCC4E28E354}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoReg.WebApi", "VideoReg.WebApi\VideoReg.WebApi.csproj", "{D3EF5035-6C88-4B3D-8351-A69BFB886BF6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiProxy", "ApiProxy\ApiProxy.csproj", "{78AE0FDB-9727-4922-B48A-0B615FB960CA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +39,18 @@ Global
 		{F9ACC691-2F14-460C-BA7A-CB9393A4E7B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F9ACC691-2F14-460C-BA7A-CB9393A4E7B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F9ACC691-2F14-460C-BA7A-CB9393A4E7B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C5B95F18-68AE-49DE-AA74-1DCC4E28E354}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5B95F18-68AE-49DE-AA74-1DCC4E28E354}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C5B95F18-68AE-49DE-AA74-1DCC4E28E354}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C5B95F18-68AE-49DE-AA74-1DCC4E28E354}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3EF5035-6C88-4B3D-8351-A69BFB886BF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3EF5035-6C88-4B3D-8351-A69BFB886BF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3EF5035-6C88-4B3D-8351-A69BFB886BF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3EF5035-6C88-4B3D-8351-A69BFB886BF6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78AE0FDB-9727-4922-B48A-0B615FB960CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78AE0FDB-9727-4922-B48A-0B615FB960CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78AE0FDB-9727-4922-B48A-0B615FB960CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78AE0FDB-9727-4922-B48A-0B615FB960CA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

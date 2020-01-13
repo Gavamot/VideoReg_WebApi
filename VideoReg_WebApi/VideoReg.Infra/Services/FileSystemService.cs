@@ -27,5 +27,13 @@ namespace VideoReg.Infra.Services
        
         public string ReadFileText(string file, Encoding encoding)
             => File.ReadAllText(file, encoding);
+
+        public MemoryStream ReadFileToMemory(string file)
+        {
+            var ms = new MemoryStream();
+            using var fs = new FileStream(file, FileMode.Open, FileAccess.Read);
+            fs.CopyTo(ms);
+            return ms;
+        }
     }
 }
