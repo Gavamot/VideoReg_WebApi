@@ -1,6 +1,5 @@
 ﻿using System.Threading;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
 using VideoReg.Domain.Archive;
 using VideoReg.Domain.Archive.Config;
 using VideoReg.Infra.Services;

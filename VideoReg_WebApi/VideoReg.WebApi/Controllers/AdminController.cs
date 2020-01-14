@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore.Mvc;
 
-namespace VideoRegService.Controllers
+namespace VideoReg.WebApi.Controllers
 {
     [ApiController]
     public class AdminController : ControllerBase

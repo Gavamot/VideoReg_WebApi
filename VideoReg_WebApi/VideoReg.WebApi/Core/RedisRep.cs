@@ -15,9 +15,7 @@ namespace VideoRegService.Core
 
     public class RedisRep : IRedisRep
     {
-        public CameraSourceSettings[] CamInfo => Get<CameraSourceSettings[]>(nameof(CamInfo));
-        public VideoRegInfoDto VideoRegInfo => Get<VideoRegInfoDto>(nameof(VideoRegInfo));
-
+        
         RedisManagerPool pool;
         public RedisRep(RedisManagerPool pool)
         {

@@ -9,6 +9,5 @@ namespace VideoReg.Domain.Archive.Config
         int CameraUpdateIntervalMs { get; }
         int CameraGetImageTimeoutMs { get; }
         string Redis { get; }
-        string DbConnectionString { get; }
     }
 }

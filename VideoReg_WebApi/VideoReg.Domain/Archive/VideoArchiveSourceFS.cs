@@ -14,7 +14,6 @@ namespace VideoReg.Domain.Archive
         private readonly ILog log;
         private readonly IFileSystemService fileSystem;
         private readonly IBrigadeHistoryRep brigadeHistoryRep;
-
         readonly ArchiveFileFactory fileFactory;
 
         public VideoArchiveSourceFS(ILog log, 

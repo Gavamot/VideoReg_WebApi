@@ -8,7 +8,8 @@ namespace VideoReg.Infra.Test
 {
     public class CacheTest : IMemoryCache
     {
-        ConcurrentDictionary<object, ICacheEntry> cache = new ConcurrentDictionary<object, ICacheEntry>();
+        ConcurrentDictionary<object, ICacheEntry> cache = 
+            new ConcurrentDictionary<object, ICacheEntry>();
 
         public void SetCache(ConcurrentDictionary<object, ICacheEntry> cache)
         {
@@ -36,11 +37,8 @@ namespace VideoReg.Infra.Test
         }
 
         public void Remove(object key)
-        {
-            while (cache.ContainsKey(key))
-            {
-                cache.TryRemove(key, out var obj);
-            }
+        { 
+            cache.TryRemove(key, out var obj);
         }
     }
 }
