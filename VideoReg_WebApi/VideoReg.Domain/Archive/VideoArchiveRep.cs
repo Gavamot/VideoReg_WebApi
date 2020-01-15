@@ -9,6 +9,9 @@ using VideoReg.Infra.ValueTypes;
 
 namespace VideoReg.Domain.Archive
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class VideoArchiveRep : IVideoArchiveRep
     {
         private readonly IMemoryCache cache;

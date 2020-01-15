@@ -60,7 +60,10 @@ namespace VideoReg.Domain.Archive.ArchiveFiles
 
         protected bool Equals(ArchiveFile other)
         {
-            return brigade == other.brigade && pdt.Equals(other.pdt) && serialNumber.Equals(other.serialNumber) && fullArchiveName == other.fullArchiveName;
+            return brigade == other.brigade 
+                   && pdt.Equals(other.pdt) 
+                   && serialNumber.Equals(other.serialNumber) 
+                   && fullArchiveName == other.fullArchiveName;
         }
 
         public override bool Equals(object obj)

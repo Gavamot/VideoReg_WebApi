@@ -112,13 +112,16 @@ namespace VideoReg.Domain.Test.Archive
         [Test]
         public void Correct_CorrectResult()
         {
+            FileVideoMp4 Mp4(DateTime dt, string path, int cam) => 
+                new FileVideoMp4(1, dt, default, 
+                    path.Replace(root + "\\", ""), cam, duration);
             var files = videoArchiveSourceFs.GetCompletedVideoFiles(Pattern);
             var actual = new[]
             {
-                new FileVideoMp4(1, dt1, default, f1[0], 1, duration),
-                new FileVideoMp4(1, dt2, default, f1[1], 1, duration),
-                new FileVideoMp4(1, dt1, default, f2[0], 2, duration),
-                new FileVideoMp4(1, dt3, default, f2[2], 2, duration)
+                Mp4(dt1, f1[0], 1),
+                Mp4(dt2, f1[1], 1),
+                Mp4(dt1, f1[0], 2),
+                Mp4(dt3, f1[2], 2)
             };
             Assert.AreEqual(files, actual);
         }

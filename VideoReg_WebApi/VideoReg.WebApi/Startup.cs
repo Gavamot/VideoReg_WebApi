@@ -112,7 +112,7 @@ namespace VideoReg.WebApi
         {
             services.AddSerilogServices();
             services.AddHttpClient();
-            services.AddConfig(this.config);
+            services.AddConfig(config);
             services.AddMemoryCache();
 
             services.AddSingleton<IDateTimeService, DateTimeService>();
@@ -123,18 +123,20 @@ namespace VideoReg.WebApi
             services.AddSingleton<IRedisRep, RedisRep>();
 
             services.AddDependencies();
-
             services.AddSingleton<IVideoConvector, ImagicVideoConvector>();
             services.AddSingleton<ICameraStore, TransformImageStore>();
-            services.AddSingleton<IVideoArchiveUpdateService, VideoArchiveUpdateService>();
             services.AddSingleton<ICameraSettingsStore, CameraSettingsStore>();
+            services.AddHostedService<VideoArchiveUpdateService>();
 
-            services.AddSingleton<IBrigadeHistoryRep, BrigadeHistoryRep>();
             services.AddSingleton<IVideoArchiveSource, VideoArchiveSourceFS>();
+            services.AddSingleton<IBrigadeHistoryRep, BrigadeHistoryRep>();
             services.AddSingleton<IVideoArchiveRep, VideoArchiveRep>();
+            services.AddHostedService<CameraUpdateService>();
             services.AddMapper();
 
-            services.AddControllers();
+            services.AddControllers()
+                .AddNewtonsoftJson(opt => { });
+                
             services.AddSwagger();
         }
 
@@ -155,7 +157,7 @@ namespace VideoReg.WebApi
                 endpoints.MapControllers();
             });
             
-            //app.UseSerilogRequestLogging();
+
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {

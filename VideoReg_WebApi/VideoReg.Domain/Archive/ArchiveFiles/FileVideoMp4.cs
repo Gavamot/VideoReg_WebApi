@@ -51,7 +51,9 @@ namespace VideoReg.Domain.Archive.ArchiveFiles
 
         protected bool Equals(FileVideoMp4 other)
         {
-            return base.Equals(other) && cameraNumber == other.cameraNumber && durationSeconds == other.durationSeconds;
+            return base.Equals(other) 
+                   && cameraNumber == other.cameraNumber 
+                   && durationSeconds == other.durationSeconds;
         }
 
         public override bool Equals(object obj)

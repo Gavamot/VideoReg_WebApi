@@ -6,8 +6,7 @@ using VideoReg.Infra.Services;
 
 namespace VideoRegService.Core.Archive
 {
-    public interface IVideoArchiveUpdateService { }
-    public class VideoArchiveUpdateService : ServiceUpdater, IVideoArchiveUpdateService
+    public class VideoArchiveUpdateService : ServiceUpdater
     {
         private readonly IVideoArchiveConfig config;
         private readonly IMemoryCache cache;

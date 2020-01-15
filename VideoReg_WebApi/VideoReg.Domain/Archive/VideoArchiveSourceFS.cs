@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using VideoReg.Domain.Archive.ArchiveFiles;
 using VideoReg.Domain.Archive.BrigadeHistory;
 using VideoReg.Domain.Archive.Config;
@@ -7,6 +9,9 @@ using VideoReg.Infra.Services;
 
 namespace VideoReg.Domain.Archive
 {
+    /// <summary>
+    /// Отвечает за получение структуры архива непосредственно с диска
+    /// </summary>
     public class VideoArchiveSourceFS : IVideoArchiveSource
     {
         public const string Pattern = "*T*_*_*_*_*_*.mp4";
@@ -54,7 +59,12 @@ namespace VideoReg.Domain.Archive
         private List<FileVideoMp4> GetFilesForAdd(string camDir, int cameraNumber, string pattern)
         {
             var res = new List<FileVideoMp4>();
-            foreach (var file in fileSystem.GetFiles(camDir, pattern))
+            string cameraNumberStr = cameraNumber.ToString();
+            var files = fileSystem.GetFiles(camDir, pattern)
+                .Select(x => x.Replace(camDir, cameraNumberStr))
+                .ToArray();
+
+            foreach (var file in files)
             {
                 try
                 {
