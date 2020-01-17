@@ -7,7 +7,7 @@ namespace VideoReg.Domain.OnlineVideo.Store
 {
     public interface ICameraSettingsStore
     {
-        ImageTransformSettings Get(int cameraNumber);
+        ImageTransformSettings GetOrDefault(int cameraNumber);
         void Set(int cameraNumber, ImageTransformSettings setting);
     }
 
@@ -16,9 +16,9 @@ namespace VideoReg.Domain.OnlineVideo.Store
         protected readonly ConcurrentDictionary<int, ImageTransformSettings> store
             = new ConcurrentDictionary<int, ImageTransformSettings>();
 
-        public ImageTransformSettings Get(int cameraNumber)
+        public ImageTransformSettings GetOrDefault(int cameraNumber)
         {
-            return store.TryGetValue(cameraNumber, out var settings) ? settings : default;
+            return store.TryGetValue(cameraNumber, out var settings) ? settings : new ImageTransformSettings();
         }
 
         public void Set(int cameraNumber, ImageTransformSettings setting)

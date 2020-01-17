@@ -10,6 +10,8 @@ namespace VideoReg.WebApi.Core
         public string VideoArchivePath { get; set; }
         public int VideoArchiveUpdateTimeMs { get; set; }
         public int UpdateVideoArchiveMs { get; set; }
+        public int CameraUpdateSleepIfErrorTimeoutMs { get; set; }
+        public int CameraUpdateSleepIfAuthorizeErrorTimeoutMs { get; set; }
         public int CameraUpdateIntervalMs { get; set; }
         public int CameraGetImageTimeoutMs { get; set; }
         public string Redis { get;  set; }
@@ -17,5 +19,6 @@ namespace VideoReg.WebApi.Core
         public int ImagePollingAttempts { get; set; }
         public int ImagePollingDelayMs { get; set; }
         public string BrigadeHistoryFileName { get; set; }
+
     }
 }

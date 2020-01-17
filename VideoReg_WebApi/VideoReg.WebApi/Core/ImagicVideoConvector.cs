@@ -20,8 +20,8 @@ namespace VideoReg.WebApi.Core
             try
             {
                 using var image = new MagickImage(img);
-                image.Resize(settings.width, settings.height);
-                image.Quality = settings.quality;
+                image.Resize(settings.Width, settings.Height);
+                image.Quality = settings.Quality;
                 using var stream = new MemoryStream();
                 image.Write(stream);
                 var res = stream.ToArray();

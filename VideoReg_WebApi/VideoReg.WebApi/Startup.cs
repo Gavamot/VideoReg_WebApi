@@ -10,6 +10,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using Serilog.Events;
+using Serilog.Formatting.Compact;
+using Serilog.Formatting.Json;
 using ServiceStack.Redis;
 using VideoReg.Domain.Archive;
 using VideoReg.Domain.Archive.BrigadeHistory;
@@ -31,12 +33,13 @@ namespace VideoReg.WebApi
     {
         public static IServiceCollection AddSerilogServices(this IServiceCollection services)
         {
+
             Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Information()
+                .MinimumLevel.Warning()
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
                 .Enrich.FromLogContext()
-                .WriteTo.Console(outputTemplate:
-                    "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
+                .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
+                .WriteTo.File(new RenderedCompactJsonFormatter(), "logs/log.ndjson")
                 .CreateLogger();
             AppDomain.CurrentDomain.ProcessExit += (s, e) => Log.CloseAndFlush();
             return services.AddSingleton(Log.Logger);
@@ -107,10 +110,10 @@ namespace VideoReg.WebApi
             configuration.GetSection("Settings").Bind(config);
         }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSerilogServices();
+
             services.AddHttpClient();
             services.AddConfig(config);
             services.AddMemoryCache();
@@ -136,7 +139,7 @@ namespace VideoReg.WebApi
 
             services.AddControllers()
                 .AddNewtonsoftJson(opt => { });
-                
+
             services.AddSwagger();
         }
 
@@ -156,14 +159,15 @@ namespace VideoReg.WebApi
             {
                 endpoints.MapControllers();
             });
-            
 
+            app.UseSerilogRequestLogging();
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
                 c.RoutePrefix = string.Empty;
             });
+
         }
     }
 }

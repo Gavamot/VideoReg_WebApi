@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
@@ -13,9 +14,9 @@ namespace VideoReg.WebApi.Controllers
 {
     public class ImageTransformSettingsMV
     {
-        public const int MinSizePx = 1;
-        public const int MaxSizePx = 2000;
-        public const int MinQuality = 1;
+        public const int MinSizePx = 0;
+        public const int MaxSizePx = 1920;
+        public const int MinQuality = 0;
         public const int MaxQuality = 100;
 
         /// <summary>
@@ -24,7 +25,7 @@ namespace VideoReg.WebApi.Controllers
         [Required]
         [Range(MinSizePx, MaxSizePx)]
         [Display(Name = "Ширина")]
-        [DefaultValue(800)]
+        [DefaultValue(0)]
         public int Width { get; set; }
 
         /// <summary>
@@ -33,7 +34,7 @@ namespace VideoReg.WebApi.Controllers
         [Required]
         [Range(MinSizePx, MaxSizePx)]
         [Display(Name = "Высота")]
-        [DefaultValue(600)]
+        [DefaultValue(0)]
         public int Height { get; set; }
 
         /// <summary>
@@ -42,8 +43,14 @@ namespace VideoReg.WebApi.Controllers
         [Required]
         [Range(MinQuality, MaxQuality)]
         [Display(Name = "Качество изображения  %")]
-        [DefaultValue(600)]
+        [DefaultValue(0)]
         public int Quality { get; set; }
+
+        public bool IsDefault() => 
+            Height == 0 
+            || Width == 0 
+            || Quality == 0;
+        
     }
 
     [ApiController]
@@ -169,21 +176,18 @@ namespace VideoReg.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status304NotModified)]
         [Route("/[controller]/[action]")]
-        public async Task<IActionResult> GetImage([FromQuery]int num, [FromQuery]ImageTransformSettings settings, [FromQuery]DateTime timeStamp)
+        public async Task<IActionResult> GetImage([FromQuery]int num, 
+            [FromQuery]ImageTransformSettingsMV settings, 
+            [FromQuery]DateTime timeStamp = default)
         {
-            try // Неверно переданные настройки
-            {
-                settings.Validate();
-            }
-            catch(FormatException e)
-            {
-                return BadRequest(e.Message);
-            }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState.Values.ToArray()[0].Errors);
 
+            var s = mapper.Map<ImageTransformSettings>(settings);
             CameraResponse img = default;
             try
             {
-                img = await cameraCache.GetCameraAsync(num, settings, timeStamp);
+                img = await cameraCache.GetCameraAsync(num, s, timeStamp);
             }
             catch (NoNModifiedException) // Изображение не изменилось
             {

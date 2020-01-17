@@ -10,7 +10,7 @@ namespace VideoReg.Domain.OnlineVideo.Store
 {
     public class TransformImageStore : ICameraStore
     {
-        readonly IDataCache<int, CameraImage> store;
+        readonly ConcurrentDateCache<int, CameraImage> store;
         readonly IVideoConvector videoConvector;
     
         readonly IImagePollingConfig config;
@@ -30,8 +30,8 @@ namespace VideoReg.Domain.OnlineVideo.Store
         public void SetCamera(int cameraNumber, byte[] img)
         {
             byte[] convertedImg = img;
-            var imgSettings = settings.Get(cameraNumber);
-            if (imgSettings.IsNotDefault())
+            var imgSettings = settings.GetOrDefault(cameraNumber);
+            if (imgSettings != default)
                 convertedImg = videoConvector.ConvertVideo(img, imgSettings);
             store.AddOrUpdate(cameraNumber, new CameraImage(imgSettings, convertedImg, img));
         }
@@ -40,6 +40,7 @@ namespace VideoReg.Domain.OnlineVideo.Store
         /// <exception cref="NoNModifiedException">Then camera image exist but timestamp is same and all attentions is waited.</exception>
         public async Task<CameraResponse> GetCameraAsync(int cameraNumber, ImageTransformSettings imgSettings, DateTime timeStamp = default)
         {
+            imgSettings ??= new ImageTransformSettings();
             settings.Set(cameraNumber, imgSettings);
 
             int attempts = config.ImagePollingAttempts;

@@ -2,10 +2,9 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using VideoReg.Domain.Archive.Config;
 using VideoReg.Domain.Store;
 using VideoReg.Infra.Services;
@@ -45,6 +44,7 @@ namespace VideoReg.Domain.OnlineVideo
             }
             catch (Exception e)
             {
+                Thread.Sleep(config.CameraUpdateSleepIfErrorTimeoutMs);
                 log.Error($"Cannot find Cameras Settings ({e.Message})");
             }
         }
@@ -56,9 +56,15 @@ namespace VideoReg.Domain.OnlineVideo
                 var img = await imgRep.GetImgAsync(camera.snapshotUrl, config.CameraGetImageTimeoutMs);
                 cameraCache.SetCamera(camera.number, img);
             }
+            catch (HttpImgRepStatusCodeException e)
+            {
+                await Task.Delay(config.CameraUpdateSleepIfAuthorizeErrorTimeoutMs);
+                log.Warning($"{ServiceName} Got bad response code ({e.Message}) camera[{camera.number}] - {camera.snapshotUrl} ({e.Message})");
+            }
             catch (Exception e)
             {
-                log.Info($"{ServiceName} Can not update camera[{camera.number}] - {camera.snapshotUrl} ({e.Message})");
+                await Task.Delay(config.CameraUpdateSleepIfErrorTimeoutMs);
+                log.Warning($"{ServiceName} Can not update camera[{camera.number}] - {camera.snapshotUrl} ({e.Message})");
             }
             finally
             {
@@ -73,7 +79,7 @@ namespace VideoReg.Domain.OnlineVideo
             {
                 if (tasks.ContainsKey(camera.number))
                     continue; // Предыдущая задача еще не выполнилась
-                var task = new Task(() => UpdateCamera(camera));
+                var task = new Task(()=> UpdateCamera(camera));
                 tasks.TryAdd(camera.number, task);
                 task.Start();
             }

@@ -32,7 +32,7 @@
             </summary>
             <response code="200">Настройки были изменены</response>
         </member>
-        <member name="M:VideoReg.WebApi.Controllers.CameraController.GetImage(System.Int32,VideoReg.Domain.OnlineVideo.ImageTransformSettings,System.DateTime)">
+        <member name="M:VideoReg.WebApi.Controllers.CameraController.GetImage(System.Int32,VideoReg.WebApi.Controllers.ImageTransformSettingsMV,System.DateTime)">
             <summary>
             Получить картинку с камеры
             </summary>

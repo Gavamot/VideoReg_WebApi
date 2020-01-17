@@ -44,7 +44,7 @@ namespace VideoReg.Domain.Test.Archive
                 FileVideoMp4.GetEmptySerialFile(dt1Str, duration),
                 FileVideoMp4.GetEmptySerialFile(dt2Str, null),
                 FileVideoMp4.GetEmptySerialFile(dt3Str, duration),
-                "arc/1/34324.mp4",
+                "arc/2/34324.mp4",
                 FileChannelJson.GetEmptySerialFile(dt1Str)
             });
 

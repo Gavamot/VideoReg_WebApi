@@ -22,8 +22,11 @@ namespace ApiProxy
             Console.WriteLine($"Proxy is connecting to {endPoint.Address}:{endPoint.Port}");
             res.ReceiveBufferSize = config.receiveBufferSizeBytes;
             res.SendBufferSize = config.sendBufferSizeBytes;
+            res.NoDelay = true;
             res.ReceiveTimeout = config.receiveTimeoutMs;
             res.SendTimeout = config.sendTimeoutMs;
+            //res.Blocking = false;
+
             while (!res.Connected)
             {
                 try
