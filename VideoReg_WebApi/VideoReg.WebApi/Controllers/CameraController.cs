@@ -22,7 +22,6 @@ namespace VideoReg.WebApi.Controllers
         /// <summary>
         /// Ширина изображения (px)
         /// </summary>
-        [Required]
         [Range(MinSizePx, MaxSizePx)]
         [Display(Name = "Ширина")]
         [DefaultValue(0)]
@@ -31,7 +30,6 @@ namespace VideoReg.WebApi.Controllers
         /// <summary>
         /// Высота изображения (px)
         /// </summary>
-        [Required]
         [Range(MinSizePx, MaxSizePx)]
         [Display(Name = "Высота")]
         [DefaultValue(0)]
@@ -40,7 +38,6 @@ namespace VideoReg.WebApi.Controllers
         /// <summary>
         /// Качество изображения (%)
         /// </summary>
-        [Required]
         [Range(MinQuality, MaxQuality)]
         [Display(Name = "Качество изображения  %")]
         [DefaultValue(0)]
@@ -59,7 +56,7 @@ namespace VideoReg.WebApi.Controllers
         //readonly ICameraSettingsRep cameraSettingsRep;
         readonly IMapper mapper;
         private readonly ICameraStore cameraCache;
-        private const string ApiDateTimeFormat = "yyyy-M-dTH:m:s";
+        private const string ApiDateTimeFormat = "yyyy-M-dTH:m:s.fff";
 
         public CameraController(//ICameraSettingsRep cameraSettingsRep,
             IMapper mapper, 
@@ -177,11 +174,13 @@ namespace VideoReg.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status304NotModified)]
         [Route("/[controller]/[action]")]
         public async Task<IActionResult> GetImage([FromQuery]int num, 
-            [FromQuery]ImageTransformSettingsMV settings, 
+            [FromQuery]ImageTransformSettingsMV settings = default, 
             [FromQuery]DateTime timeStamp = default)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState.Values.ToArray()[0].Errors);
+
+            settings ??= new ImageTransformSettingsMV();
 
             var s = mapper.Map<ImageTransformSettings>(settings);
             CameraResponse img = default;

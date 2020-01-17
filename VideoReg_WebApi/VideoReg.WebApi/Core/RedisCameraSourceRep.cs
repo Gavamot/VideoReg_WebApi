@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using VideoReg.Domain.OnlineVideo;
 using VideoRegService.Core;
 
@@ -12,10 +13,10 @@ namespace VideoRegService
             this.redis = redis;
         }
 
-        public CameraSourceSettings[] GetAll() => redis.Get<CameraSourceSettings[]>("CamInfo");
-        public CameraSourceSettings Get(int cameraNumber)
+        public async Task<CameraSourceSettings[]> GetAll() => await redis.Get<CameraSourceSettings[]>("CamInfo");
+        public async Task<CameraSourceSettings> Get(int cameraNumber)
         {
-            var settings = GetAll();
+            var settings = await GetAll();
             return settings.First(x => x.number == cameraNumber);
         }
     }

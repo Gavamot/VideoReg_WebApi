@@ -23,17 +23,17 @@ namespace VideoReg.WebApi.Core
 
         public void Info(string message, object obj = default)
         {
-            log.Debug(message, obj);
+            log.Information(message, obj);
         }
 
         public void Warning(string message, object obj = default)
         {
-            log.Debug(message, obj);
+            log.Warning(message, obj);
         }
 
         public void Error(string message, Exception e = default, object obj = default)
         {
-            log.Debug(message, e, obj);
+            log.Error(message, e, obj);
         }
     }
 }

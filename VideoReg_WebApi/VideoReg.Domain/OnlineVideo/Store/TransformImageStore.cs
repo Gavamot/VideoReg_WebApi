@@ -15,25 +15,29 @@ namespace VideoReg.Domain.OnlineVideo.Store
     
         readonly IImagePollingConfig config;
         readonly ICameraSettingsStore settings;
+        private readonly ILog log;
 
         public TransformImageStore(IDateTimeService dateService,
             ICameraSettingsStore cameraSettingsStore,
             IVideoConvector videoConvector,
+            ILog log,
             IImagePollingConfig config)
         {
             this.settings= cameraSettingsStore;
             this.videoConvector = videoConvector;
             this.store = new ConcurrentDateCache<int, CameraImage>(dateService);
             this.config = config;
+            this.log = log;
         }
 
         public void SetCamera(int cameraNumber, byte[] img)
         {
             byte[] convertedImg = img;
             var imgSettings = settings.GetOrDefault(cameraNumber);
-            if (imgSettings != default)
+            if (imgSettings.IsNotDefault())
                 convertedImg = videoConvector.ConvertVideo(img, imgSettings);
             store.AddOrUpdate(cameraNumber, new CameraImage(imgSettings, convertedImg, img));
+            log.Info($"camera[{cameraNumber}] was updated. Converted={imgSettings.IsNotDefault()} ({imgSettings})");
         }
 
         /// <returns>return null if image is not exist</returns>

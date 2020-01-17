@@ -19,7 +19,6 @@ namespace VideoReg.Domain.OnlineVideo
         readonly ICameraSourceRep sourceRep;
         private ICameraConfig config;
         private volatile CameraSourceSettings[] camerasSettings = new CameraSourceSettings[0];
-
         private readonly ConcurrentDictionary<int, Task> tasks = new ConcurrentDictionary<int, Task>();
 
         public CameraUpdateService(IImgRep imgRep,
@@ -35,47 +34,57 @@ namespace VideoReg.Domain.OnlineVideo
         }
 
         public override string Name => "CameraUpdate";
-        public override void DoWork(CancellationToken cancellationToken)
+        public override async void DoWork(CancellationToken cancellationToken)
         {
             try
             {
-                camerasSettings = sourceRep.GetAll();
+                camerasSettings = await sourceRep.GetAll();
                 UpdateCameraSettings(camerasSettings);
             }
             catch (Exception e)
             {
-                Thread.Sleep(config.CameraUpdateSleepIfErrorTimeoutMs);
+                await Task.Delay(config.CameraUpdateSleepIfErrorTimeoutMs, cancellationToken);
                 log.Error($"Cannot find Cameras Settings ({e.Message})");
             }
         }
 
-        private async void UpdateCamera(CameraSourceSettings camera)
+        private void UpdateCamera(CameraSourceSettings camera)
         {
             try
             {
-                var img = await imgRep.GetImgAsync(camera.snapshotUrl, config.CameraGetImageTimeoutMs);
-                cameraCache.SetCamera(camera.number, img);
+                if (Uri.TryCreate(camera.snapshotUrl, UriKind.Absolute, out var url))
+                {
+                    var img = imgRep.GetImg(url, config.CameraGetImageTimeoutMs);
+                    cameraCache.SetCamera(camera.number, img);
+                }
+                else
+                {
+                    log.Warning($"camera[{camera.number}] has bad uri format {camera.snapshotUrl}");
+                }
             }
             catch (HttpImgRepStatusCodeException e)
             {
-                await Task.Delay(config.CameraUpdateSleepIfAuthorizeErrorTimeoutMs);
-                log.Warning($"{ServiceName} Got bad response code ({e.Message}) camera[{camera.number}] - {camera.snapshotUrl} ({e.Message})");
+                Thread.Sleep(config.CameraUpdateSleepIfAuthorizeErrorTimeoutMs);
+                //Task.Delay(config.CameraUpdateSleepIfAuthorizeErrorTimeoutMs);
+                log.Warning(
+                    $"{ServiceName} Got bad response code ({e.Message}) camera[{camera.number}] - {camera.snapshotUrl} ({e.Message})");
             }
             catch (Exception e)
             {
-                await Task.Delay(config.CameraUpdateSleepIfErrorTimeoutMs);
-                log.Warning($"{ServiceName} Can not update camera[{camera.number}] - {camera.snapshotUrl} ({e.Message})");
+                Thread.Sleep(config.CameraUpdateSleepIfErrorTimeoutMs);
+                //Task.Delay(config.CameraUpdateSleepIfErrorTimeoutMs);
+                log.Warning(
+                    $"{ServiceName} Can not update camera[{camera.number}] - {camera.snapshotUrl} ({e.Message})");
             }
             finally
             {
                 tasks.TryRemove(camera.number, out var task);
             }
-
         }
-        private void UpdateCameraSettings(IEnumerable<CameraSourceSettings> settings)
+
+        private void UpdateCameraSettings(CameraSourceSettings[] settings)
         {
-            var cameras = settings as CameraSourceSettings[] ?? settings.ToArray();
-            foreach (var camera in cameras)
+            foreach (var camera in settings)
             {
                 if (tasks.ContainsKey(camera.number))
                     continue; // Предыдущая задача еще не выполнилась

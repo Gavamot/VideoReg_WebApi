@@ -120,8 +120,8 @@ namespace VideoReg.Domain.Test.Archive
             {
                 Mp4(dt1, f1[0], 1),
                 Mp4(dt2, f1[1], 1),
-                Mp4(dt1, f1[0], 2),
-                Mp4(dt3, f1[2], 2)
+                Mp4(dt1, f2[0], 2),
+                Mp4(dt3, f2[2], 2)
             };
             Assert.AreEqual(files, actual);
         }

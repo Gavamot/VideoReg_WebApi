@@ -33,38 +33,38 @@ namespace VideoReg.Domain.OnlineVideo
             this.log = log;
         }
 
-        public async Task<byte[]> GetImgAsync(string url, int timeoutMs)
-        {
-            var client = httpFactory.CreateClient(url);
-            client.Timeout = TimeSpan.FromMilliseconds(timeoutMs);
-            using var response = await client.GetAsync(url);
-            if (response.StatusCode != HttpStatusCode.OK)
-                throw new HttpImgRepStatusCodeException(url, response.StatusCode);
-            return await response.Content.ReadAsByteArrayAsync();
-        }
-
-        //public byte[] GetImg(string url, int timeoutMs)
+        //public async Task<byte[]> GetImgAsync(string url, int timeoutMs)
         //{
-        //    var request = WebRequest.Create(url);
-        //    request.Timeout = timeoutMs;
-
-        //    using var response = (HttpWebResponse)request.GetResponse();
+        //    var client = httpFactory.CreateClient(url);
+        //    client.Timeout = TimeSpan.FromMilliseconds(timeoutMs);
+        //    using var response = await client.GetAsync(url);
         //    if (response.StatusCode != HttpStatusCode.OK)
         //        throw new HttpImgRepStatusCodeException(url, response.StatusCode);
-
-        //    using var ms = new MemoryStream();
-        //    using (var stream = response.GetResponseStream())
-        //    {
-        //        if (stream != null)
-        //        {
-        //            stream.CopyTo(ms);
-        //            stream.Close();
-        //        }
-        //    }
-
-        //    byte[] res = ms.ToArray();
-        //    response.Close();
-        //    return res;
+        //    return await response.Content.ReadAsByteArrayAsync();
         //}
+
+        public byte[] GetImg(Uri url, int timeoutMs)
+        {
+            var request = WebRequest.Create(url);
+            request.Timeout = timeoutMs;
+
+            using var response = (HttpWebResponse)request.GetResponse();
+            if (response.StatusCode != HttpStatusCode.OK)
+                throw new HttpImgRepStatusCodeException(url.ToString(), response.StatusCode);
+
+            using var ms = new MemoryStream();
+            using (var stream = response.GetResponseStream())
+            {
+                if (stream != null)
+                {
+                    stream.CopyTo(ms);
+                    stream.Close();
+                }
+            }
+
+            byte[] res = ms.ToArray();
+            response.Close();
+            return res;
+        }
     }
 }

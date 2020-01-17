@@ -8,12 +8,12 @@ namespace VideoReg.Domain.OnlineVideo
 {
     public interface IImgRep
     {
-        ///// <exception cref="HttpImgRepNetworkException">Network error</exception>
-        ///// <exception cref="HttpImgRepStatusCodeException">Status code not equal 200</exception>
-        //byte[] GetImg(string url, int timeoutMs);
-
         /// <exception cref="HttpImgRepNetworkException">Network error</exception>
         /// <exception cref="HttpImgRepStatusCodeException">Status code not equal 200</exception>
-        Task<byte[]> GetImgAsync(string url, int timeoutMs);
+        byte[] GetImg(Uri url, int timeoutMs);
+
+        ///// <exception cref="HttpImgRepNetworkException">Network error</exception>
+        ///// <exception cref="HttpImgRepStatusCodeException">Status code not equal 200</exception>
+        //Task<byte[]> GetImgAsync(string url, int timeoutMs);
     }
 }

@@ -1,4 +1,5 @@
-﻿using ApiServicePack;
+﻿using System.Threading.Tasks;
+using ApiServicePack;
 using VideoReg.Domain.VideoRegInfo;
 using VideoReg.Infra.Services;
 
@@ -12,7 +13,7 @@ namespace VideoReg.WebApi.Test
             this.dateService = dateService;
         }
 
-        public VideoRegInfoDto GetInfo()
+        public async Task<VideoRegInfoDto> GetInfo()
         {
             return new VideoRegInfoDto
             {

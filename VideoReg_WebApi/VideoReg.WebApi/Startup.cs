@@ -9,10 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Serilog;
-using Serilog.Events;
-using Serilog.Formatting.Compact;
-using Serilog.Formatting.Json;
-using ServiceStack.Redis;
 using VideoReg.Domain.Archive;
 using VideoReg.Domain.Archive.BrigadeHistory;
 using VideoReg.Domain.OnlineVideo;
@@ -31,16 +27,18 @@ namespace VideoReg.WebApi
 {
     public static class ServicesExt
     {
-        public static IServiceCollection AddSerilogServices(this IServiceCollection services)
+        public static IServiceCollection AddSerilogServices(this IServiceCollection services, IConfiguration configuration)
         {
-
             Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Warning()
-                .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-                .Enrich.FromLogContext()
-                .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
-                .WriteTo.File(new RenderedCompactJsonFormatter(), "logs/log.ndjson")
-                .CreateLogger();
+                .ReadFrom.Configuration(configuration)
+                .CreateLogger(); 
+            //Log.Logger = new LoggerConfiguration()
+            //    .MinimumLevel.Warning()
+            //    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+            //    .Enrich.FromLogContext()
+            //     .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
+            //     .WriteTo.File(new RenderedCompactJsonFormatter(), "logs/log.ndjson")
+            //    .CreateLogger();
             AppDomain.CurrentDomain.ProcessExit += (s, e) => Log.CloseAndFlush();
             return services.AddSingleton(Log.Logger);
         }
@@ -102,17 +100,19 @@ namespace VideoReg.WebApi
 
     public class Startup
     {
+        private readonly IConfiguration configuration;
         readonly IHostingEnvironment env;
         readonly Config config = new Config();
         public Startup(IHostingEnvironment env, IConfiguration configuration)
         {
             this.env = env;
+            this.configuration = configuration;
             configuration.GetSection("Settings").Bind(config);
         }
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSerilogServices();
+            services.AddSerilogServices(configuration);
 
             services.AddHttpClient();
             services.AddConfig(config);
@@ -122,8 +122,7 @@ namespace VideoReg.WebApi
             services.AddSingleton<IFileSystemService, FileSystemService>();
 
             services.AddSingleton<ILog, AppLogger>();
-            services.AddSingleton(x => new RedisManagerPool(config.Redis));
-            services.AddSingleton<IRedisRep, RedisRep>();
+            services.AddSingleton<IRedisRep>(x => new RedisRep(config.Redis));
 
             services.AddDependencies();
             services.AddSingleton<IVideoConvector, ImagicVideoConvector>();

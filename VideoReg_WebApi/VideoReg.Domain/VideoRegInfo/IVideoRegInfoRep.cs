@@ -13,6 +13,6 @@ namespace VideoReg.Domain.VideoRegInfo
         /// <summary>
         /// Получить общюю информацию о видеорегистраторе
         /// </summary>
-        VideoRegInfoDto GetInfo();
+        Task<VideoRegInfoDto> GetInfo();
     }
 }

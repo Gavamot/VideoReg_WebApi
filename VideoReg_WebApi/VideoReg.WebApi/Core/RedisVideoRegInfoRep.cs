@@ -1,6 +1,6 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
-using ServiceStack.Redis;
 using ApiServicePack;
 using Newtonsoft.Json.Converters;
 using VideoReg.Domain.OnlineVideo;
@@ -23,10 +23,11 @@ namespace VideoRegService
             this.cameraRep = cameraRep;
         }
 
-        public VideoRegInfoDto GetInfo()
+        public async Task<VideoRegInfoDto> GetInfo()
         {
-            var res = redis.Get<VideoRegInfoDto>("VideoRegInfo");
-            res.Cameras = cameraRep.GetAll()
+            var res = await redis.Get<VideoRegInfoDto>("VideoRegInfo");
+            var cameras = await cameraRep.GetAll();
+            res.Cameras = cameras
                 .Select(x => x.number)
                 .ToArray();
             return res;

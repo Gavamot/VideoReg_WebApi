@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using VideoReg.Domain.OnlineVideo;
 
 namespace VideoReg.WebApi.Test
@@ -10,7 +11,7 @@ namespace VideoReg.WebApi.Test
             new CameraSourceSettings (2, "http://192.168.20.31/webcapture.jpg?command=snap&channel=0")
         };
 
-        public CameraSourceSettings Get(int cameraNumber) => settings.FirstOrDefault(x => x.number == cameraNumber);
-        public CameraSourceSettings[] GetAll() => settings;
+        public async Task<CameraSourceSettings> Get(int cameraNumber) => settings.FirstOrDefault(x => x.number == cameraNumber);
+        public async Task<CameraSourceSettings[]> GetAll() => settings;
     }
 }

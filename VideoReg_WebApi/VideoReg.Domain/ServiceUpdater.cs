@@ -49,7 +49,7 @@ namespace VideoRegService
                 stopwatch.Start();
                 DoWork((CancellationToken) state);
                 stopwatch.Stop();
-                log.Info($"{ServiceName} update operation is completed. Execution time = { stopwatch.ElapsedMilliseconds } ms");
+                log.Debug($"{ServiceName} update operation is completed. Execution time = { stopwatch.ElapsedMilliseconds } ms");
             }
             catch(Exception e)
             {

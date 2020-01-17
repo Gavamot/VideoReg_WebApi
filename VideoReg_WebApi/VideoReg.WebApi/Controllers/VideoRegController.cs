@@ -13,7 +13,9 @@ namespace VideoReg.WebApi.Controllers
         readonly ITrendsRep trendsRep;
         readonly ICameraStore cameraStore;
 
-        public VideoRegController(IVideoRegInfoRep videoRegInfo, ITrendsRep trendsRep, ICameraStore cameraStore)
+        public VideoRegController(IVideoRegInfoRep videoRegInfo,
+            ITrendsRep trendsRep, 
+            ICameraStore cameraStore)
         {
             this.videoRegInfo = videoRegInfo;
             this.trendsRep = trendsRep;
@@ -27,9 +29,9 @@ namespace VideoReg.WebApi.Controllers
         /// <response code="500">Источниек информации о регистраторе оказался недоступен по каким либо причинам</response>  
         [HttpGet]
         [Route("/[controller]/Info")]
-        public ActionResult<VideoRegInfoDto> GetInfo()
+        public async Task<ActionResult<VideoRegInfoDto>> GetInfo()
         {
-            var res = videoRegInfo.GetInfo();
+            var res = await videoRegInfo.GetInfo();
             res.Cameras = cameraStore.GetAvailableCameras();
             return Ok(res);
         }

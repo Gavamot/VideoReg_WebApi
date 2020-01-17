@@ -15,7 +15,7 @@ namespace VideoReg.WebApi.Test
             this.env = env ?? throw new ArgumentNullException(nameof(env));
         }
 
-        public byte[] GetImg(string url, int timeoutMs)
+        public byte[] GetImg(Uri url, int timeoutMs)
         {
             var images = Directory.GetFiles(env.ContentRootPath, "*.jpg", SearchOption.AllDirectories);
             int imgIndex = rnd.Next(0, images.Length - 1);
@@ -30,5 +30,6 @@ namespace VideoReg.WebApi.Test
             string fileName = images[imgIndex];
             return File.ReadAllBytesAsync(fileName);
         }
+
     }
 }

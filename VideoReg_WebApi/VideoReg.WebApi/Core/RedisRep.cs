@@ -1,25 +1,30 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
+using System.Threading.Tasks;
+using BeetleX.Redis;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using ServiceStack.Redis;
 using VideoReg.Domain.OnlineVideo;
 using VideoReg.Domain.VideoRegInfo;
+using VideoReg.Infra.Services;
 
 namespace VideoRegService.Core
 {
     public interface IRedisRep
     {
-        T Get<T>(string key);
-        void Set<T>(string key, T value);
+        Task<T> Get<T>(string key);
+        //void Set<T>(string key, T value);
     }
 
     public class RedisRep : IRedisRep
     {
-        
-        RedisManagerPool pool;
-        public RedisRep(RedisManagerPool pool)
+        private readonly string connection;
+        private readonly RedisDB DB;
+        public RedisRep(string connection)
         {
-            this.pool = pool;
+            this.connection = connection;
+            Redis.Default.Host.AddWriteHost(connection);
         }
 
         public const string DateTimeFormat = "d.M.yyyyTH:m:s";
@@ -27,18 +32,18 @@ namespace VideoRegService.Core
         protected T Deserialize<T>(string json) => JsonConvert.DeserializeObject<T>(json, GetIsoDateTimeConverter);
         protected string Serialize<T>(T obj) => JsonConvert.SerializeObject(obj, GetIsoDateTimeConverter);
 
-        public T Get<T>(string key)
+        public async Task<T> Get<T>(string key)
         {
-            using var client = pool.GetClient();
-            var res = client.Get<string>(key);
-            return Deserialize<T>(res);
+            var json = await Redis.Get<string>(key);
+            var res = Deserialize<T>(json);
+            return res;
         }
 
-        public void Set<T>(string key, T value)
-        {
-            using var client = pool.GetClient();
-            var res = Serialize(value);
-            client.Set(key, res);
-        }
+        //public void Set<T>(string key, T value)
+        //{
+        //    using var client = pool.GetClient();
+        //    var res = Serialize(value);
+        //    client.Set(key, res);
+        //}
     }
 }
