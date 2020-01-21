@@ -24,8 +24,12 @@ namespace VideoRegService
 
         public abstract string Name { get; }
         public string ServiceName => $"Service {Name}";
+
+        protected Action BeforeStart; 
+
         public Task StartAsync(CancellationToken cancellationToken)
         {
+            BeforeStart?.Invoke();
             _timer = new Timer(Update, cancellationToken, TimeSpan.Zero, TimeSpan.FromMilliseconds(updateTimeMs));
             Update(cancellationToken);
             log.Info($"{ServiceName} is started");
