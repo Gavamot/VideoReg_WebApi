@@ -26,6 +26,7 @@ namespace VideoReg.WebApi.Controllers
             this.mapper = mapper;
         }
 
+        //netstat -n | wc -l
         /// <summary>
         /// Получить структуру видеоархива
         /// </summary>

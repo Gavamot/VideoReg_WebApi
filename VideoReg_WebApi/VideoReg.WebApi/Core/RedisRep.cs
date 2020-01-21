@@ -20,7 +20,7 @@ namespace VideoRegService.Core
     public class RedisRep : IRedisRep
     {
         private readonly string connection;
-        private readonly RedisDB DB;
+
         public RedisRep(string connection)
         {
             this.connection = connection;

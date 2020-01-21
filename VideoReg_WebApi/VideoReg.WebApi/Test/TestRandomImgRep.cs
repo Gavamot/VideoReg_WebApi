@@ -23,6 +23,11 @@ namespace VideoReg.WebApi.Test
             return File.ReadAllBytes(fileName);
         }
 
+        public Task<byte[]> GetImgAsync(Uri url, int timeoutMs)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<byte[]> GetImgAsync(string url, int timeoutMs)
         {
             var images = Directory.GetFiles(env.ContentRootPath, "*.jpg", SearchOption.AllDirectories);

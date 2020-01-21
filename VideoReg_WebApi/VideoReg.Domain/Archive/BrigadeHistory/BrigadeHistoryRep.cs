@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using VideoReg.Infra.Services;
 
 namespace VideoReg.Domain.Archive.BrigadeHistory
@@ -16,10 +17,19 @@ namespace VideoReg.Domain.Archive.BrigadeHistory
             this.log = log;
         }
 
-        string GetFileText() 
-            => fileSystem.ReadFileText(config.BrigadeHistoryFileName, Encoding.UTF8);
+        string GetFileText() => fileSystem.ReadFileText(config.BrigadeHistoryFileName, Encoding.UTF8);
 
-        public IBrigadeHistory GetBrigadeHistory() =>
-            new BrigadeHistory(GetFileText(), log);
+        public IBrigadeHistory GetBrigadeHistory()
+        {
+            try
+            {
+                var text = GetFileText();
+                return new BrigadeHistory(text, log);
+            }
+            catch (Exception e)
+            {
+                return new BrigadeHistory(log);
+            }
+        }
     }
 }

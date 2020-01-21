@@ -28,12 +28,23 @@ namespace VideoReg.Domain.Archive.BrigadeHistory
         }
 
         private readonly ILog log;
-        private readonly List<BrigadeDateInterval> history;
+        private readonly BrigadeDateInterval[] history = new BrigadeDateInterval[0];
 
-        public BrigadeHistory(string fileText, ILog log)
+        public BrigadeHistory(ILog log)
         {
             this.log = log;
-            history = CreateFromText(fileText);
+        }
+
+        public BrigadeHistory(string fileText, ILog log) : this(log)
+        {
+            try
+            {
+                history = CreateFromText(fileText).ToArray();
+            }
+            catch(Exception e)
+            {
+                log.Error($"Error BrigadeHistory parce. (BrigadeHistory.CreateFromText).", e);
+            }
         }
 
         private List<BrigadeDateInterval> CreateFromText(string fileText)

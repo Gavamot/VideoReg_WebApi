@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using VideoReg.Domain.Archive.Config;
@@ -48,13 +45,29 @@ namespace VideoReg.Domain.OnlineVideo
             }
         }
 
-        private void UpdateCamera(CameraSourceSettings camera)
+        private Uri AddRandomParameter(Uri uri)
+        {
+            TimeSpan now = DateTime.Now - DateTime.MinValue;
+            string url = uri + $"&_rnd={now.TotalMilliseconds}";
+            return new Uri(url);
+        } 
+
+        private async Task UpdateCamera(CameraSourceSettings camera)
         {
             try
             {
                 if (Uri.TryCreate(camera.snapshotUrl, UriKind.Absolute, out var url))
                 {
-                    var img = imgRep.GetImg(url, config.CameraGetImageTimeoutMs);
+                    url = AddRandomParameter(url); 
+                    byte[] img = null;
+                    //if (config.ImageWebRequest == "async")
+                    //{
+                    //   img = await imgRep.GetImgAsync(url, config.CameraGetImageTimeoutMs);
+                    //}
+                    //else
+                    //{
+                        img = imgRep.GetImg(url, config.CameraGetImageTimeoutMs);
+                    //}
                     cameraCache.SetCamera(camera.number, img);
                 }
                 else
@@ -64,17 +77,16 @@ namespace VideoReg.Domain.OnlineVideo
             }
             catch (HttpImgRepStatusCodeException e)
             {
-                Thread.Sleep(config.CameraUpdateSleepIfAuthorizeErrorTimeoutMs);
-                //Task.Delay(config.CameraUpdateSleepIfAuthorizeErrorTimeoutMs);
+                await Task.Delay(config.CameraUpdateSleepIfAuthorizeErrorTimeoutMs);
+                //Thread.Sleep(config.CameraUpdateSleepIfAuthorizeErrorTimeoutMs);
                 log.Warning(
                     $"{ServiceName} Got bad response code ({e.Message}) camera[{camera.number}] - {camera.snapshotUrl} ({e.Message})");
             }
             catch (Exception e)
             {
-                Thread.Sleep(config.CameraUpdateSleepIfErrorTimeoutMs);
-                //Task.Delay(config.CameraUpdateSleepIfErrorTimeoutMs);
-                log.Warning(
-                    $"{ServiceName} Can not update camera[{camera.number}] - {camera.snapshotUrl} ({e.Message})");
+                await Task.Delay(config.CameraUpdateSleepIfAuthorizeErrorTimeoutMs);
+                //Thread.Sleep(config.CameraUpdateSleepIfErrorTimeoutMs);
+                log.Warning($"{ServiceName} Can not update camera[{camera.number}] - {camera.snapshotUrl} ({e.Message})");
             }
             finally
             {
@@ -88,7 +100,7 @@ namespace VideoReg.Domain.OnlineVideo
             {
                 if (tasks.ContainsKey(camera.number))
                     continue; // Предыдущая задача еще не выполнилась
-                var task = new Task(()=> UpdateCamera(camera));
+                var task = UpdateCamera(camera);
                 tasks.TryAdd(camera.number, task);
                 task.Start();
             }

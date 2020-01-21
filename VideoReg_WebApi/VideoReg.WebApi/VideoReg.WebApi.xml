@@ -96,5 +96,8 @@
              <response code="200">Возвращает информацию о приборе и тренды</response>
              <response code="500">Произошла ошибка получения информации</response>  
         </member>
+        <member name="M:VideoReg.WebApi.DateTimeMvc.DateTimeModelBinderProvider.GetBinder(Microsoft.AspNetCore.Mvc.ModelBinding.ModelBinderProviderContext)">
+            <inheritdoc />
+        </member>
     </members>
 </doc>

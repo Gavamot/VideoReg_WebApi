@@ -97,7 +97,6 @@ namespace VideoReg.WebApi
             services.AddSingleton(mapper);
         }
     }
-
     public class Startup
     {
         private readonly IConfiguration configuration;
@@ -136,8 +135,17 @@ namespace VideoReg.WebApi
             services.AddHostedService<CameraUpdateService>();
             services.AddMapper();
 
+            services.AddHttpClient();
+
             services.AddControllers()
-                .AddNewtonsoftJson(opt => { });
+                .AddMvcOptions(opt =>
+                {
+                    opt.ModelBinderProviders.Insert(0, new DateTimeMvc.DateTimeModelBinderProvider());
+                })
+                .AddNewtonsoftJson(opt =>
+                {
+                    opt.SerializerSettings.Converters.Add(new DateTimeMvc.DateTimeConverter());
+                });
 
             services.AddSwagger();
         }

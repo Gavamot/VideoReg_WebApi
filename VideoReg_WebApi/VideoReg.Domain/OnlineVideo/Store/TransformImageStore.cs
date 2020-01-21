@@ -12,7 +12,6 @@ namespace VideoReg.Domain.OnlineVideo.Store
     {
         readonly ConcurrentDateCache<int, CameraImage> store;
         readonly IVideoConvector videoConvector;
-    
         readonly IImagePollingConfig config;
         readonly ICameraSettingsStore settings;
         private readonly ILog log;

@@ -15,6 +15,7 @@ namespace VideoReg.WebApi.Core
         public int CameraUpdateIntervalMs { get; set; }
         public int CameraGetImageTimeoutMs { get; set; }
         public string Redis { get;  set; }
+        public string ImageWebRequest { get; set; }
         public string TrendsFileName { get; set; }
         public int ImagePollingAttempts { get; set; }
         public int ImagePollingDelayMs { get; set; }

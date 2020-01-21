@@ -33,15 +33,16 @@ namespace VideoReg.Domain.OnlineVideo
             this.log = log;
         }
 
-        //public async Task<byte[]> GetImgAsync(string url, int timeoutMs)
-        //{
-        //    var client = httpFactory.CreateClient(url);
-        //    client.Timeout = TimeSpan.FromMilliseconds(timeoutMs);
-        //    using var response = await client.GetAsync(url);
-        //    if (response.StatusCode != HttpStatusCode.OK)
-        //        throw new HttpImgRepStatusCodeException(url, response.StatusCode);
-        //    return await response.Content.ReadAsByteArrayAsync();
-        //}
+        public async Task<byte[]> GetImgAsync(Uri url, int timeoutMs)
+        {
+            string urlStr = url.ToString();
+            var client = httpFactory.CreateClient(urlStr);
+            client.Timeout = TimeSpan.FromMilliseconds(timeoutMs);
+            using var response = await client.GetAsync(urlStr);
+            if (response.StatusCode != HttpStatusCode.OK)
+                throw new HttpImgRepStatusCodeException(urlStr, response.StatusCode);
+            return await response.Content.ReadAsByteArrayAsync();
+        }
 
         public byte[] GetImg(Uri url, int timeoutMs)
         {
