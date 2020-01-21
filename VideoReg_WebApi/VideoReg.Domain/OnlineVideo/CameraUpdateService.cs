@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Http;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -13,21 +16,24 @@ namespace VideoReg.Domain.OnlineVideo
 {
     public class CameraUpdateService : ServiceUpdater
     {
-        readonly IImgRep imgRep;
+        //readonly IImgRep imgRep;
         readonly ICameraStore cameraCache;
         readonly ICameraSourceRep sourceRep;
         private ICameraConfig config;
         private static volatile CameraSourceSettings[] camerasSettings = new CameraSourceSettings[0];
+        private readonly IServiceProvider di;
         public CameraUpdateService(IImgRep imgRep,
             ICameraStore cameraCache,
             ICameraSourceRep cameraSourceRep,
             ICameraConfig config,
+            IServiceProvider di,
             ILog log) : base(config.CameraUpdateIntervalMs, log)
         {
-            this.imgRep = imgRep;
+           // this.imgRep = imgRep;
             this.cameraCache = cameraCache;
             this.sourceRep = cameraSourceRep;
             this.config = config;
+            this.di = di;
             BeforeStart += StartCameraThreads;
         }
 
@@ -35,21 +41,7 @@ namespace VideoReg.Domain.OnlineVideo
 
         protected void StartCameraThreads()
         {
-            //bool GetUriWithAntiCacheParameter(string snapshotUrl, out Uri inUrl)
-            //{
-            //    string AddAntiCacheParameter(string uri)
-            //    {
-            //        TimeSpan now = DateTime.Now - DateTime.MinValue;
-            //        string url = uri + $"&_rnd={now.TotalMilliseconds}";
-            //        return url;
-            //    }
-            //    string antiCacheUri = AddAntiCacheParameter(snapshotUrl);
-            //    bool res = Uri.TryCreate(antiCacheUri, UriKind.Absolute, out var url);
-            //    inUrl = url;
-            //    return res;
-            //}
-
-            void UpdateCamera(int cameraNumber)
+            async Task UpdateCamera(int cameraNumber, IHttpClientFactory clientFactory)
             {
                 var settings = camerasSettings.FirstOrDefault(x => x.number == cameraNumber);
                 if (settings.number == 0) return;
@@ -58,8 +50,19 @@ namespace VideoReg.Domain.OnlineVideo
                 {
                     try
                     {
-                        byte[] img = imgRep.GetImg(url, config.CameraGetImageTimeoutMs);
-                        cameraCache.SetCamera(cameraNumber, img);
+                        var request = new HttpRequestMessage(HttpMethod.Get, url);
+                        var client = clientFactory.CreateClient();
+                        var response = await client.SendAsync(request);
+                        if (response.IsSuccessStatusCode)
+                        {
+                            byte[] img = await response.Content.ReadAsByteArrayAsync();
+                            cameraCache.SetCamera(cameraNumber, img);
+                        }
+                        else
+                        {
+                            Thread.Sleep(config.CameraUpdateSleepIfErrorTimeoutMs);
+                            log.Error($"camera[{cameraNumber}] - server return bad status code ={response.StatusCode}");
+                        }
                     }
                     catch(Exception e)
                     {
@@ -86,13 +89,14 @@ namespace VideoReg.Domain.OnlineVideo
             for (int i = 1; i <= 9; i++)
             {
                 int camNum = i;
-                var starter = new ThreadStart(() =>
+                var starter = new ThreadStart(async() =>
                 {
+                    var clientFactory = (IHttpClientFactory)di.GetService(typeof(IHttpClientFactory));
                     while (true)
                     {
                         var watcher = new Stopwatch();
                         watcher.Start();
-                        UpdateCamera(camNum);
+                        await UpdateCamera(camNum, clientFactory);
                         watcher.Stop();
                         UpdateSleep(watcher.ElapsedMilliseconds);
                     }
