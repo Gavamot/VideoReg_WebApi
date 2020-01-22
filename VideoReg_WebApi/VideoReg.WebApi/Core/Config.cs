@@ -19,6 +19,5 @@ namespace VideoReg.WebApi.Core
         public int ImagePollingAttempts { get; set; }
         public int ImagePollingDelayMs { get; set; }
         public string BrigadeHistoryFileName { get; set; }
-
     }
 }

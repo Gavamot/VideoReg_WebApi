@@ -75,7 +75,7 @@ namespace VideoReg.WebApi
             services.AddSingleton<ICameraSourceRep, RedisCameraSourceRep>();
             services.AddSingleton<IVideoRegInfoRep, RedisVideoRegInfoRep>();
             services.AddSingleton<ITrendsRep, FileTrendsRep>();
-            services.AddSingleton<IImgRep, HttpImgRep>();
+            services.AddTransient<IImgRep, HttpImgRep>();
         }
 
         public static void AddTestDependencies(this IServiceCollection services)
@@ -129,7 +129,7 @@ namespace VideoReg.WebApi
             services.AddSingleton<ICameraSettingsStore, CameraSettingsStore>();
             services.AddHostedService<VideoArchiveUpdateService>();
 
-            services.AddSingleton<IVideoArchiveSource, VideoArchiveSourceFS>();
+            services.AddTransient<IVideoArchiveSource, VideoArchiveSourceFS>();
             services.AddSingleton<IBrigadeHistoryRep, BrigadeHistoryRep>();
             services.AddSingleton<IVideoArchiveRep, VideoArchiveRep>();
             services.AddHostedService<CameraUpdateService>();

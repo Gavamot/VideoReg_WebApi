@@ -16,11 +16,11 @@ namespace VideoReg.Domain.OnlineVideo
 {
     public class CameraUpdateService : ServiceUpdater
     {
-        //readonly IImgRep imgRep;
         readonly ICameraStore cameraCache;
         readonly ICameraSourceRep sourceRep;
         private ICameraConfig config;
         private static volatile CameraSourceSettings[] camerasSettings = new CameraSourceSettings[0];
+        private readonly Con
         private readonly IServiceProvider di;
         public CameraUpdateService(IImgRep imgRep,
             ICameraStore cameraCache,
