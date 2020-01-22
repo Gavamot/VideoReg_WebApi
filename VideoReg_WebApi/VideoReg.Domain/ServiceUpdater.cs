@@ -31,7 +31,7 @@ namespace VideoRegService
         {
             BeforeStart?.Invoke();
             _timer = new Timer(Update, cancellationToken, TimeSpan.Zero, TimeSpan.FromMilliseconds(updateTimeMs));
-            Update(cancellationToken);
+            Task.Run(()=> Update(cancellationToken), cancellationToken);
             log.Info($"{ServiceName} is started");
             return Task.CompletedTask;
         }

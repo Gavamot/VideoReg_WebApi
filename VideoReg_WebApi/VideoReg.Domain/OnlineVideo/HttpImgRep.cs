@@ -2,6 +2,7 @@
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using VideoReg.Infra.Services;
 
@@ -33,15 +34,15 @@ namespace VideoReg.Domain.OnlineVideo
             this.log = log;
         }
 
-        public async Task<byte[]> GetImgAsync(Uri url, int timeoutMs)
+        public async Task<byte[]> GetImgAsync(Uri url, int timeoutMs, CancellationToken token)
         {
-            string urlStr = url.ToString();
-            var client = httpFactory.CreateClient(urlStr);
-            client.Timeout = TimeSpan.FromMilliseconds(timeoutMs);
-            using var response = await client.GetAsync(urlStr);
-            if (response.StatusCode != HttpStatusCode.OK)
-                throw new HttpImgRepStatusCodeException(urlStr, response.StatusCode);
-            return await response.Content.ReadAsByteArrayAsync();
+            var urlName = url.ToString();
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            var client = httpFactory.CreateClient(urlName);
+            var response = await client.SendAsync(request, token);
+            if (response.IsSuccessStatusCode) 
+                return await response.Content.ReadAsByteArrayAsync();
+            throw new HttpImgRepStatusCodeException($"can not get image by address {urlName} bad status code={response.StatusCode}", response.StatusCode);
         }
 
         public byte[] GetImg(Uri url, int timeoutMs)

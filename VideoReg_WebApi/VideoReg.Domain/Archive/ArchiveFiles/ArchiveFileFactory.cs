@@ -24,12 +24,12 @@ namespace VideoReg.Domain.Archive.ArchiveFiles
         public const string FileNameDateFormat = "yyyy.M.ddTHH.mm.ss";
         public const string EmptyDevice = "N";
 
-        private readonly IBrigadeHistoryRep brigadeHistoryRep;
+        private readonly IBrigadeHistory brigadeHistory;
         private readonly IArchiveConfig config;
 
-        public ArchiveFileFactory(IBrigadeHistoryRep brigadeHistoryRep, IArchiveConfig config)
+        public ArchiveFileFactory(IBrigadeHistory brigadeHistory, IArchiveConfig config)
         {
-            this.brigadeHistoryRep = brigadeHistoryRep;
+            this.brigadeHistory = brigadeHistory;
             this.config = config;
         }
 
@@ -58,7 +58,6 @@ namespace VideoReg.Domain.Archive.ArchiveFiles
             CheckFileExtension(fileFullName, ext);
             var filePats = GetFilePats(fileFullName);
             var pdt = ParsePdt(filePats);
-            var brigadeHistory = brigadeHistoryRep.GetBrigadeHistory();
             var brigade = brigadeHistory.GetBrigadeCode(pdt);
             var serialNumber = ParseSerialNumber(filePats);
             var arcFullName = GetFullArcName(fileFullName, acrFolder);

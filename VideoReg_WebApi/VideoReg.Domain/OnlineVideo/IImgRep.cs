@@ -14,7 +14,7 @@ namespace VideoReg.Domain.OnlineVideo
 
         ///// <exception cref="HttpImgRepNetworkException">Network error</exception>
         ///// <exception cref="HttpImgRepStatusCodeException">Status code not equal 200</exception>
-        Task<byte[]> GetImgAsync(Uri url, int timeoutMs);
+        Task<byte[]> GetImgAsync(Uri url, int timeoutMs, CancellationToken token = default);
 
 
     }

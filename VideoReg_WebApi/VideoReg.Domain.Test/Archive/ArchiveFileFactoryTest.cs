@@ -19,6 +19,7 @@ namespace VideoReg.Domain.Test
         private const string acrJson = "arc/json";
         private const string acrVideo = "arc/video";
         private readonly DeviceSerialNumber serial = new DeviceSerialNumber(new ushort[] { 1, 2, 3, 4 });
+        private IBrigadeHistory brigadeHistory;
 
         string JsonFile(string date, DeviceSerialNumber? serial = default)
         {
@@ -48,7 +49,7 @@ namespace VideoReg.Domain.Test
 
         private IBrigadeHistoryRep GetFakeBrigadeHistoryRep()
         {
-            var brigadeHistory = A.Fake<IBrigadeHistory>();
+            brigadeHistory = A.Fake<IBrigadeHistory>();
             A.CallTo(() => brigadeHistory.GetBrigadeCode(DateTime.MinValue))
                 .WithAnyArguments()
                 .ReturnsNextFromSequence(brigadeSequence);
@@ -62,8 +63,8 @@ namespace VideoReg.Domain.Test
         public void Setup()
         {
             var config = GetFakeConfig();
-            var brigadeHistoryRep = GetFakeBrigadeHistoryRep(); 
-            factory = new ArchiveFileFactory(brigadeHistoryRep, config);
+            var brigadeHistoryRep = GetFakeBrigadeHistoryRep();
+            factory = new ArchiveFileFactory(brigadeHistory, config);
         }
 
         #region Json

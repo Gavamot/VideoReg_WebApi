@@ -19,7 +19,6 @@ namespace VideoReg.Domain.Archive
         private readonly ILog log;
         private readonly IFileSystemService fileSystem;
         private readonly IBrigadeHistoryRep brigadeHistoryRep;
-        readonly ArchiveFileFactory fileFactory;
 
         public VideoArchiveSourceFS(ILog log, 
             IArchiveConfig config, 
@@ -31,17 +30,18 @@ namespace VideoReg.Domain.Archive
             this.log = log;
             this.brigadeHistoryRep = brigadeHistoryRep;
             this.fileSystem = fileSystem;
-            this.fileFactory = new ArchiveFileFactory(brigadeHistoryRep, config);
         }
 
         public FileVideoMp4[] GetCompletedVideoFiles(string pattern = Pattern)
         {
+            var brigadeHistory = brigadeHistoryRep.GetBrigadeHistory();
+            var fileFactory = new ArchiveFileFactory(brigadeHistory, config);
             var res = new List<FileVideoMp4>();
             var directories = fileSystem.GetDirectories(config.VideoArchivePath);
             foreach (var camDir in directories)
             {
                 if (!TryParseIntFolder(camDir, "camera", out var cameraNumber)) continue;
-                var files = GetFilesForAdd(camDir, cameraNumber, pattern);
+                var files = GetFilesForAdd(fileFactory, camDir, cameraNumber, pattern);
                 res.AddRange(files);
             }
             return res.ToArray();
@@ -56,7 +56,7 @@ namespace VideoReg.Domain.Archive
             return false;
         }
 
-        private List<FileVideoMp4> GetFilesForAdd(string camDir, int cameraNumber, string pattern)
+        private List<FileVideoMp4> GetFilesForAdd(ArchiveFileFactory fileFactory, string camDir, int cameraNumber, string pattern)
         {
             var res = new List<FileVideoMp4>();
             string cameraNumberStr = cameraNumber.ToString();
