@@ -1,14 +1,18 @@
 ﻿using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using VideoReg.Domain.OnlineVideo;
 using VideoReg.Domain.OnlineVideo.Store;
 using VideoReg.Domain.Store;
+using VideoReg.Infra.Services;
 
 namespace VideoReg.WebApi.Controllers
 {
@@ -57,22 +61,17 @@ namespace VideoReg.WebApi.Controllers
         readonly IMapper mapper;
         private readonly ICameraStore cameraCache;
         private const string ApiDateTimeFormat = "yyyy-M-dTH:m:s.fff";
+        private readonly ILog log;
 
         public CameraController(//ICameraSettingsRep cameraSettingsRep,
             IMapper mapper, 
-            ICameraStore cameraCache)
+            ICameraStore cameraCache,
+            ILog log)
         {
             //this.cameraSettingsRep = cameraSettingsRep;
             this.mapper = mapper;
             this.cameraCache = cameraCache;
-        }
-
-        [HttpGet]
-        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
-        [Route("/[controller]/[action]")]
-        public IActionResult GetOne()
-        {
-            return Ok("1\n\r2\n\r");
+            this.log = log;
         }
 
         /// <summary>
@@ -166,27 +165,33 @@ namespace VideoReg.WebApi.Controllers
         /// Получить картинку с камеры
         /// </summary>
         /// <response code="200">Картинка</response> 
-        /// <response code="404">Изображение не найдено</response>  
-        [HttpGet]
-        [ProducesResponseType(typeof(byte[]),StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status304NotModified)]
-        [Route("/[controller]/[action]")]
-        public async Task<IActionResult> GetImage([FromQuery]int num, 
-            [FromQuery]ImageTransformSettingsMV settings = default, 
-            [FromQuery]DateTime timeStamp = default)
+        /// <response code="404">Изображение не найдено</response>
+        private const string HeaderTimestamp = "X-IMAGE-DATE";
+        public const string ImageDateHeaderFormat = "yyyy-M-dTHH:mm:ss.fff";
+
+        private DateTime ReadTimeStampFromRequest()
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState.Values.ToArray()[0].Errors);
+            DateTime timeStamp = DateTime.MinValue;
+            if (Response.Headers.TryGetValue(HeaderTimestamp, out var dtStr))
+            {
+                timeStamp = DateTime.ParseExact(dtStr[0], ImageDateHeaderFormat, CultureInfo.InvariantCulture);
+            }
 
-            settings ??= new ImageTransformSettingsMV();
+            return timeStamp;
+        }
 
-            var s = mapper.Map<ImageTransformSettings>(settings);
+        private void SetResponseTimestampHeader(DateTime timestamp)
+        {
+            Response.Headers.Add(HeaderTimestamp, timestamp.ToString(ImageDateHeaderFormat, CultureInfo.InvariantCulture));
+        }
+
+        private async Task<IActionResult> GenerateFileContentResultAsync(Func<DateTime, Task<CameraResponse>> getImg)
+        {
+            DateTime timeStamp = ReadTimeStampFromRequest();
             CameraResponse img = default;
             try
             {
-                img = await cameraCache.GetCameraAsync(num, s, timeStamp);
+                img = await getImg(timeStamp);
             }
             catch (NoNModifiedException) // Изображение не изменилось
             {
@@ -196,8 +201,43 @@ namespace VideoReg.WebApi.Controllers
             if (img == default) // Изображение по переданной камере не найдено
                 return NotFound();
 
-            Response.Headers.Add("timeStamp", img.Timestamp.ToString(ApiDateTimeFormat));
+            SetResponseTimestampHeader(img.Timestamp);
             return File(img.Img, "image/jpeg");
+        }
+
+        [HttpGet]
+        [ProducesResponseType(typeof(byte[]),StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status304NotModified)]
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+        [Route("/[controller]/[action]")]
+        public async Task<IActionResult> GetImage([FromQuery]int num, [FromQuery]ImageTransformSettingsMV settings = default)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState.Values.ToArray()[0].Errors);
+            settings ??= new ImageTransformSettingsMV();
+            var s = mapper.Map<ImageTransformSettings>(settings);
+            return await GenerateFileContentResultAsync(timeStamp => cameraCache.GetCameraAsync(num, s, timeStamp));
+        }
+
+        /// <summary>
+        /// Получить картинку из кэша либо нативную
+        /// </summary>
+        /// <response code="200">Картинка</response> 
+        /// <response code="404">Изображение не найдено</response>
+        [HttpGet]
+        [ProducesResponseType(typeof(byte[]), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status304NotModified)]
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+        [Route("/[controller]/[action]")]
+        public async Task<IActionResult> GetImageFromCache([FromQuery]int num)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState.Values.ToArray()[0].Errors);
+            return await GenerateFileContentResultAsync(timeStamp => cameraCache.GetCameraFromCacheOrNativeAsync(num, timeStamp));
         }
     }
 }

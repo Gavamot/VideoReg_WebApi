@@ -11,6 +11,7 @@ namespace VideoReg.Domain.Store
         void SetCamera(int cameraNumber, byte[] img);
         /// <exception cref="NoNModifiedException">Then camera image exist but timestamp is same and all attentions is waited.</exception>
         Task<CameraResponse> GetCameraAsync(int cameraNumber, ImageTransformSettings settings, DateTime timeStamp);
-        int[] GetAvailableCameras();
+        Task<CameraResponse> GetCameraFromCacheOrNativeAsync(int cameraNumber, DateTime timeStamp);
+        IEnumerable<int> GetAvailableCameras();
     }
 }

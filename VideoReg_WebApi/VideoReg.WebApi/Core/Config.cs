@@ -10,6 +10,8 @@ namespace VideoReg.WebApi.Core
         public string VideoArchivePath { get; set; }
         public int VideoArchiveUpdateTimeMs { get; set; }
         public int UpdateVideoArchiveMs { get; set; }
+        public string UserName { get; set; }
+        public string Password { get; set; }
         public int CameraUpdateSleepIfErrorTimeoutMs { get; set; }
         public int CameraUpdateSleepIfAuthorizeErrorTimeoutMs { get; set; }
         public int CameraUpdateIntervalMs { get; set; }

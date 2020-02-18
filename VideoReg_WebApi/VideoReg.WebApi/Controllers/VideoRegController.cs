@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using VideoReg.Domain.OnlineVideo;
 using VideoReg.Domain.Store;
@@ -32,7 +33,7 @@ namespace VideoReg.WebApi.Controllers
         public async Task<ActionResult<VideoRegInfoDto>> GetInfo()
         {
             var res = await videoRegInfo.GetInfo();
-            res.Cameras = cameraStore.GetAvailableCameras();
+            res.Cameras = cameraStore.GetAvailableCameras().ToArray();
             return Ok(res);
         }
 

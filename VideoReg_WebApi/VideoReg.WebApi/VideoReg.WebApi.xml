@@ -32,12 +32,19 @@
             </summary>
             <response code="200">Настройки были изменены</response>
         </member>
-        <member name="M:VideoReg.WebApi.Controllers.CameraController.GetImage(System.Int32,VideoReg.WebApi.Controllers.ImageTransformSettingsMV,System.DateTime)">
+        <member name="F:VideoReg.WebApi.Controllers.CameraController.HeaderTimestamp">
             <summary>
             Получить картинку с камеры
             </summary>
             <response code="200">Картинка</response> 
-            <response code="404">Изображение не найдено</response>  
+            <response code="404">Изображение не найдено</response>
+        </member>
+        <member name="M:VideoReg.WebApi.Controllers.CameraController.GetImageFromCache(System.Int32)">
+            <summary>
+            Получить картинку из кэша либо нативную
+            </summary>
+            <response code="200">Картинка</response> 
+            <response code="404">Изображение не найдено</response>
         </member>
         <member name="M:VideoReg.WebApi.Controllers.VideoArchiveController.GetStructure(System.DateTime)">
             <summary>

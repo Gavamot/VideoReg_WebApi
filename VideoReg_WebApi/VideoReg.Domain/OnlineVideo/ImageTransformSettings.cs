@@ -43,9 +43,9 @@ namespace VideoReg.Domain.OnlineVideo
             }
         }
 
-        public int Width { get; set; }
-        public int Height { get; set; }
-        public int Quality { get; set; }
+        public int Width { get; set; } = 0;
+        public int Height { get; set; } = 0;
+        public int Quality { get; set; } = 0;
 
         public override string ToString() => $"Size={Width}x{Height} | Quality={Quality}";
     }

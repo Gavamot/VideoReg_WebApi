@@ -1,5 +1,8 @@
 using System;
 using System.IO;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Reflection;
 using AutoMapper;
 using Microsoft.AspNetCore.Builder;
@@ -29,9 +32,9 @@ namespace VideoReg.WebApi
     {
         public static IServiceCollection AddSerilogServices(this IServiceCollection services, IConfiguration configuration)
         {
-            Log.Logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(configuration)
-                .CreateLogger(); 
+            //Log.Logger = new LoggerConfiguration()
+            //    .ReadFrom.Configuration(configuration)
+            //    .CreateLogger(); 
             //Log.Logger = new LoggerConfiguration()
             //    .MinimumLevel.Warning()
             //    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
@@ -39,6 +42,11 @@ namespace VideoReg.WebApi
             //     .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
             //     .WriteTo.File(new RenderedCompactJsonFormatter(), "logs/log.ndjson")
             //    .CreateLogger();
+            //AppDomain.CurrentDomain.ProcessExit += (s, e) => Log.CloseAndFlush();
+            
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(configuration)
+                .CreateLogger();
             AppDomain.CurrentDomain.ProcessExit += (s, e) => Log.CloseAndFlush();
             return services.AddSingleton(Log.Logger);
         }
@@ -75,7 +83,7 @@ namespace VideoReg.WebApi
             services.AddSingleton<ICameraSourceRep, RedisCameraSourceRep>();
             services.AddSingleton<IVideoRegInfoRep, RedisVideoRegInfoRep>();
             services.AddSingleton<ITrendsRep, FileTrendsRep>();
-            services.AddTransient<IImgRep, HttpImgRep>();
+            services.AddSingleton<IImgRep, HttpImgRep>();
         }
 
         public static void AddTestDependencies(this IServiceCollection services)
@@ -109,11 +117,24 @@ namespace VideoReg.WebApi
             configuration.GetSection("Settings").Bind(config);
         }
 
+        private static void AddSerilog()
+        {
+            var configuration = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                .Build();
+
+            //Log.Logger = new LoggerConfiguration()
+            //    .ReadFrom.Configuration(configuration)
+            //    .WriteTo.File("logs/log.txt", rollingInterval: RollingInterval.Day)
+            //    .CreateLogger();
+
+            AppDomain.CurrentDomain.ProcessExit += (s, e) => Log.CloseAndFlush();
+        }
+
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSerilogServices(configuration);
 
-            services.AddHttpClient();
             services.AddConfig(config);
             services.AddMemoryCache();
 
@@ -136,7 +157,6 @@ namespace VideoReg.WebApi
             services.AddMapper();
 
             services.AddHttpClient();
-
             services.AddControllers()
                 .AddMvcOptions(opt =>
                 {

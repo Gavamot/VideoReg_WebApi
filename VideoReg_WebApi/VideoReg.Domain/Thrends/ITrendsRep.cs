@@ -4,6 +4,6 @@ namespace VideoReg.Domain.OnlineVideo
 {
     public interface ITrendsRep
     {
-        Task<byte[]> GetThrendsAsync();
+        Task<string> GetThrendsAsync();
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using VideoReg.Domain.Config;
 
@@ -12,9 +13,9 @@ namespace VideoReg.Domain.OnlineVideo
             this.config = config;
         }
 
-        public async Task<byte[]> GetThrendsAsync()
+        public async Task<string> GetThrendsAsync()
         {
-            return await File.ReadAllBytesAsync(config.TrendsFileName);
+            return await File.ReadAllTextAsync(config.TrendsFileName, Encoding.UTF8);
         }
     }
 }

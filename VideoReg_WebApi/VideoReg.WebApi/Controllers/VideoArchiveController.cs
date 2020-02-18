@@ -3,17 +3,10 @@ using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using VideoReg.Domain.Archive;
+using VideoReg.Dto;
 
 namespace VideoReg.WebApi.Controllers
 {
-    public class FileVideoMp4Dto
-    {
-        public int num { get; set; }
-        public int? brig { get; set; }
-        public string name { get; set; }
-        public int duration { get; set; }
-    }
-
     [ApiController]
     public class VideoArchiveController : ControllerBase
     {

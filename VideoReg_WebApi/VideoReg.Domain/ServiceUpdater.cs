@@ -12,7 +12,7 @@ namespace VideoRegService
         protected Timer _timer;
         protected readonly int updateTimeMs;
         protected readonly ILog log;
-        protected volatile bool isUpdating = true;
+        private volatile bool isUpdating = true;
 
         protected ServiceUpdater(
             int updateTimeMs,

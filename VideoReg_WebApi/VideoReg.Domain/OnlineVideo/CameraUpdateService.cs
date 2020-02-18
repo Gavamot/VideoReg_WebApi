@@ -33,6 +33,7 @@ namespace VideoReg.Domain.OnlineVideo
 
         public override string Name => "CameraUpdate";
 
+
         protected void UpdateCameraImage(CameraSourceSettings setting)
         {
             async Task UpdateImage(Uri url, CameraSourceSettings setting, CancellationToken token)
@@ -57,6 +58,7 @@ namespace VideoReg.Domain.OnlineVideo
                     tasks.TryRemove(setting.number, out var task);
                 }
             }
+
             if (tasks.ContainsKey(setting.number)) return;
             if (!Uri.TryCreate(setting.snapshotUrl, UriKind.Absolute, out var uri)) return;
             var tokenSource = new CancellationTokenSource();
@@ -73,6 +75,8 @@ namespace VideoReg.Domain.OnlineVideo
             try
             {
                 var settings = await sourceRep.GetAll();
+                //settings[0] = new CameraSourceSettings(settings[0].number, "http://192.168.88.54/webcapture.jpg?command=snap&amp;channel=0");
+                //settings[1] = new CameraSourceSettings(settings[1].number, "http://192.168.88.242/webcapture.jpg?command=snap&amp;channel=0");
                 Parallel.ForEach(settings, UpdateCameraImage);
             }
             catch (Exception e)
