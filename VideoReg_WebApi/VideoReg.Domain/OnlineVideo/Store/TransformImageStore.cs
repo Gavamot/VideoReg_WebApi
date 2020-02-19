@@ -1,47 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using ApiServicePack;
 using VideoReg.Domain.Archive.Config;
 using VideoReg.Domain.Store;
 using VideoReg.Infra.Services;
 
 namespace VideoReg.Domain.OnlineVideo.Store
 {
-    class TimeIntervalCameraStatus
-    {
-        public DateTime? PrevTimestamp { get; set; }
-        public DateTime? CurTimestamp { get; set; }
-
-        private const int LifeTimeMs = 3000;
-
-        public bool IsWork
-        {
-            get
-            {
-                if (PrevTimestamp == null || CurTimestamp == null)
-                    return false;
-                return (CurTimestamp.Value - PrevTimestamp.Value).TotalMilliseconds < LifeTimeMs;
-            }
-        }
-
-        public void SetTimestamp(DateTime timestamp)
-        {
-            if (CurTimestamp == null)
-            {
-                CurTimestamp = timestamp;
-            }
-            else
-            {
-                PrevTimestamp = CurTimestamp;
-                CurTimestamp = timestamp;
-            }
-        }
-
-        public override string ToString() => $"{PrevTimestamp:yyyy.MM.dd HH:mm:ss.fff} - {CurTimestamp:yyyy.MM.dd HH:mm:ss.fff} = IsWork => { IsWork }";
-    }
-
     class CameraImageTimestamp
     {
         public CameraImageTimestamp(int cameraNumber)
@@ -49,11 +14,30 @@ namespace VideoReg.Domain.OnlineVideo.Store
             CameraNumber = cameraNumber;
         }
         public int CameraNumber { get; set; }
-        public byte[] NativeImg { get; set; }
+        public volatile byte[] NativeImg;
         public CameraImage ConvertedImg { get; set; }
-        public readonly TimeIntervalCameraStatus cameraStatus = new TimeIntervalCameraStatus();
 
         public byte[] GetConvertedIfPossibleOrNative() => ConvertedImg?.img ?? NativeImg;
+
+        public DateTime? Timestamp { get; private set; }
+
+        private const int LifeTimeMs = 3000;
+
+        public bool IsWork
+        {
+            get
+            {
+                if (Timestamp == null)
+                    return false;
+                return (DateTime.Now - Timestamp.Value).TotalMilliseconds < LifeTimeMs;
+            }
+        }
+
+        public void SetTimestamp(DateTime timestamp)
+        {
+            Timestamp = timestamp;
+        }
+
     }
 
     public class TransformImageStore : ICameraStore
@@ -86,7 +70,7 @@ namespace VideoReg.Domain.OnlineVideo.Store
                 camera.ConvertedImg = convertedImg;
                 camera.NativeImg = nativeImg;
                 DateTime now = dateTimeService.GetNow();
-                camera.cameraStatus.SetTimestamp(now);
+                camera.SetTimestamp(now);
             }
 
             public List<int> GetAvailableCameras()
@@ -94,7 +78,7 @@ namespace VideoReg.Domain.OnlineVideo.Store
                 var res = new List<int>();
                 for (int i = 0; i < store.Length; i++)
                 {
-                    if(store[i].cameraStatus.IsWork)
+                    if(store[i].IsWork)
                         res.Add(store[i].CameraNumber);
                 }
                 return res;
@@ -103,7 +87,7 @@ namespace VideoReg.Domain.OnlineVideo.Store
             public CameraImageTimestamp GetOrDefault(int cameraNumber)
             {
                 var camera = store[cameraNumber];
-                if (camera.cameraStatus.IsWork)
+                if (camera.IsWork)
                     return camera;
                 return default;
             }
@@ -135,29 +119,32 @@ namespace VideoReg.Domain.OnlineVideo.Store
             if (imgSettings.IsNotDefault())
                 convertedImg = videoConvector.ConvertVideo(img, imgSettings);
 
-            store.AddOrUpdate(cameraNumber, new CameraImage(imgSettings, convertedImg, img), img);
+            store.AddOrUpdate(cameraNumber, new CameraImage(imgSettings, convertedImg), img);
             log.Info($"camera[{cameraNumber}] was updated. Converted={imgSettings.IsNotDefault()} ({imgSettings})");
         }
 
         /// <returns>return null if image is not exist</returns>
         /// <exception cref="NoNModifiedException">Then camera image exist but timestamp is same and all attentions is waited.</exception>
-        public async Task<CameraResponse> GetCameraAsync(int cameraNumber, ImageTransformSettings imgSettings, DateTime timeStamp = default)
+        public async Task<CameraResponse> GetCameraAsync(int cameraNumber, ImageTransformSettings imgSettings, DateTime? timeStamp)
         {
-            imgSettings ??= new ImageTransformSettings();
-            settings.Set(cameraNumber, imgSettings);
-
+            if (imgSettings != null)
+            {
+                settings.Set(cameraNumber, imgSettings);
+            }
+            
             int attempts = config.ImagePollingAttempts;
             while (attempts-- > 0)
             {
                 var img = store.GetOrDefault(cameraNumber);
-                var _ = img?.cameraStatus?.CurTimestamp;
+                var _ = img?.Timestamp;
                 if (_ == null) return default;
+                if (!img.IsWork) return default;
                 DateTime curTimestamp = _.Value;
 
-                if (curTimestamp != timeStamp) // временная метка изображения не соответвует переданной. Возвращаем изображение
+                if (timeStamp == null || curTimestamp != timeStamp) // временная метка изображения не соответвует переданной. Возвращаем изображение
                 {
                     byte[] imgBytes = img.ConvertedImg.img; // Устанавливаем конвертированное значение из кэша
-                    if (imgSettings.IsDefault()) // Настройки не переданны берем исходное изображение
+                    if (imgSettings == null) // Настройки не переданны берем исходное изображение
                     {
                         imgBytes = img.NativeImg;
                     }
@@ -176,36 +163,6 @@ namespace VideoReg.Domain.OnlineVideo.Store
                     break;
 
                 // в кэше изображение не обновлялось
-                await Task.Delay(config.ImagePollingDelayMs);
-            }
-            throw new NoNModifiedException();
-        }
-
-        /// <returns>return null if image is not exist</returns>
-        /// <exception cref="NoNModifiedException">Then camera image exist but timestamp is same and all attentions is waited.</exception>
-        public async Task<CameraResponse> GetCameraFromCacheOrNativeAsync(int cameraNumber, DateTime timeStamp = default)
-        {
-            int attempts = config.ImagePollingAttempts;
-            while (attempts-- > 0)
-            {
-                var img = store.GetOrDefault(cameraNumber);
-                var _ = img?.cameraStatus?.CurTimestamp;
-                if (_ == null) return default;
-                DateTime curTimestamp = _.Value;
-
-                if (curTimestamp != timeStamp) // временная метка изображения не соответвует переданной. Возвращаем изображение
-                {
-                    return new CameraResponse
-                    {
-                        Img = img.GetConvertedIfPossibleOrNative(),
-                        Timestamp = curTimestamp
-                    };
-                }
-
-                if (attempts == 0) // Последняя попытка
-                  break;
-
-                // в кеше изображение не обновлялось
                 await Task.Delay(config.ImagePollingDelayMs);
             }
             throw new NoNModifiedException();

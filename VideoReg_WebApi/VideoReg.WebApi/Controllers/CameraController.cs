@@ -169,14 +169,13 @@ namespace VideoReg.WebApi.Controllers
         private const string HeaderTimestamp = "X-IMAGE-DATE";
         public const string ImageDateHeaderFormat = "yyyy-M-dTHH:mm:ss.fff";
 
-        private DateTime ReadTimeStampFromRequest()
+        private DateTime? ReadTimeStampFromRequest()
         {
-            DateTime timeStamp = DateTime.MinValue;
+            DateTime? timeStamp = null;
             if (Response.Headers.TryGetValue(HeaderTimestamp, out var dtStr))
             {
                 timeStamp = DateTime.ParseExact(dtStr[0], ImageDateHeaderFormat, CultureInfo.InvariantCulture);
             }
-
             return timeStamp;
         }
 
@@ -185,9 +184,9 @@ namespace VideoReg.WebApi.Controllers
             Response.Headers.Add(HeaderTimestamp, timestamp.ToString(ImageDateHeaderFormat, CultureInfo.InvariantCulture));
         }
 
-        private async Task<IActionResult> GenerateFileContentResultAsync(Func<DateTime, Task<CameraResponse>> getImg)
+        private async Task<IActionResult> GenerateFileContentResultAsync(Func<DateTime?, Task<CameraResponse>> getImg)
         {
-            DateTime timeStamp = ReadTimeStampFromRequest();
+            DateTime? timeStamp = ReadTimeStampFromRequest();
             CameraResponse img = default;
             try
             {
@@ -216,9 +215,12 @@ namespace VideoReg.WebApi.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState.Values.ToArray()[0].Errors);
-            settings ??= new ImageTransformSettingsMV();
-            var s = mapper.Map<ImageTransformSettings>(settings);
-            return await GenerateFileContentResultAsync(timeStamp => cameraCache.GetCameraAsync(num, s, timeStamp));
+            ImageTransformSettings imgSettings = null;
+            if (settings != null && !settings.IsDefault())
+            {
+                imgSettings = mapper.Map<ImageTransformSettings>(settings);
+            }
+            return await GenerateFileContentResultAsync(timeStamp => cameraCache.GetCameraAsync(num, imgSettings, timeStamp));
         }
 
         /// <summary>
@@ -237,7 +239,7 @@ namespace VideoReg.WebApi.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState.Values.ToArray()[0].Errors);
-            return await GenerateFileContentResultAsync(timeStamp => cameraCache.GetCameraFromCacheOrNativeAsync(num, timeStamp));
+            return await GenerateFileContentResultAsync(timeStamp => cameraCache.GetCameraAsync(num, null, timeStamp));
         }
     }
 }
