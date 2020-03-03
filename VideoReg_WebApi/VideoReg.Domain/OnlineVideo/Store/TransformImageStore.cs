@@ -44,7 +44,6 @@ namespace VideoReg.Domain.OnlineVideo.Store
     {
         class TimeImageStore
         {
-          
             readonly IDateTimeService dateTimeService;
             readonly CameraImageTimestamp[] store;
             public TimeImageStore(IDateTimeService dateTimeService)
@@ -99,6 +98,8 @@ namespace VideoReg.Domain.OnlineVideo.Store
         readonly ICameraSettingsStore settings;
         private readonly ILog log;
 
+        public Action<int, byte[]> OnImageChanged = (i, bytes) => {};
+
         public TransformImageStore(IDateTimeService dateService,
             ICameraSettingsStore cameraSettingsStore,
             IVideoConvector videoConvector,
@@ -118,8 +119,9 @@ namespace VideoReg.Domain.OnlineVideo.Store
             var imgSettings = settings.GetOrDefault(cameraNumber);
             if (imgSettings.IsNotDefault())
                 convertedImg = videoConvector.ConvertVideo(img, imgSettings);
-
             store.AddOrUpdate(cameraNumber, new CameraImage(imgSettings, convertedImg), img);
+            
+            Task.Run(() => OnImageChanged(cameraNumber, convertedImg));
             log.Info($"camera[{cameraNumber}] was updated. Converted={imgSettings.IsNotDefault()} ({imgSettings})");
         }
 

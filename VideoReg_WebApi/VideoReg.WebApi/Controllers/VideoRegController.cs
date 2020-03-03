@@ -10,30 +10,29 @@ namespace VideoReg.WebApi.Controllers
     [ApiController]
     public class VideoRegController : ControllerBase
     {
-        readonly IVideoRegInfoRep videoRegInfo;
+        readonly IRegInfoRep _regInfo;
         readonly ITrendsRep trendsRep;
         readonly ICameraStore cameraStore;
 
-        public VideoRegController(IVideoRegInfoRep videoRegInfo,
+        public VideoRegController(IRegInfoRep regInfo,
             ITrendsRep trendsRep, 
             ICameraStore cameraStore)
         {
-            this.videoRegInfo = videoRegInfo;
+            this._regInfo = regInfo;
             this.trendsRep = trendsRep;
             this.cameraStore = cameraStore;
         }
 
         /// <summary>
-        /// Получить последнюю актуальную информацию о видеорегистраторе, подключенном к ИВЭ-50 и камерам.
+        /// Получить последнюю актуальную информацию о видеорегистраторе.
         /// </summary>
         /// <response code="200">Возвращает о последнюю актуальную информацию о видеорегистраторе</response>
         /// <response code="500">Источниек информации о регистраторе оказался недоступен по каким либо причинам</response>  
         [HttpGet]
         [Route("/[controller]/Info")]
-        public async Task<ActionResult<VideoRegInfoDto>> GetInfo()
+        public async Task<ActionResult<VideoRegInfo>> GetInfo()
         {
-            var res = await videoRegInfo.GetInfo();
-            res.Cameras = cameraStore.GetAvailableCameras().ToArray();
+            var res = await _regInfo.GetInfo();
             return Ok(res);
         }
 

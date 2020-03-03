@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace VideoReg.Domain.VideoRegInfo
 {
     /// <summary>
     /// Получение информации о видеорегистраторе
     /// </summary>
-    public interface IVideoRegInfoRep
+    public interface IRegInfoRep
     {
         /// <summary>
         /// Получить общюю информацию о видеорегистраторе
         /// </summary>
-        Task<VideoRegInfoDto> GetInfo();
+        Task<VideoRegInfo> GetInfo();
     }
 }

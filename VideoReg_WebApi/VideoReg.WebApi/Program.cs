@@ -1,9 +1,13 @@
 using System;
+using System.Net.NetworkInformation;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Enrichers.AspNetCore;
+using VideoReg.Domain.OnlineVideo;
+using VideoRegService.Core.Archive;
 
 namespace VideoReg.WebApi
 {
@@ -19,6 +23,11 @@ namespace VideoReg.WebApi
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .UseSerilog()
+                .ConfigureServices(services =>
+                {
+                    services.AddHostedService<CameraUpdateService>();
+                    services.AddHostedService<VideoArchiveUpdateService>();
+                })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();

@@ -32,18 +32,6 @@ namespace VideoReg.WebApi
     {
         public static IServiceCollection AddSerilogServices(this IServiceCollection services, IConfiguration configuration)
         {
-            //Log.Logger = new LoggerConfiguration()
-            //    .ReadFrom.Configuration(configuration)
-            //    .CreateLogger(); 
-            //Log.Logger = new LoggerConfiguration()
-            //    .MinimumLevel.Warning()
-            //    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-            //    .Enrich.FromLogContext()
-            //     .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
-            //     .WriteTo.File(new RenderedCompactJsonFormatter(), "logs/log.ndjson")
-            //    .CreateLogger();
-            //AppDomain.CurrentDomain.ProcessExit += (s, e) => Log.CloseAndFlush();
-            
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(configuration)
                 .CreateLogger();
@@ -81,7 +69,7 @@ namespace VideoReg.WebApi
         public static void AddDependencies(this IServiceCollection services)
         {
             services.AddSingleton<ICameraSourceRep, RedisCameraSourceRep>();
-            services.AddSingleton<IVideoRegInfoRep, RedisVideoRegInfoRep>();
+            services.AddSingleton<IRegInfoRep, RegInfoRep>();
             services.AddSingleton<ITrendsRep, FileTrendsRep>();
             services.AddSingleton<IImgRep, HttpImgRep>();
         }
@@ -89,7 +77,7 @@ namespace VideoReg.WebApi
         public static void AddTestDependencies(this IServiceCollection services)
         {
             services.AddSingleton<ICameraSourceRep, TestCameraRep>();
-            services.AddSingleton<IVideoRegInfoRep, TestVideoRegInfo>();
+            services.AddSingleton<IRegInfoRep, TestRegInfo>();
             services.AddSingleton<ITrendsRep, TestFileTrendsRep>();
             services.AddSingleton<IImgRep, TestRandomImgRep>();
         }
@@ -148,12 +136,12 @@ namespace VideoReg.WebApi
             services.AddSingleton<IVideoConvector, ImagicVideoConvector>();
             services.AddSingleton<ICameraStore, TransformImageStore>();
             services.AddSingleton<ICameraSettingsStore, CameraSettingsStore>();
-            services.AddHostedService<VideoArchiveUpdateService>();
+          
 
             services.AddTransient<IVideoArchiveSource, VideoArchiveSourceFS>();
             services.AddSingleton<IBrigadeHistoryRep, BrigadeHistoryRep>();
             services.AddSingleton<IVideoArchiveRep, VideoArchiveRep>();
-            services.AddHostedService<CameraUpdateService>();
+           
             services.AddMapper();
 
             services.AddHttpClient();
