@@ -21,5 +21,7 @@ namespace VideoReg.WebApi.Core
         public int ImagePollingAttempts { get; set; }
         public int ImagePollingDelayMs { get; set; }
         public string BrigadeHistoryFileName { get; set; }
+        public string AscRegServiceEndpoint { get; set; }
+        public string AscRegServiceBufferSize { get; set; }
     }
 }

@@ -7,7 +7,7 @@ using VideoReg.Infra.Services;
 
 namespace VideoRegService
 {
-    public abstract class ServiceUpdater : IHostedService, IDisposable, IServiceUpdater
+    public abstract class ServiceUpdater : IHostedService, IServiceUpdater
     {
         protected Timer _timer;
         protected readonly int updateTimeMs;
@@ -63,10 +63,5 @@ namespace VideoRegService
         }
 
         public abstract void DoWork(CancellationToken cancellationToken);
-
-        public void Dispose()
-        {
-            _timer?.Dispose();
-        }
     }
 }

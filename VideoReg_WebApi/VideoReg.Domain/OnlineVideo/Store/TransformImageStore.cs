@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using VideoReg.Domain.Archive.Config;
 using VideoReg.Domain.Store;
@@ -37,7 +40,6 @@ namespace VideoReg.Domain.OnlineVideo.Store
         {
             Timestamp = timestamp;
         }
-
     }
 
     public class TransformImageStore : ICameraStore
@@ -97,8 +99,7 @@ namespace VideoReg.Domain.OnlineVideo.Store
         readonly IImagePollingConfig config;
         readonly ICameraSettingsStore settings;
         private readonly ILog log;
-
-        public Action<int, byte[]> OnImageChanged = (i, bytes) => {};
+        public Action<int, byte[]> OnImageChanged { get; set; }
 
         public TransformImageStore(IDateTimeService dateService,
             ICameraSettingsStore cameraSettingsStore,
@@ -168,6 +169,12 @@ namespace VideoReg.Domain.OnlineVideo.Store
                 await Task.Delay(config.ImagePollingDelayMs);
             }
             throw new NoNModifiedException();
+        }
+
+        public byte[] GetOrDefaultTransformedImage(int cameraNumber)
+        {
+            var img = store.GetOrDefault(cameraNumber);
+            return img?.ConvertedImg?.img;
         }
 
         public IEnumerable<int> GetAvailableCameras() => store.GetAvailableCameras();

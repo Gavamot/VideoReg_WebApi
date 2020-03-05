@@ -30,7 +30,7 @@ namespace VideoReg.WebApi.Controllers
         /// <response code="500">Источниек информации о регистраторе оказался недоступен по каким либо причинам</response>  
         [HttpGet]
         [Route("/[controller]/Info")]
-        public async Task<ActionResult<VideoRegInfo>> GetInfo()
+        public async Task<ActionResult<RegInfo>> GetInfo()
         {
             var res = await _regInfo.GetInfo();
             return Ok(res);

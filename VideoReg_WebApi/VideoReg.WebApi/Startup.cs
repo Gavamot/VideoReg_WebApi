@@ -1,8 +1,6 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Reflection;
 using AutoMapper;
 using Microsoft.AspNetCore.Builder;
@@ -15,6 +13,7 @@ using Serilog;
 using VideoReg.Domain.Archive;
 using VideoReg.Domain.Archive.BrigadeHistory;
 using VideoReg.Domain.OnlineVideo;
+using VideoReg.Domain.OnlineVideo.SignalR;
 using VideoReg.Domain.OnlineVideo.Store;
 using VideoReg.Domain.Store;
 using VideoReg.Domain.VideoRegInfo;
@@ -23,7 +22,6 @@ using VideoReg.WebApi.Core;
 using VideoReg.WebApi.Test;
 using VideoRegService;
 using VideoRegService.Core;
-using VideoRegService.Core.Archive;
 using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 namespace VideoReg.WebApi
@@ -141,7 +139,10 @@ namespace VideoReg.WebApi
             services.AddTransient<IVideoArchiveSource, VideoArchiveSourceFS>();
             services.AddSingleton<IBrigadeHistoryRep, BrigadeHistoryRep>();
             services.AddSingleton<IVideoArchiveRep, VideoArchiveRep>();
-           
+
+            services.AddSingleton<IVideoRegInfoStore, VideoRegInfoStore>();
+            services.AddSingleton<IClientVideoHub, ClientVideoHub>();
+
             services.AddMapper();
 
             services.AddHttpClient();

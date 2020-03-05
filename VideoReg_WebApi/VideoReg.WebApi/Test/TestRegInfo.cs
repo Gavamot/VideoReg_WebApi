@@ -13,9 +13,9 @@ namespace VideoReg.WebApi.Test
             this.dateService = dateService;
         }
 
-        public async Task<VideoRegInfo> GetInfo()
+        public async Task<RegInfo> GetInfo()
         {
-            return new VideoRegInfo
+            return new RegInfo
             {
                 BrigadeCode = 1,
                 Ip = "240.11.12.12",

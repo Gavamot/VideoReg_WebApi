@@ -10,6 +10,7 @@ using VideoRegService;
 
 namespace VideoReg.Domain.OnlineVideo
 {
+    // TODO : переписать на нормальную реализацию для каждой камеры сделать индивидуальный подход.
     public class CameraUpdateService : ServiceUpdater
     {
         private readonly IImgRep imgRep;
@@ -17,7 +18,8 @@ namespace VideoReg.Domain.OnlineVideo
         readonly ICameraSourceRep sourceRep;
         private ICameraConfig config;
       
-        readonly ConcurrentDictionary<int, CancellationTokenSource> tasks = new ConcurrentDictionary<int, CancellationTokenSource>();
+        readonly ConcurrentDictionary<int, CancellationTokenSource> tasks 
+            = new ConcurrentDictionary<int, CancellationTokenSource>();
 
       //  private readonly IServiceProvider di;
         public CameraUpdateService(IImgRep imgRep,
@@ -33,7 +35,6 @@ namespace VideoReg.Domain.OnlineVideo
         }
 
         public override string Name => "CameraUpdate";
-
 
         protected void UpdateCameraImage(CameraSourceSettings setting)
         {
@@ -75,15 +76,16 @@ namespace VideoReg.Domain.OnlineVideo
         {
             try
             {
+#if DEBUG
                 var settings = new[]
                 {
                     new CameraSourceSettings(1, "http://192.168.88.10/tmpfs/auto.jpg"),
                     new CameraSourceSettings(2, "http://192.168.88.242/webcapture.jpg?command=snap&amp;channel=1"),
                     new CameraSourceSettings(3, "http://192.168.88.82/ISAPI/Streaming/channels/101/picture?snapShotImageType=JPEG")
-                };
-                //settings[0] = new CameraSourceSettings(settings[0].number, "http://192.168.88.54/webcapture.jpg?command=snap&amp;channel=0");
-                //settings[1] = new CameraSourceSettings(settings[1].number, "http://192.168.88.242/webcapture.jpg?command=snap&amp;channel=0");
-                //var settings = await sourceRep.GetAll();
+                };    
+#else
+                var settings = await sourceRep.GetAll();
+#endif
                 Parallel.ForEach(settings, UpdateCameraImage);
             }
             catch (Exception e)

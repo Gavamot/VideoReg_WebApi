@@ -39,11 +39,9 @@ namespace VideoReg.Domain.OnlineVideo
             this.log = log;
         }
 
-
         private const string UserName = "admin";
         private const string Password = "admin1336";
         
-
         private async Task<(HttpStatusCode, bool, byte[])> GetByBasicAuthorization(Uri url, CancellationToken token)
         {
             using var httpClient = new HttpClient();

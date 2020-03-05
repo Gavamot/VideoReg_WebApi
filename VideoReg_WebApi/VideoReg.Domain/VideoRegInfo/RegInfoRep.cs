@@ -13,9 +13,22 @@ namespace VideoRegService
         public const int EmptyBrigadeCode = int.MinValue;
 
         private readonly ILog log;
+        public Action<RegInfo> RegInfoChanged { get; set; }
         public RegInfoRep(ILog log)
         {
             this.log = log;
+        }
+
+        public async Task<RegInfo> GetInfo()
+        {
+            var (ip, vpn) = GetIpAddress();
+            var brigadeCode = await GetBrigadeCode();
+            return new RegInfo
+            {
+                Ip = ip,
+                Vpn = vpn,
+                BrigadeCode = brigadeCode
+            };
         }
 
         private NetworkInterface[] TryGetNetworkInterfaces()
@@ -87,16 +100,6 @@ namespace VideoRegService
             }
         }
 
-        public async Task<VideoRegInfo> GetInfo()
-        {
-            var (ip, vpn) = GetIpAddress();
-            var brigadeCode = await GetBrigadeCode();
-            return new VideoRegInfo
-            {
-                Ip = ip,
-                Vpn = vpn,
-                BrigadeCode = brigadeCode
-            };
-        }
+       
     }
 }

@@ -2,13 +2,13 @@
 
 namespace VideoReg.Domain.VideoRegInfo
 {
-    public class VideoRegInfo
+    public class RegInfo
     {
         public int BrigadeCode { get; set; }
         public string Ip { get; set; }
         public string Vpn { get; set; }
 
-        bool Equals(VideoRegInfo other)
+        bool Equals(RegInfo other)
         {
             return BrigadeCode == other.BrigadeCode 
                    && Ip == other.Ip 
@@ -20,7 +20,7 @@ namespace VideoReg.Domain.VideoRegInfo
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((VideoRegInfo)obj);
+            return Equals((RegInfo)obj);
         }
 
         public override int GetHashCode()

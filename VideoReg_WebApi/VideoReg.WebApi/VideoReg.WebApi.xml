@@ -103,6 +103,11 @@
              <response code="200">Возвращает информацию о приборе и тренды</response>
              <response code="500">Произошла ошибка получения информации</response>  
         </member>
+        <member name="T:VideoReg.WebApi.Core.ClientVideoHub">
+            <summary>
+            Hub is not thread-safe ( Use only in 1 thread this instance)
+            </summary>
+        </member>
         <member name="M:VideoReg.WebApi.DateTimeMvc.DateTimeModelBinderProvider.GetBinder(Microsoft.AspNetCore.Mvc.ModelBinding.ModelBinderProviderContext)">
             <inheritdoc />
         </member>

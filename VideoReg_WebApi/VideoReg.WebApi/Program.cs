@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Enrichers.AspNetCore;
 using VideoReg.Domain.OnlineVideo;
+using VideoReg.Domain.OnlineVideo.SignalR;
 using VideoRegService.Core.Archive;
 
 namespace VideoReg.WebApi
@@ -27,6 +28,7 @@ namespace VideoReg.WebApi
                 {
                     services.AddHostedService<CameraUpdateService>();
                     services.AddHostedService<VideoArchiveUpdateService>();
+                    services.AddHostedService<VideoTransmitterService>();
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
