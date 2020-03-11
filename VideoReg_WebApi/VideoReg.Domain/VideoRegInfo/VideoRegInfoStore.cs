@@ -14,6 +14,7 @@ namespace VideoReg.Domain.VideoRegInfo
         // /home/v-1336/projects/dist/ASCWeb/brigade_code
         
         //
+        // TODO : Поменять затычку на реализацию
         public RegInfo GetRegInfo()
         {
             return new RegInfo

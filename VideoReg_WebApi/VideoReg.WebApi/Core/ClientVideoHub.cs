@@ -1,27 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.IO;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using MessagePack;
+using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Serilog.Formatting.Display;
+using VideoReg.Domain.Archive.Config;
 using VideoReg.Domain.OnlineVideo;
 using VideoReg.Domain.OnlineVideo.SignalR;
 using VideoReg.Domain.VideoRegInfo;
-using VideoReg.WebApi.Core;
 
 namespace VideoReg.WebApi.Core
 {
-
     /// <summary>
     /// Hub is not thread-safe ( Use only in 1 thread this instance)
     /// </summary>
     public class ClientVideoHub : IClientVideoHub
     {
-        private const int ConnectRetryTimeoutMs = 1000;
+        private const int ConnectRetryTimeoutMs = 500;
         private Uri GenerateServerUrl(string endpoint) => new Uri($"http://{endpoint}/onlineVideoHub");
         private HubConnection connection;
         private ILogger<ClientVideoHub> log;
@@ -31,10 +34,14 @@ namespace VideoReg.WebApi.Core
         public Action<int> OnStopShow { get; set; }
         public Action<int> OnStartShow { get; set; }
         public Action<int, ImageTransformSettings> OnSetCameraSettings { get; set; }
+        private IVideoTransmitterConfig config;
 
-        public ClientVideoHub(ILogger<ClientVideoHub> log)
+        public ClientVideoHub(ILogger<ClientVideoHub> log, IVideoTransmitterConfig config)
         {
             this.log = log;
+            this.config = config;
+            this.serverUrl = GenerateServerUrl(config.AscRegServiceEndpoint);
+            this.connection = ConfigureConnection(serverUrl, token);
         }
 
         IEnumerable<TimeSpan> GenerateReconnects()
@@ -58,10 +65,23 @@ namespace VideoReg.WebApi.Core
         private HubConnection ConfigureConnection(Uri serverUrl, CancellationToken token)
         {
             this.token = token;
-            var reconnects = GenerateReconnects().ToArray();
+            //var reconnects = GenerateReconnects().ToArray();
+            //var cert = new X509Certificate2(Path.Combine("public.crt"), "v1336pwd");
+            
             this.connection = new HubConnectionBuilder()
-                .WithUrl(serverUrl, HttpTransportType.WebSockets)
-                .WithAutomaticReconnect(reconnects)
+                .WithUrl(serverUrl, HttpTransportType.WebSockets, options =>
+                {
+                    options.Transports = HttpTransportType.WebSockets;
+                    options.DefaultTransferFormat = TransferFormat.Binary;
+                    //options.ClientCertificates.Add(cert);
+                    //options.WebSocketConfiguration = sockets =>
+                    //{
+
+                    //    sockets.RemoteCertificateValidationCallback = (sender, certificate, chain, policyErrors) => true;
+                    //    sockets.ClientCertificates.Add(cert);
+                    //};
+
+                })
                 .AddMessagePackProtocol(options =>
                 {
                     options.FormatterResolvers = new List<IFormatterResolver>()
@@ -73,6 +93,7 @@ namespace VideoReg.WebApi.Core
                 })
                 .Build();
 
+
             connection.On<int[]>("SendInitShow", cameras => OnInitShow(cameras));
             connection.On<int>("SendStopShow", camera => OnStopShow(camera));
             connection.On<int>("SendStartShow", camera => OnStartShow(camera));
@@ -81,24 +102,16 @@ namespace VideoReg.WebApi.Core
             return connection;
         }
 
-        public async Task ConnectAsync(string endpoint, CancellationToken token)
+        public async Task ConnectWithRetryAsync()
         {
-            if (connection != null) throw new Exception("ClientVideoHub is already started");
-            this.token = token;
-            this.serverUrl = GenerateServerUrl(endpoint);
-            this.connection = ConfigureConnection(serverUrl, token);
-            await ConnectWithRetryAsync(serverUrl);
-        }
-
-        private async Task ConnectWithRetryAsync(Uri serverUrl)
-        {
+            // TODO : обработать ошибку при перезапуске сервера
             while (connection.State != HubConnectionState.Connected)
             {
-                log.LogInformation("[hub].......{serverUrl}", serverUrl);
+                log.LogInformation("[hub] ....... {serverUrl}", serverUrl);
                 try
                 {
                     await connection.StartAsync(token);
-                    log.LogInformation("[hub]--------{serverUrl}", serverUrl);
+                    log.LogInformation("[hub] -------- {serverUrl}", serverUrl);
                 }
                 catch when (token.IsCancellationRequested)
                 {

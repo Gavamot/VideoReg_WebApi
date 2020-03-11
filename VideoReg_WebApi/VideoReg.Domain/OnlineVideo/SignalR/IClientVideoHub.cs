@@ -7,7 +7,7 @@ namespace VideoReg.Domain.OnlineVideo.SignalR
 {
     public interface IClientVideoHub
     {
-        Task ConnectAsync(string ascRegServiceEndpoint, CancellationToken cancellationToken);
+        Task ConnectWithRetryAsync();
         Task InitSessionAsync(RegInfo info);
         Task SendCameraImageAsync(int camera, byte[] image);
         Task SendNewRegInfoAsync(RegInfo info);

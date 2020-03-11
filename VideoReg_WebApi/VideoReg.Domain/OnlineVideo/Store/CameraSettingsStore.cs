@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Concurrent;
 
 namespace VideoReg.Domain.OnlineVideo.Store
 {
@@ -15,6 +12,18 @@ namespace VideoReg.Domain.OnlineVideo.Store
     {
         protected readonly ConcurrentDictionary<int, ImageTransformSettings> store
             = new ConcurrentDictionary<int, ImageTransformSettings>();
+
+        public CameraSettingsStore()
+        {
+            for (int i = 1; i < 10; i++)
+            {
+                store.TryAdd(i, new ImageTransformSettings
+                {
+                    Width = 640,
+                    Height = 480
+                });
+            }   
+        }
 
         public ImageTransformSettings GetOrDefault(int cameraNumber)
         {

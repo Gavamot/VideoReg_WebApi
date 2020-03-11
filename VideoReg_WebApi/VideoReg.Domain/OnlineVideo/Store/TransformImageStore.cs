@@ -118,7 +118,7 @@ namespace VideoReg.Domain.OnlineVideo.Store
         {
             byte[] convertedImg = img;
             var imgSettings = settings.GetOrDefault(cameraNumber);
-            if (imgSettings.IsNotDefault())
+            if(imgSettings.IsNotDefault())
                 convertedImg = videoConvector.ConvertVideo(img, imgSettings);
             store.AddOrUpdate(cameraNumber, new CameraImage(imgSettings, convertedImg), img);
             
@@ -134,7 +134,7 @@ namespace VideoReg.Domain.OnlineVideo.Store
             {
                 settings.Set(cameraNumber, imgSettings);
             }
-            
+
             int attempts = config.ImagePollingAttempts;
             while (attempts-- > 0)
             {

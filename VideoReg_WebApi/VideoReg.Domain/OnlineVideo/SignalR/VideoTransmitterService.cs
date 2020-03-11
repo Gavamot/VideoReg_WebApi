@@ -30,7 +30,7 @@ namespace VideoReg.Domain.OnlineVideo.SignalR
         /// <summary>
         /// Камеры по которым необходимо передавать изображения
         /// </summary>
-        readonly bool[] enabledCameras = new bool[CamerasCount];
+        readonly bool[] enabledCameras = new bool[CamerasCount]; 
         /// <summary>
         /// Когда изображдение в cameraStore обновляется обновляется выставляется флаг, после отправки флаг снимается
         /// </summary>
@@ -52,33 +52,59 @@ namespace VideoReg.Domain.OnlineVideo.SignalR
             this.log = log;
             hub.OnInitShow += InitShow;
             cameraStore.OnImageChanged += GotSnapshot;
-            OffCamera(AllCameras);
         }
 
-        private async Task TransmitDataLoop()
+        private async Task TransmitDataLoopAsync()
         {
+            await InitSession();
             while (true)
             {
-                for (int cameraNumber = FirstCamera; cameraNumber < CamerasCount; cameraNumber++)
+                try
                 {
-                    if (!updatedCameras[cameraNumber]) continue;
-                    var img = cameraStore.GetOrDefaultTransformedImage(cameraNumber);
-                    if(img == default) continue;
-                    await hub.SendCameraImageAsync(cameraNumber, img);
-                    updatedCameras[cameraNumber] = false;
-                    log.LogInformation($"ReceiveCameraImage[{cameraNumber}]");
+                    for (int cameraNumber = FirstCamera; cameraNumber < CamerasCount; cameraNumber++)
+                    {
+                        if (!updatedCameras[cameraNumber]) continue;
+                        var img = cameraStore.GetOrDefaultTransformedImage(cameraNumber);
+                        if (img == default) continue;
+                        await hub.SendCameraImageAsync(cameraNumber, img);
+                        updatedCameras[cameraNumber] = false;
+                        log.LogInformation($"ReceiveCameraImage[{cameraNumber}]");
+                    }
+                }
+                catch (Exception e)
+                {
+                    await Task.Delay(500);
+                    await InitSession();
                 }
                 await Task.Delay(10);
             }
-           
+        }
+
+        private async Task InitSession()
+        {
+            while (true)
+            {
+                try
+                {
+                    OffCamera(AllCameras);
+                    await hub.ConnectWithRetryAsync();
+                    var reg = regInfoStore.GetRegInfo();
+                    await hub.InitSessionAsync(reg);
+                    return;
+                }
+                catch(Exception e)
+                {
+                    log.LogError(e, "InitSession error with {ip}", config.AscRegServiceEndpoint);
+                }
+            }
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            await hub.ConnectAsync(config.AscRegServiceEndpoint, cancellationToken);
-            var reg = regInfoStore.GetRegInfo();
-            await hub.InitSessionAsync(reg);
-            await TransmitDataLoop();
+            Task.Run(async () =>
+            {
+                await TransmitDataLoopAsync();
+            }, cancellationToken);
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
@@ -151,8 +177,6 @@ namespace VideoReg.Domain.OnlineVideo.SignalR
 
         private void SubscribeHubForEvents(IClientVideoHub hub)
         {
-            
-
             // TODO : Подписатся на все события и дореализовать.
         }
     }
