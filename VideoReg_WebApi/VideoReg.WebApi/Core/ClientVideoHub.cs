@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Http;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
@@ -25,7 +26,7 @@ namespace VideoReg.WebApi.Core
     public class ClientVideoHub : IClientVideoHub
     {
         private const int ConnectRetryTimeoutMs = 500;
-        private Uri GenerateServerUrl(string endpoint) => new Uri($"http://{endpoint}/onlineVideoHub");
+        private Uri GenerateServerUrl(string endpoint) => new Uri($"{endpoint}/onlineVideoHub");
         private HubConnection connection;
         private ILogger<ClientVideoHub> log;
         private CancellationToken token;
@@ -62,25 +63,45 @@ namespace VideoReg.WebApi.Core
             }
         }
 
+        //const string secretJwt = "133D41F6DA1D79B8A432423432432432432432432432546567657567431FFAF55C21E9B1521AE4021";
+        //private const string tokenJwt =
+        //    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ2LTEzMzYiLCJuYW1lIjoib3JlaG92IiwiaWF0IjoxNTE2MjM5MDIyfQ.jGc9yRqSjqfu5wMwemuQadz06NF2TGt3B3oPJnASBUI";
+
+        //private Task<string> GetToken()
+        //{
+        //    return Task.FromResult(tokenJwt);
+        //}
+
         private HubConnection ConfigureConnection(Uri serverUrl, CancellationToken token)
         {
             this.token = token;
             //var reconnects = GenerateReconnects().ToArray();
-            //var cert = new X509Certificate2(Path.Combine("public.crt"), "v1336pwd");
-            
+            var cert = new X509Certificate2(Path.Combine("public.crt"), "v1336pwd");
+            var _clientHandler = new HttpClientHandler();
+            _clientHandler.ClientCertificates.Add(cert);
+
             this.connection = new HubConnectionBuilder()
                 .WithUrl(serverUrl, HttpTransportType.WebSockets, options =>
                 {
                     options.Transports = HttpTransportType.WebSockets;
                     options.DefaultTransferFormat = TransferFormat.Binary;
-                    //options.ClientCertificates.Add(cert);
-                    //options.WebSocketConfiguration = sockets =>
-                    //{
-
-                    //    sockets.RemoteCertificateValidationCallback = (sender, certificate, chain, policyErrors) => true;
-                    //    sockets.ClientCertificates.Add(cert);
-                    //};
-
+                    options.UseDefaultCredentials = true;
+                    options.ClientCertificates.Add(cert);
+                    options.SkipNegotiation = true;
+                    options.HttpMessageHandlerFactory = handler =>
+                    {
+                        var _clientHandler = new HttpClientHandler();
+                        _clientHandler.CheckCertificateRevocationList = false;
+                        _clientHandler.PreAuthenticate = false;
+                        _clientHandler.ClientCertificates.Add(cert);
+                        return _clientHandler;
+                    };
+                    
+                    options.WebSocketConfiguration = sockets =>
+                    {
+                        sockets.RemoteCertificateValidationCallback = (sender, certificate, chain, policyErrors) => true;
+                        sockets.ClientCertificates.Add(cert);
+                    };
                 })
                 .AddMessagePackProtocol(options =>
                 {
