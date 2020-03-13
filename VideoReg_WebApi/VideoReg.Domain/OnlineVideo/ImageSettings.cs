@@ -3,21 +3,21 @@ using Microsoft.CSharp.RuntimeBinder;
 
 namespace VideoReg.Domain.OnlineVideo
 {
-    public static class ImageTransformSettingsExt
+    public static class ImageSettingsExt
     {
-        public static bool IsDefault(this ImageTransformSettings self) 
+        public static bool IsDefault(this ImageSettings self) 
             => self.Height == 0 || self.Width  == 0 || self.Quality == 0;
         
 
-        public static bool IsNotDefault(this ImageTransformSettings self)
+        public static bool IsNotDefault(this ImageSettings self)
         {
             return !self.IsDefault();
         }
     }
 
-    public class ImageTransformSettings
+    public class ImageSettings
     {
-        protected bool Equals(ImageTransformSettings other)
+        protected bool Equals(ImageSettings other)
         {
             return Width == other.Width 
                    && Height == other.Height 
@@ -29,7 +29,7 @@ namespace VideoReg.Domain.OnlineVideo
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((ImageTransformSettings) obj);
+            return Equals((ImageSettings) obj);
         }
 
         public override int GetHashCode()

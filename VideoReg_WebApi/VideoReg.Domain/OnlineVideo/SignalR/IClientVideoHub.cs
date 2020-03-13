@@ -14,6 +14,6 @@ namespace VideoReg.Domain.OnlineVideo.SignalR
         Action<int[]> OnInitShow { get; set; }
         Action<int> OnStopShow { get; set; }
         Action<int> OnStartShow { get; set; }
-        Action<int, ImageTransformSettings> OnSetCameraSettings { get; set; }
+        Action<int, ImageSettings> OnSetCameraSettings { get; set; }
     }
 }

@@ -15,7 +15,7 @@ namespace VideoReg.WebApi.Core
             this.log = log;
         }
 
-        public byte[] ConvertVideo(byte[] img, ImageTransformSettings settings)
+        public byte[] ConvertVideo(byte[] img, ImageSettings settings)
         {
             try
             {

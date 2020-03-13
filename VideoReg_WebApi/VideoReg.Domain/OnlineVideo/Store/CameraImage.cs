@@ -2,13 +2,13 @@
 {
     public class CameraImage
     {
-        public CameraImage(ImageTransformSettings settings, byte[] img)
+        public CameraImage(ImageSettings settings, byte[] img)
         {
             this.settings = settings;
             this.img = img;
         }
 
-        public readonly ImageTransformSettings settings;
+        public readonly ImageSettings settings;
         public volatile byte[] img;
     }
 }

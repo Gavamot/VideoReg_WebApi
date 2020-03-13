@@ -2,6 +2,6 @@
 {
     public interface IVideoConvector
     {
-        byte[] ConvertVideo(byte[] img, ImageTransformSettings settings);
+        byte[] ConvertVideo(byte[] img, ImageSettings settings);
     }
 }

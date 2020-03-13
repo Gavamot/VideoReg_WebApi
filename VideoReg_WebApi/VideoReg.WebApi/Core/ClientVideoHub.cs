@@ -34,7 +34,7 @@ namespace VideoReg.WebApi.Core
         public Action<int[]> OnInitShow { get; set; }
         public Action<int> OnStopShow { get; set; }
         public Action<int> OnStartShow { get; set; }
-        public Action<int, ImageTransformSettings> OnSetCameraSettings { get; set; }
+        public Action<int, ImageSettings> OnSetCameraSettings { get; set; }
         private IVideoTransmitterConfig config;
 
         public ClientVideoHub(ILogger<ClientVideoHub> log, IVideoTransmitterConfig config)
@@ -45,23 +45,7 @@ namespace VideoReg.WebApi.Core
             this.connection = ConfigureConnection(serverUrl, token);
         }
 
-        IEnumerable<TimeSpan> GenerateReconnects()
-        {
-            for (int i = 0; i < 3; i++)
-            {
-                yield return TimeSpan.Zero;
-            }
-
-            for (int i = 100; i < 50; i++)
-            {
-                yield return TimeSpan.FromSeconds(1);
-            }
-
-            for (int i = 0; i < 100; i++)
-            {
-                yield return TimeSpan.FromSeconds(3);
-            }
-        }
+     
 
         //const string secretJwt = "133D41F6DA1D79B8A432423432432432432432432432546567657567431FFAF55C21E9B1521AE4021";
         //private const string tokenJwt =
@@ -118,7 +102,7 @@ namespace VideoReg.WebApi.Core
             connection.On<int[]>("SendInitShow", cameras => OnInitShow(cameras));
             connection.On<int>("SendStopShow", camera => OnStopShow(camera));
             connection.On<int>("SendStartShow", camera => OnStartShow(camera));
-            connection.On<int, ImageTransformSettings>("SendCameraSettings", (camera, settings) => OnSetCameraSettings(camera, settings));
+            connection.On<int, ImageSettings>("SendCameraSettings", (camera, settings) => OnSetCameraSettings(camera, settings));
 
             return connection;
         }

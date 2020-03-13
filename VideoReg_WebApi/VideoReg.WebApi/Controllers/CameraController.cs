@@ -215,10 +215,10 @@ namespace VideoReg.WebApi.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState.Values.ToArray()[0].Errors);
-            ImageTransformSettings imgSettings = null;
+            ImageSettings imgSettings = null;
             if (settings != null && !settings.IsDefault())
             {
-                imgSettings = mapper.Map<ImageTransformSettings>(settings);
+                imgSettings = mapper.Map<ImageSettings>(settings);
             }
             return await GenerateFileContentResultAsync(timeStamp => cameraCache.GetCameraAsync(num, imgSettings, timeStamp));
         }

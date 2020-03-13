@@ -128,7 +128,7 @@ namespace VideoReg.Domain.OnlineVideo.Store
 
         /// <returns>return null if image is not exist</returns>
         /// <exception cref="NoNModifiedException">Then camera image exist but timestamp is same and all attentions is waited.</exception>
-        public async Task<CameraResponse> GetCameraAsync(int cameraNumber, ImageTransformSettings imgSettings, DateTime? timeStamp)
+        public async Task<CameraResponse> GetCameraAsync(int cameraNumber, ImageSettings imgSettings, DateTime? timeStamp)
         {
             if (imgSettings != null)
             {

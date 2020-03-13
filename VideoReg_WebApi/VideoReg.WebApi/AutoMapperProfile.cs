@@ -15,8 +15,8 @@ namespace VideoReg.WebApi
 
         private void CreateCameraProfile()
         {
-            CreateMap<ImageTransformSettingsMV, ImageTransformSettings>();
-            CreateMap<ImageTransformSettings, ImageTransformSettingsMV>();
+            CreateMap<ImageTransformSettingsMV, ImageSettings>();
+            CreateMap<ImageSettings, ImageTransformSettingsMV>();
             CreateMap<FileVideoMp4, FileVideoMp4Dto>()
                 .ForMember(dest => dest.Brig, member => member.MapFrom(source => source.brigade))
                 .ForMember(dest => dest.Name, member => member.MapFrom(source => source.fullArchiveName))
