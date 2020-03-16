@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using ImageMagick;
+using VideoReg.Domain.Contract;
 using VideoReg.Domain.OnlineVideo;
 using VideoReg.Infra.Services;
 

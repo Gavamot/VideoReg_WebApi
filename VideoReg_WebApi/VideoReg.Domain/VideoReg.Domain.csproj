@@ -13,8 +13,4 @@
     <ProjectReference Include="..\VideoReg.Infra\VideoReg.Infra.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="OnlineVideo\Contract\" />
-  </ItemGroup>
-
 </Project>

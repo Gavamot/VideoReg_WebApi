@@ -1,6 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
-namespace VideoReg.Domain.VideoRegInfo
+namespace VideoReg.Domain.Contract
 {
     /// <summary>
     /// Получение информации о видеорегистраторе
@@ -11,5 +12,6 @@ namespace VideoReg.Domain.VideoRegInfo
         /// Получить общюю информацию о видеорегистраторе
         /// </summary>
         Task<RegInfo> GetInfo();
+        Action<RegInfo> RegInfoChanged { get; set; }
     }
 }

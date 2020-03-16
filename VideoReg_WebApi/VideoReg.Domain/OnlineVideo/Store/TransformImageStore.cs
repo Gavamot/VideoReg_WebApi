@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using VideoReg.Domain.Archive.Config;
+using VideoReg.Domain.Contract;
 using VideoReg.Domain.Store;
 using VideoReg.Infra.Services;
 

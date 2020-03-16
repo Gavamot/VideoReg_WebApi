@@ -9,6 +9,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using VideoReg.Domain.Contract;
 using VideoReg.Domain.OnlineVideo;
 using VideoReg.Domain.OnlineVideo.Store;
 using VideoReg.Domain.Store;

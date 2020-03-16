@@ -1,5 +1,6 @@
 using AutoMapper;
 using VideoReg.Domain.Archive.ArchiveFiles;
+using VideoReg.Domain.Contract;
 using VideoReg.Domain.OnlineVideo;
 using VideoReg.Dto;
 using VideoReg.WebApi.Controllers;

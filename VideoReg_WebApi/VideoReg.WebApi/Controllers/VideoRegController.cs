@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using VideoReg.Domain.OnlineVideo;
 using VideoReg.Domain.Store;
-using VideoReg.Domain.VideoRegInfo;
+using VideoReg.Domain.Contract;
 
 namespace VideoReg.WebApi.Controllers
 {

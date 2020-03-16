@@ -10,9 +10,10 @@ using VideoReg.Domain.OnlineVideo;
 using VideoReg.Domain.OnlineVideo.SignalR;
 using VideoReg.Domain.OnlineVideo.Store;
 using VideoReg.Domain.Store;
-using VideoReg.Domain.VideoRegInfo;
+using VideoReg.Domain.Contract;
 using VideoReg.Infra.Services;
 using VideoReg.WebApi.Core;
+using VideoRegService;
 using VideoRegService.Core;
 using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
@@ -52,7 +53,7 @@ namespace VideoReg.WebApi
             services.AddSingleton<IBrigadeHistoryRep, BrigadeHistoryRep>();
             services.AddSingleton<IVideoArchiveRep, VideoArchiveRep>();
 
-            services.AddSingleton<IVideoRegInfoStore, VideoRegInfoStore>();
+            services.AddSingleton<IRegInfoRep, RegInfoRep>();
             services.AddSingleton<IClientVideoHub, ClientVideoHub>();
 
             services.AddMapper();

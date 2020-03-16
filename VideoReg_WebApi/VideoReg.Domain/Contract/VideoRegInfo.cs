@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualBasic.CompilerServices;
 
-namespace VideoReg.Domain.VideoRegInfo
+namespace VideoReg.Domain.Contract
 {
     public class RegInfo
     {

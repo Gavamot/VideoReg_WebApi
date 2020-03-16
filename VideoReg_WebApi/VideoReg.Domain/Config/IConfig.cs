@@ -7,13 +7,7 @@ using VideoReg.Domain.Config;
 namespace VideoReg.Domain.Archive.Config
 {
     public interface IConfig : ICameraConfig, IArchiveConfig, ITrendsConfig, 
-        IImagePollingConfig, IBrigadeHistoryConfig, IVideoTransmitterConfig
+        IImagePollingConfig, IBrigadeHistoryConfig, IVideoTransmitterConfig, IRegInfoConfig
     {
-    }
-
-    public interface IVideoTransmitterConfig
-    {
-        string AscRegServiceEndpoint { get; set; }
-        string AscRegServiceBufferSize { get; set; }
     }
 }

@@ -1,43 +1,53 @@
-﻿using System.Collections.Concurrent;
-using System.Reflection;
+﻿using VideoReg.Domain.Contract;
 
 namespace VideoReg.Domain.OnlineVideo.Store
 {
     public interface ICameraSettingsStore
     {
-        ImageSettings GetOrDefault(int cameraNumber);
-        void Set(int cameraNumber, ImageSettings setting);
+        void SetAll(CameraSettings[] settings);
+        ImageSettings GetOrDefault(int camera);
+        void Set(CameraSettings settings);
+        void Set(int camera, ImageSettings settings);
     }
 
     public class CameraSettingsStore : ICameraSettingsStore
     {
-        //protected readonly ConcurrentDictionary<int, ImageSettings> store
-        //    = new ConcurrentDictionary<int, ImageSettings>();
+        public static ImageSettings DefaultSettings => new ImageSettings();
+        private readonly CamerasInfoArray<ImageSettings> store = new CamerasInfoArray<ImageSettings>();
 
-        private readonly ImageSettings[] store = new ImageSettings[10]; 
-
-
-        public CameraSettingsStore(CameraImage[] settings)
+        public CameraSettingsStore()
         {
+            InitDefaultSettings();
+        }
+        public ImageSettings GetOrDefault(int camera)
+        { 
+            
+            return GetSettings(camera);
+        }
 
-            for (int i = 1; i < 10; i++)
+
+        public void Set(CameraSettings setting)
+        {
+            store[setting.Camera] = setting.Settings;
+        }
+        public void Set(int camera, ImageSettings settings) => Set(new CameraSettings(camera, settings));
+
+        public void SetAll(CameraSettings[] settings)
+        {
+            foreach (var s in settings)
             {
-                store.TryAdd(i, new ImageSettings
-                {
-                    Width = 640,
-                    Height = 480
-                });
-            }   
+                store[s.Camera] = s.Settings;
+            }
         }
 
-        public ImageSettings GetOrDefault(int cameraNumber)
-        {
-            return store.TryGetValue(cameraNumber, out var settings) ? settings : new ImageSettings();
-        }
+        private ImageSettings GetSettings(int camera) => store[camera];
 
-        public void Set(int cameraNumber, ImageSettings setting)
+        private void InitDefaultSettings()
         {
-            store.AddOrUpdate(cameraNumber, k => setting, (k, oldV) => setting);
+            for (int i = store.firstCamera; i <= store.lastCamera; i++)
+            {
+                store[i] = DefaultSettings;
+            }
         }
     }
 }

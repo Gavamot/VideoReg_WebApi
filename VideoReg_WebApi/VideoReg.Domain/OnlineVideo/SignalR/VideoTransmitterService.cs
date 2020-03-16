@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
@@ -8,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using VideoReg.Domain.Archive.Config;
 using VideoReg.Domain.OnlineVideo.Store;
 using VideoReg.Domain.Store;
-using VideoReg.Domain.VideoRegInfo;
+using VideoReg.Domain.Contract;
 
 namespace VideoReg.Domain.OnlineVideo.SignalR
 {
@@ -21,7 +22,7 @@ namespace VideoReg.Domain.OnlineVideo.SignalR
         private readonly IClientVideoHub hub;
         private readonly ICameraStore cameraStore;
         private readonly ICameraSettingsStore settingsStore;
-        private readonly IVideoRegInfoStore regInfoStore;
+        private readonly IRegInfoRep regInfoReg;
         private readonly IVideoTransmitterConfig config;
 
         const int AllCameras = 0;
@@ -39,7 +40,7 @@ namespace VideoReg.Domain.OnlineVideo.SignalR
         public VideoTransmitterService(
             ILogger<VideoTransmitterService> log,
             IVideoTransmitterConfig config,
-            IVideoRegInfoStore regInfoStore,
+            IRegInfoRep regInfoReg,
             IClientVideoHub hub,
             ICameraStore cameraStore,
             ICameraSettingsStore settingsStore)
@@ -47,16 +48,20 @@ namespace VideoReg.Domain.OnlineVideo.SignalR
             this.config = config;
             this.cameraStore = cameraStore;
             this.settingsStore = settingsStore;
-            this.regInfoStore = regInfoStore;
+            this.regInfoReg = regInfoReg;
             this.hub = hub;
             this.log = log;
-            hub.OnInitShow += InitShow;
-            cameraStore.OnImageChanged += GotSnapshot;
+        }
+
+        private void RegInfoChanged(RegInfo regInfo)
+        { 
+            hub.SendNewRegInfoAsync(regInfo);
         }
 
         private async Task TransmitDataLoopAsync()
         {
             await InitSession();
+
             while (true)
             {
                 try
@@ -88,38 +93,70 @@ namespace VideoReg.Domain.OnlineVideo.SignalR
                 {
                     OffCamera(AllCameras);
                     await hub.ConnectWithRetryAsync();
-                    var reg = regInfoStore.GetRegInfo();
+                    var reg = await regInfoReg.GetInfo();
                     await hub.InitSessionAsync(reg);
-                    return;
+                    break;
                 }
                 catch(Exception e)
                 {
                     log.LogError(e, "InitSession error with {ip}", config.AscRegServiceEndpoint);
                 }
             }
+            SubscribeHubForEvents();
         }
 
-        public async Task StartAsync(CancellationToken cancellationToken)
+        private void SubscribeHubForEvents()
+        {
+            hub.OnInitShow += InitShow;
+            cameraStore.OnImageChanged += GotSnapshot;
+            regInfoReg.RegInfoChanged += RegInfoChanged;
+        }
+
+        public Task StartAsync(CancellationToken cancellationToken)
         {
             Task.Run(async () =>
             {
                 await TransmitDataLoopAsync();
             }, cancellationToken);
+            return Task.CompletedTask;
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
+            UnsubscribeHubForEvents();
             return Task.CompletedTask;
         }
 
-        private void InitShow(int[] cameras)
+        private void UnsubscribeHubForEvents()
+        {
+            hub.OnInitShow = cam => {};
+            cameraStore.OnImageChanged = (i, bytes) => { };
+            regInfoReg.RegInfoChanged = info => {};
+        }
+
+        private void InitShow(CameraSettings[] cameras)
         {
             log.LogInformation("server InitShow");
-            for (int i = FirstCamera; i < enabledCameras.Length; i++)
+            InitCameraSettings(cameras);
+            OnCameras(cameras);
+        }
+
+        private void InitCameraSettings(CameraSettings[] cameras)
+        {
+            foreach (var camera in cameras)
             {
-                enabledCameras[i] = cameras.Contains(i);
+                settingsStore.Set(camera);
             }
         }
+
+        private void OnCameras(CameraSettings[] cameras)
+        {
+            var enabled = cameras.Select(x => x.Camera).ToArray();
+            for (int i = FirstCamera; i < enabledCameras.Length; i++)
+            {
+                enabledCameras[i] = enabled.Contains(i);
+            }
+        } 
 
         private void OnCamera(int camera) => SwitchCamera(camera, true);
 
@@ -175,9 +212,6 @@ namespace VideoReg.Domain.OnlineVideo.SignalR
             updatedCameras[camera] = enabledCameras[camera];
         }
 
-        private void SubscribeHubForEvents(IClientVideoHub hub)
-        {
-            // TODO : Подписатся на все события и дореализовать.
-        }
+       
     }
 }

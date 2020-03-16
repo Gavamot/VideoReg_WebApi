@@ -35,5 +35,10 @@ namespace VideoReg.WebApi.Core
         {
             log.Error(message, e, obj);
         }
+
+        public void Fatal(string message, Exception e = default, object obj = default)
+        {
+            log.Fatal(message, e, obj);
+        }
     }
 }

@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using VideoReg.Domain.OnlineVideo;
-using VideoReg.Domain.VideoRegInfo;
+using VideoReg.Domain.Contract;
 using VideoReg.Infra.Services;
 
 namespace VideoRegService.Core

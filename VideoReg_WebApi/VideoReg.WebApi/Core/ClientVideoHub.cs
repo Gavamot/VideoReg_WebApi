@@ -16,7 +16,7 @@ using Serilog.Formatting.Display;
 using VideoReg.Domain.Archive.Config;
 using VideoReg.Domain.OnlineVideo;
 using VideoReg.Domain.OnlineVideo.SignalR;
-using VideoReg.Domain.VideoRegInfo;
+using VideoReg.Domain.Contract;
 
 namespace VideoReg.WebApi.Core
 {
@@ -31,10 +31,10 @@ namespace VideoReg.WebApi.Core
         private ILogger<ClientVideoHub> log;
         private CancellationToken token;
         private volatile Uri serverUrl;
-        public Action<int[]> OnInitShow { get; set; }
+        public Action<CameraSettings[]> OnInitShow { get; set; }
         public Action<int> OnStopShow { get; set; }
         public Action<int> OnStartShow { get; set; }
-        public Action<int, ImageSettings> OnSetCameraSettings { get; set; }
+        public Action<CameraSettings> OnSetCameraSettings { get; set; }
         private IVideoTransmitterConfig config;
 
         public ClientVideoHub(ILogger<ClientVideoHub> log, IVideoTransmitterConfig config)
@@ -45,47 +45,38 @@ namespace VideoReg.WebApi.Core
             this.connection = ConfigureConnection(serverUrl, token);
         }
 
-     
-
-        //const string secretJwt = "133D41F6DA1D79B8A432423432432432432432432432546567657567431FFAF55C21E9B1521AE4021";
-        //private const string tokenJwt =
-        //    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ2LTEzMzYiLCJuYW1lIjoib3JlaG92IiwiaWF0IjoxNTE2MjM5MDIyfQ.jGc9yRqSjqfu5wMwemuQadz06NF2TGt3B3oPJnASBUI";
-
-        //private Task<string> GetToken()
-        //{
-        //    return Task.FromResult(tokenJwt);
-        //}
+        
 
         private HubConnection ConfigureConnection(Uri serverUrl, CancellationToken token)
         {
             this.token = token;
             //var reconnects = GenerateReconnects().ToArray();
-            var cert = new X509Certificate2(Path.Combine("public.crt"), "v1336pwd");
-            var _clientHandler = new HttpClientHandler();
-            _clientHandler.ClientCertificates.Add(cert);
+            //var cert = new X509Certificate2(Path.Combine("public.crt"), "v1336pwd");
+            //var _clientHandler = new HttpClientHandler();
+            //_clientHandler.ClientCertificates.Add(cert);
 
             this.connection = new HubConnectionBuilder()
                 .WithUrl(serverUrl, HttpTransportType.WebSockets, options =>
                 {
                     options.Transports = HttpTransportType.WebSockets;
                     options.DefaultTransferFormat = TransferFormat.Binary;
-                    options.UseDefaultCredentials = true;
-                    options.ClientCertificates.Add(cert);
-                    options.SkipNegotiation = true;
-                    options.HttpMessageHandlerFactory = handler =>
-                    {
-                        var _clientHandler = new HttpClientHandler();
-                        _clientHandler.CheckCertificateRevocationList = false;
-                        _clientHandler.PreAuthenticate = false;
-                        _clientHandler.ClientCertificates.Add(cert);
-                        return _clientHandler;
-                    };
+                    //options.UseDefaultCredentials = true;
+                    //options.ClientCertificates.Add(cert);
+                    //options.SkipNegotiation = true;
+                    //options.HttpMessageHandlerFactory = handler =>
+                    //{
+                    //    var _clientHandler = new HttpClientHandler();
+                    //    _clientHandler.CheckCertificateRevocationList = false;
+                    //    _clientHandler.PreAuthenticate = false;
+                    //    _clientHandler.ClientCertificates.Add(cert);
+                    //    return _clientHandler;
+                    //};
                     
-                    options.WebSocketConfiguration = sockets =>
-                    {
-                        sockets.RemoteCertificateValidationCallback = (sender, certificate, chain, policyErrors) => true;
-                        sockets.ClientCertificates.Add(cert);
-                    };
+                    //options.WebSocketConfiguration = sockets =>
+                    //{
+                    //    sockets.RemoteCertificateValidationCallback = (sender, certificate, chain, policyErrors) => true;
+                    //    sockets.ClientCertificates.Add(cert);
+                    //};
                 })
                 .AddMessagePackProtocol(options =>
                 {
@@ -99,10 +90,10 @@ namespace VideoReg.WebApi.Core
                 .Build();
 
 
-            connection.On<int[]>("SendInitShow", cameras => OnInitShow(cameras));
+            connection.On<CameraSettings[]>("SendInitShow", cameras => OnInitShow(cameras));
             connection.On<int>("SendStopShow", camera => OnStopShow(camera));
             connection.On<int>("SendStartShow", camera => OnStartShow(camera));
-            connection.On<int, ImageSettings>("SendCameraSettings", (camera, settings) => OnSetCameraSettings(camera, settings));
+            connection.On<CameraSettings>("SendCameraSettings", settings => OnSetCameraSettings(settings));
 
             return connection;
         }

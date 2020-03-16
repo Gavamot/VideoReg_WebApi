@@ -23,5 +23,6 @@ namespace VideoReg.WebApi.Core
         public string BrigadeHistoryFileName { get; set; }
         public string AscRegServiceEndpoint { get; set; }
         public string AscRegServiceBufferSize { get; set; }
+        public string BrigadeCodePath { get; set; }
     }
 }

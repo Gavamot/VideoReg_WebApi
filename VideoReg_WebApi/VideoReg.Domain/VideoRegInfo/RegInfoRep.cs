@@ -1,22 +1,29 @@
 ﻿using System;
 using System.IO;
+using System.Net.Mime;
 using System.Net.NetworkInformation;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using VideoReg.Domain.VideoRegInfo;
+using VideoReg.Domain.Config;
+using VideoReg.Domain.Contract;
 using VideoReg.Infra.Services;
 
 namespace VideoRegService
 {
     public class RegInfoRep : IRegInfoRep
     {
-        public const string BrigadeCodeFile = "/home/v-1336/projects/dist/ASCWeb/brigade_code";
         public const int EmptyBrigadeCode = int.MinValue;
 
         private readonly ILog log;
+        private readonly IRegInfoConfig config;
         public Action<RegInfo> RegInfoChanged { get; set; }
-        public RegInfoRep(ILog log)
+        public string BrigadeCodeFile => config.BrigadeCodePath;
+        private const string VpnStartWith = "10.";
+        public RegInfoRep(ILog log, IRegInfoConfig config)
         {
             this.log = log;
+            this.config = config;
+            WatchToBrigadeCode();
         }
 
         public async Task<RegInfo> GetInfo()
@@ -28,6 +35,28 @@ namespace VideoRegService
                 Ip = ip,
                 Vpn = vpn,
                 BrigadeCode = brigadeCode
+            };
+        }
+
+        private void WatchToBrigadeCode()
+        {
+            if (!File.Exists(BrigadeCodeFile))
+            {
+                var message = $"Brigade code file is does not exist {BrigadeCodeFile}";
+                log.Fatal(message);
+                throw new Exception(message);
+            }
+
+            var fw = new FileSystemWatcher
+            {
+                Path = BrigadeCodeFile,
+                IncludeSubdirectories = false,
+                EnableRaisingEvents = true
+            };
+            fw.Changed += async (sender, args) =>
+            {
+                var regInfo= await GetInfo();
+                RegInfoChanged(regInfo);
             };
         }
 
@@ -53,21 +82,36 @@ namespace VideoRegService
                 var ipProps = netInterface.GetIPProperties();
                 foreach (var addr in ipProps.UnicastAddresses)
                 {
-                    var netAddr = addr.Address.MapToIPv4().ToString();
-                    if (netAddr.StartsWith("10."))
+                    var netAddress = addr.Address.MapToIPv4().ToString();
+                    if (netAddress.StartsWith(VpnStartWith))
                     {
-                        vpnIp = netAddr;
+                        vpnIp = netAddress;
                     }
-                    if (!netAddr.StartsWith("10.") &&
-                        !netAddr.StartsWith("192.") &&
-                        !netAddr.StartsWith("0.") &&
-                        !netAddr.StartsWith("127."))
+                    if (IsInternalAddress(netAddress))
                     {
-                        ip = netAddr;
+                        ip = netAddress;
                     }
                 }
             }
             return (ip, vpnIp);
+        }
+
+        private bool IsInternalAddress(string netAddress)
+        {
+            var localAddress = new string[]
+            {
+                VpnStartWith,
+                "192.",
+                "0",
+                "127."
+            };
+
+            foreach (var address in localAddress)
+            {
+                if (netAddress.StartsWith(address))
+                    return false;
+            }
+            return true;
         }
 
         private async Task<string> TryReadFirstStringFromFileAsync(string file)
@@ -99,7 +143,5 @@ namespace VideoRegService
                 return EmptyBrigadeCode;
             }
         }
-
-       
     }
 }

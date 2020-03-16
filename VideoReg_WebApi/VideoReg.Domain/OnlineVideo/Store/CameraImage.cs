@@ -1,4 +1,6 @@
-﻿namespace VideoReg.Domain.OnlineVideo.Store
+﻿using VideoReg.Domain.Contract;
+
+namespace VideoReg.Domain.OnlineVideo.Store
 {
     public class CameraImage
     {

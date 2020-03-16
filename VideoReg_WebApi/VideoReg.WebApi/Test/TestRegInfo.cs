@@ -1,6 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using ApiServicePack;
-using VideoReg.Domain.VideoRegInfo;
+using VideoReg.Domain.Contract;
 using VideoReg.Infra.Services;
 
 namespace VideoReg.WebApi.Test
@@ -22,5 +23,7 @@ namespace VideoReg.WebApi.Test
                 Vpn = "10.1.3.1"
             };
         }
+
+        public Action<RegInfo> RegInfoChanged { get; set; }
     }
 }

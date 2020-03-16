@@ -1,4 +1,6 @@
-﻿namespace VideoReg.Domain.OnlineVideo
+﻿using VideoReg.Domain.Contract;
+
+namespace VideoReg.Domain.OnlineVideo
 {
     public interface IVideoConvector
     {

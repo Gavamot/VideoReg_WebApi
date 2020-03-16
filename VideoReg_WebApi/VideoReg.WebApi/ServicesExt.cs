@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using VideoReg.Domain.OnlineVideo;
-using VideoReg.Domain.VideoRegInfo;
+using VideoReg.Domain.Contract;
 using VideoReg.WebApi.Core;
 using VideoReg.WebApi.Test;
 using VideoRegService;
