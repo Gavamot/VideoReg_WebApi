@@ -60,14 +60,17 @@ namespace VideoReg.Domain.OnlineVideo.SignalR
 
         private async Task TransmitDataLoopAsync()
         {
+            if(string.IsNullOrEmpty(config.AscRegServiceEndpoint))
+                return;
+            
             await InitSession();
-
             while (true)
             {
                 try
                 {
                     for (int cameraNumber = FirstCamera; cameraNumber < CamerasCount; cameraNumber++)
                     {
+
                         if (!updatedCameras[cameraNumber]) continue;
                         var img = cameraStore.GetOrDefaultTransformedImage(cameraNumber);
                         if (img == default) continue;

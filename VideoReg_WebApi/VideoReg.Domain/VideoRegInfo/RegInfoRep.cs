@@ -3,6 +3,7 @@ using System.IO;
 using System.Net.Mime;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading.Tasks;
 using VideoReg.Domain.Config;
 using VideoReg.Domain.Contract;
@@ -19,11 +20,17 @@ namespace VideoRegService
         public Action<RegInfo> RegInfoChanged { get; set; }
         public string BrigadeCodeFile => config.BrigadeCodePath;
         private const string VpnStartWith = "10.";
+        private FileSystemWatcher watcher;
         public RegInfoRep(ILog log, IRegInfoConfig config)
         {
             this.log = log;
             this.config = config;
             WatchToBrigadeCode();
+        }
+
+        ~RegInfoRep()
+        {
+            watcher.Dispose();
         }
 
         public async Task<RegInfo> GetInfo()
@@ -44,20 +51,22 @@ namespace VideoRegService
             {
                 var message = $"Brigade code file is does not exist {BrigadeCodeFile}";
                 log.Fatal(message);
-                throw new Exception(message);
+                Environment.Exit(1);
             }
 
-            var fw = new FileSystemWatcher
+            FileInfo fd = new FileInfo(config.BrigadeCodePath);
+            watcher = new FileSystemWatcher
             {
-                Path = BrigadeCodeFile,
-                IncludeSubdirectories = false,
-                EnableRaisingEvents = true
+                Path = fd.Directory.FullName,
             };
-            fw.Changed += async (sender, args) =>
+            watcher.Filter = fd.Name;
+            watcher.Changed += (sender, args) =>
             {
-                var regInfo= await GetInfo();
+                var regInfo = GetInfo().Result;
+                log.Info($"BrigadeCode was changed to {regInfo.BrigadeCode}");
                 RegInfoChanged(regInfo);
             };
+            watcher.EnableRaisingEvents = true;
         }
 
         private NetworkInterface[] TryGetNetworkInterfaces()
