@@ -9,7 +9,7 @@ using VideoReg.Domain.ValueType;
 
 namespace VideoReg.Domain.Archive.ArchiveFiles
 {
-    public class ArchiveFileFactory : IArchiveFileFactory
+    public class ArchiveFileGenerator : IArchiveFileGenerator
     {
         protected class ArchiveFileData
         {
@@ -27,10 +27,15 @@ namespace VideoReg.Domain.Archive.ArchiveFiles
         private readonly IBrigadeHistory brigadeHistory;
         private readonly IArchiveConfig config;
 
-        public ArchiveFileFactory(IBrigadeHistory brigadeHistory, IArchiveConfig config)
+        private ArchiveFileGenerator(IBrigadeHistory brigadeHistory, IArchiveConfig config)
         {
             this.brigadeHistory = brigadeHistory;
             this.config = config;
+        }
+
+        public static ArchiveFileGenerator Create(IBrigadeHistory brigadeHistory, IArchiveConfig config)
+        {
+          return new ArchiveFileGenerator(brigadeHistory, config);
         }
 
         public FileChannelJson CreteJson(string fileFullName)
@@ -44,6 +49,11 @@ namespace VideoReg.Domain.Archive.ArchiveFiles
             var data = GetArchiveFileData(fileFullName, config.VideoArchivePath, FileVideoMp4.Extension);
             int? duration = ParseDuration(data.filePats);
             return new FileVideoMp4(data.brigade, data.pdt, data.serialNumber, data.fullArchiveName, cameraNumber, duration);
+        }
+
+        public FileVideoMp4 CreateVideoMp4(DateTime pdt, int cameraNumber)
+        {
+            throw new NotImplementedException();
         }
 
         protected void CheckFileExtension(string file, string ext)

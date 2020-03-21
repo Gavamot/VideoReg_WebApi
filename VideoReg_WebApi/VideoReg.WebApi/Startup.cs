@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using VideoReg.Domain.Archive;
+using VideoReg.Domain.Archive.ArchiveFiles;
 using VideoReg.Domain.Archive.BrigadeHistory;
 using VideoReg.Domain.OnlineVideo;
 using VideoReg.Domain.OnlineVideo.SignalR;
@@ -40,21 +41,25 @@ namespace VideoReg.WebApi
 
             services.AddSingleton<IDateTimeService, DateTimeService>();
             services.AddSingleton<IFileSystemService, FileSystemService>();
-
             services.AddSingleton<ILog, AppLogger>();
             services.AddSingleton<IRedisRep>(x => new RedisRep(config.Redis));
 
-            services.AddDependencies();
-            services.AddSingleton<IVideoConvector, ImagicVideoConvector>();
-            services.AddSingleton<ICameraStore, TransformImageStore>();
-            services.AddSingleton<ICameraSettingsStore, CameraSettingsStore>();
-            
-            services.AddTransient<IVideoArchiveSource, VideoArchiveSourceFS>();
+            services.AddSingleton<IVideoArchiveSource, VideoArchiveSourceFS>();
             services.AddSingleton<IBrigadeHistoryRep, BrigadeHistoryRep>();
             services.AddSingleton<IVideoArchiveRep, VideoArchiveRep>();
+            services.AddSingleton<IArchiveFileGeneratorFactory, ArchiveFileGeneratorFactory>();
 
-            services.AddSingleton<IRegInfoRep, RegInfoRep>();
+            services.AddSingleton<IVideoConvector, ImagicVideoConvector>();
             services.AddSingleton<IClientVideoHub, ClientVideoHub>();
+
+            services.AddSingleton<ICameraStore, TransformImageStore>();
+            services.AddSingleton<ICameraSettingsStore, CameraSettingsStore>();
+#if (DEBUG)
+            services.AddTestDependencies();
+            #else
+                services.AddDependencies();
+            #endif
+
 
             services.AddMapper();
 

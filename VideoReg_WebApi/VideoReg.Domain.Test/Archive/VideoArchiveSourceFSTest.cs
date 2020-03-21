@@ -19,13 +19,13 @@ namespace VideoReg.Domain.Test.Archive
         private string file1 = $"2016.12.11T13.30.23_1_1_1_1_50.{FileVideoMp4.Extension}";
 
         private static readonly DateTime dt1 = new DateTime(2018, 12, 11, 2, 3, 4);
-        private readonly string dt1Str = dt1.ToString(ArchiveFileFactory.FileNameDateFormat);
+        private readonly string dt1Str = dt1.ToString(ArchiveFileGenerator.FileNameDateFormat);
 
         private static readonly DateTime dt2 = new DateTime(2018, 12, 11, 2, 4, 4);
-        private readonly string dt2Str = dt2.ToString(ArchiveFileFactory.FileNameDateFormat);
+        private readonly string dt2Str = dt2.ToString(ArchiveFileGenerator.FileNameDateFormat);
 
         private static readonly DateTime dt3 = new DateTime(2018, 12, 11, 2, 5, 4);
-        private readonly string dt3Str = dt3.ToString(ArchiveFileFactory.FileNameDateFormat);
+        private readonly string dt3Str = dt3.ToString(ArchiveFileGenerator.FileNameDateFormat);
 
         private readonly int duration = 50;
         public VideoArchiveSourceFSTest()

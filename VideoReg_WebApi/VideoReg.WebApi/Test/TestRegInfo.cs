@@ -14,7 +14,7 @@ namespace VideoReg.WebApi.Test
             this.dateService = dateService;
         }
 
-        public async Task<RegInfo> GetInfo()
+        public async Task<RegInfo> GetInfoAsync()
         {
             return new RegInfo
             {

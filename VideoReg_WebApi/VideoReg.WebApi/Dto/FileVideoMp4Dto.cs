@@ -1,10 +1,12 @@
-﻿namespace VideoReg.Dto
+﻿using System;
+
+namespace VideoReg.Dto
 {
     public class FileVideoMp4Dto
     {
-        public int Num { get; set; }
-        public int? Brig { get; set; }
-        public string Name { get; set; }
+        public int Camera { get; set; }
+        public int? Brigade { get; set; }
+        public DateTime Pdt { get; set; }
         public int Duration { get; set; }
     }
 }

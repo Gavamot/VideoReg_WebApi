@@ -25,9 +25,9 @@ namespace VideoReg.WebApi
                 .UseSerilog()
                 .ConfigureServices(services =>
                 {
-                    services.AddHostedService<CameraUpdateService>();
-                    services.AddHostedService<VideoArchiveUpdateService>();
-                    services.AddHostedService<VideoTransmitterService>();
+                    services.AddHostedService<CameraHostedService>();
+                    services.AddHostedService<VideoArchiveUpdateHostedService>();
+                    services.AddHostedService<VideoTransmitterHostedService>();
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {

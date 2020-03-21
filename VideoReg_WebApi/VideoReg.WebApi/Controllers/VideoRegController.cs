@@ -32,7 +32,7 @@ namespace VideoReg.WebApi.Controllers
         [Route("/[controller]/Info")]
         public async Task<ActionResult<RegInfo>> GetInfo()
         {
-            var res = await _regInfo.GetInfo();
+            var res = await _regInfo.GetInfoAsync();
             return Ok(res);
         }
 

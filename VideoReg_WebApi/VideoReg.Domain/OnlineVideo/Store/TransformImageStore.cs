@@ -71,7 +71,7 @@ namespace VideoReg.Domain.OnlineVideo.Store
                 var camera = store[cameraNumber];
                 camera.ConvertedImg = convertedImg;
                 camera.NativeImg = nativeImg;
-                DateTime now = dateTimeService.GetNow();
+                DateTime now = dateTimeService.Now();
                 camera.SetTimestamp(now);
             }
 
@@ -122,8 +122,7 @@ namespace VideoReg.Domain.OnlineVideo.Store
             if(imgSettings.IsNotDefault())
                 convertedImg = videoConvector.ConvertVideo(img, imgSettings);
             store.AddOrUpdate(cameraNumber, new CameraImage(imgSettings, convertedImg), img);
-            
-            Task.Run(() => OnImageChanged(cameraNumber, convertedImg));
+            OnImageChanged?.Invoke(cameraNumber, convertedImg);
             log.Info($"camera[{cameraNumber}] was updated. Converted={imgSettings.IsNotDefault()} ({imgSettings})");
         }
 

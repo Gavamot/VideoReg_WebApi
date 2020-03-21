@@ -29,13 +29,15 @@ namespace VideoReg.Domain.Archive.BrigadeHistory
 
         private readonly ILog log;
         private readonly BrigadeDateInterval[] history = new BrigadeDateInterval[0];
+        private readonly IDateTimeService dateTimeService;
 
-        public BrigadeHistory(ILog log)
+        public BrigadeHistory(ILog log, IDateTimeService dateTimeService)
         {
             this.log = log;
+            this.dateTimeService = dateTimeService;
         }
 
-        public BrigadeHistory(string fileText, ILog log) : this(log)
+        public BrigadeHistory(string fileText, IDateTimeService dateTimeService, ILog log) : this(log, dateTimeService)
         {
             try
             {
@@ -43,7 +45,7 @@ namespace VideoReg.Domain.Archive.BrigadeHistory
             }
             catch(Exception e)
             {
-                log.Error($"Error BrigadeHistory parce. (BrigadeHistory.CreateFromText).", e);
+                log.Error($"Error BrigadeHistory parse. (BrigadeHistory.CreateFromText).", e);
             }
         }
 
@@ -65,9 +67,9 @@ namespace VideoReg.Domain.Archive.BrigadeHistory
 
         private DateTime ParseVideoRegDateTime(string v)
         {
-            if (v == "NULL")
+            if (v == "NULL") 
                 return DateTime.MaxValue;
-            return DateTime.ParseExact(v, "yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture);
+            return dateTimeService.Parse(v);
         }
 
         private BrigadeDateInterval ParseLine(string line)

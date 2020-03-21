@@ -35,7 +35,7 @@ namespace VideoReg.Domain.Archive
         public FileVideoMp4[] GetCompletedVideoFiles(string pattern = Pattern)
         {
             var brigadeHistory = brigadeHistoryRep.GetBrigadeHistory();
-            var fileFactory = new ArchiveFileFactory(brigadeHistory, config);
+            var fileFactory = ArchiveFileGenerator.Create(brigadeHistory, config);
             var res = new List<FileVideoMp4>();
             var directories = fileSystem.GetDirectories(config.VideoArchivePath);
             foreach (var camDir in directories)
@@ -56,7 +56,7 @@ namespace VideoReg.Domain.Archive
             return false;
         }
 
-        private List<FileVideoMp4> GetFilesForAdd(ArchiveFileFactory fileFactory, string camDir, int cameraNumber, string pattern)
+        private List<FileVideoMp4> GetFilesForAdd(ArchiveFileGenerator fileGenerator, string camDir, int cameraNumber, string pattern)
         {
             var res = new List<FileVideoMp4>();
             string cameraNumberStr = cameraNumber.ToString();
@@ -68,7 +68,7 @@ namespace VideoReg.Domain.Archive
             {
                 try
                 {
-                    var vf = fileFactory.CreateVideoMp4(file, cameraNumber);
+                    var vf = fileGenerator.CreateVideoMp4(file, cameraNumber);
                     if (vf.IsComplete)
                         res.Add(vf);
                 }

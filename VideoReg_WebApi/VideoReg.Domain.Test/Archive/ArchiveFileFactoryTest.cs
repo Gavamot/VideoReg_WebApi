@@ -12,10 +12,10 @@ namespace VideoReg.Domain.Test
 {
     public class ArchiveFileFactoryTest
     {
-        private ArchiveFileFactory factory;
+        private ArchiveFileGenerator _generator;
         private readonly int?[] brigadeSequence = {2, null, 1};
         private static readonly DateTime dt1 = new DateTime(2018, 12, 11, 2, 3, 4);
-        private readonly string dt1Str = dt1.ToString(ArchiveFileFactory.FileNameDateFormat);
+        private readonly string dt1Str = dt1.ToString(ArchiveFileGenerator.FileNameDateFormat);
         private const string acrJson = "arc/json";
         private const string acrVideo = "arc/video";
         private readonly DeviceSerialNumber serial = new DeviceSerialNumber(new ushort[] { 1, 2, 3, 4 });
@@ -64,7 +64,7 @@ namespace VideoReg.Domain.Test
         {
             var config = GetFakeConfig();
             var brigadeHistoryRep = GetFakeBrigadeHistoryRep();
-            factory = new ArchiveFileFactory(brigadeHistory, config);
+            _generator = ArchiveFileGenerator.Create(brigadeHistory, config);
         }
 
         #region Json
@@ -75,7 +75,7 @@ namespace VideoReg.Domain.Test
             var file = JsonFile(dt1Str, serial);
             foreach (var brig in brigadeSequence)
             {
-                var f = factory.CreteJson(file);
+                var f = _generator.CreteJson(file);
                 Assert.AreEqual(f.pdt, dt1);
                 Assert.AreEqual(f.serialNumber, serial);
                 Assert.AreEqual(f.fullArchiveName, file);
@@ -88,7 +88,7 @@ namespace VideoReg.Domain.Test
         {
             DeviceSerialNumber emptySerial = default;
             var file = Path.Combine(acrJson, JsonFile(dt1Str));
-            var f = factory.CreteJson(file);
+            var f = _generator.CreteJson(file);
             Assert.AreEqual(f.pdt, dt1);
             Assert.AreEqual(f.serialNumber, emptySerial);
             Assert.AreEqual(f.fullArchiveName, file);
@@ -98,13 +98,13 @@ namespace VideoReg.Domain.Test
         [Test]
         public void JsonIncorrect_Empty()
         {
-            Assert.Throws<FormatException>(() => factory.CreteJson(string.Empty));
+            Assert.Throws<FormatException>(() => _generator.CreteJson(string.Empty));
         }
 
         [Test]
         public void JsonIncorrect_OnlyExtension()
         {
-            Assert.Throws<FormatException>(() => factory.CreteJson(FileChannelJson.Extension));
+            Assert.Throws<FormatException>(() => _generator.CreteJson(FileChannelJson.Extension));
         }
 
         [Test]
@@ -112,7 +112,7 @@ namespace VideoReg.Domain.Test
         {
             // The format must be "yyyy.M.ddTHH.mm.ss"
             var file = JsonFile("14.12.2018T22.14.18", serial);
-            Assert.Throws<FormatException>(() => factory.CreteJson(file));
+            Assert.Throws<FormatException>(() => _generator.CreteJson(file));
         }
         #endregion
 
@@ -126,7 +126,7 @@ namespace VideoReg.Domain.Test
             var file = VideoFile(dt1Str, duration, serial);
             foreach (var brig in brigadeSequence)
             {
-                var f = factory.CreateVideoMp4(file, cameraNumber);
+                var f = _generator.CreateVideoMp4(file, cameraNumber);
                 Assert.AreEqual(f.pdt, dt1);
                 Assert.AreEqual(f.serialNumber, serial);
                 Assert.AreEqual(f.fullArchiveName, file);
@@ -142,7 +142,7 @@ namespace VideoReg.Domain.Test
             int duration = 60;
             int cameraNumber = 1;
             var file = VideoFile(dt1Str, duration);
-            var f = factory.CreateVideoMp4(file, cameraNumber);
+            var f = _generator.CreateVideoMp4(file, cameraNumber);
             Assert.AreEqual(f.pdt, dt1);
             Assert.AreEqual(f.serialNumber, default(DeviceSerialNumber));
             Assert.AreEqual(f.fullArchiveName, file);
@@ -158,7 +158,7 @@ namespace VideoReg.Domain.Test
             DeviceSerialNumber? serial = null;
             var file = VideoFile(dt1Str, null);
 
-            var f = factory.CreateVideoMp4(file, cameraNumber);
+            var f = _generator.CreateVideoMp4(file, cameraNumber);
             Assert.AreEqual(f.pdt, dt1);
             Assert.AreEqual(f.serialNumber, default(DeviceSerialNumber));
             Assert.AreEqual(f.fullArchiveName, file);
@@ -167,7 +167,7 @@ namespace VideoReg.Domain.Test
             Assert.AreEqual(f.brigade, brigadeSequence.First());
 
             file = VideoFile($"{dt1Str}", 1);
-            f = factory.CreateVideoMp4(file, cameraNumber);
+            f = _generator.CreateVideoMp4(file, cameraNumber);
             Assert.AreEqual(f.pdt, dt1);
             Assert.AreEqual(f.serialNumber, default(DeviceSerialNumber));
             Assert.AreEqual(f.fullArchiveName, file);
@@ -181,7 +181,7 @@ namespace VideoReg.Domain.Test
         {
             int cameraNumber = 1;
             var file = VideoFile(dt1Str, null, serial);
-            var f = factory.CreateVideoMp4(file, cameraNumber);
+            var f = _generator.CreateVideoMp4(file, cameraNumber);
             Assert.AreEqual(f.pdt, dt1);
             Assert.AreEqual(f.serialNumber, serial);
             Assert.AreEqual(f.fullArchiveName, file);
@@ -193,13 +193,13 @@ namespace VideoReg.Domain.Test
         [Test]
         public void VideoIncorrect_Empty()
         {
-            Assert.Throws<FormatException>(() => factory.CreateVideoMp4(string.Empty, 1));
+            Assert.Throws<FormatException>(() => _generator.CreateVideoMp4(string.Empty, 1));
         }
 
         [Test]
         public void VideoIncorrect_OnlyExtension()
         {
-            Assert.Throws<FormatException>(() => factory.CreateVideoMp4(FileVideoMp4.Extension, 1));
+            Assert.Throws<FormatException>(() => _generator.CreateVideoMp4(FileVideoMp4.Extension, 1));
         }
 
         [Test]
@@ -207,7 +207,7 @@ namespace VideoReg.Domain.Test
         {
             // The format must be "yyyy.M.ddTHH.mm.ss"
             var file = VideoFile("14.12.2018T22.14.18", 60, serial);
-            Assert.Throws<FormatException>(() => factory.CreateVideoMp4(file, 1));
+            Assert.Throws<FormatException>(() => _generator.CreateVideoMp4(file, 1));
         }
 
         #endregion

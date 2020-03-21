@@ -19,9 +19,9 @@ namespace VideoReg.WebApi
             CreateMap<ImageTransformSettingsMV, ImageSettings>();
             CreateMap<ImageSettings, ImageTransformSettingsMV>();
             CreateMap<FileVideoMp4, FileVideoMp4Dto>()
-                .ForMember(dest => dest.Brig, member => member.MapFrom(source => source.brigade))
-                .ForMember(dest => dest.Name, member => member.MapFrom(source => source.fullArchiveName))
-                .ForMember(dest => dest.Num, member => member.MapFrom(source => source.cameraNumber))
+                .ForMember(dest => dest.Brigade, member => member.MapFrom(source => source.brigade))
+                .ForMember(dest => dest.Pdt, member => member.MapFrom(source => source.pdt))
+                .ForMember(dest => dest.Camera, member => member.MapFrom(source => source.cameraNumber))
                 .ForMember(dest => dest.Duration, member => member.MapFrom(source => source.durationSeconds));
         }
     }

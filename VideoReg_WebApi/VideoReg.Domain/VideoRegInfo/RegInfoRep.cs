@@ -33,10 +33,10 @@ namespace VideoRegService
             watcher.Dispose();
         }
 
-        public async Task<RegInfo> GetInfo()
+        public async Task<RegInfo> GetInfoAsync()
         {
             var (ip, vpn) = GetIpAddress();
-            var brigadeCode = await GetBrigadeCode();
+            var brigadeCode = await GetBrigadeCodeAsync();
             return new RegInfo
             {
                 Ip = ip,
@@ -62,7 +62,7 @@ namespace VideoRegService
             watcher.Filter = fd.Name;
             watcher.Changed += (sender, args) =>
             {
-                var regInfo = GetInfo().Result;
+                var regInfo = GetInfoAsync().Result;
                 log.Info($"BrigadeCode was changed to {regInfo.BrigadeCode}");
                 RegInfoChanged(regInfo);
             };
@@ -137,7 +137,7 @@ namespace VideoRegService
             }
         }
 
-        private async Task<int> GetBrigadeCode()
+        private async Task<int> GetBrigadeCodeAsync()
         { 
             var brigadeString = await TryReadFirstStringFromFileAsync(BrigadeCodeFile);
             if(string.IsNullOrEmpty(brigadeString))

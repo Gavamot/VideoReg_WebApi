@@ -17,7 +17,7 @@ namespace VideoReg.Domain.Test.Archive
     class VideoArchiveUpdateServiceTest
     {
         private IMemoryCache cache;
-        private VideoArchiveUpdateService updateService;
+        private VideoArchiveUpdateHostedService _updateHostedService;
         private ILog log;
         private IVideoArchiveConfig config;
         private IVideoArchiveSource rep;
@@ -47,7 +47,7 @@ namespace VideoReg.Domain.Test.Archive
             A.CallTo(()=>rep.GetCompletedVideoFiles(""))
                 .WithAnyArguments()
                 .ReturnsNextFromSequence(files);
-            updateService = new VideoArchiveUpdateService(log, config, cache, rep);
+            _updateHostedService = new VideoArchiveUpdateHostedService(log, config, cache, rep);
         }
 
         [Test]
@@ -62,7 +62,7 @@ namespace VideoReg.Domain.Test.Archive
         {
             foreach (var f in files)
             {
-                updateService.DoWork(new CancellationToken());
+                _updateHostedService.DoWork(new CancellationToken());
                 Assert.AreEqual(cache.GetVideoArchiveCache(), f);
             }
         }

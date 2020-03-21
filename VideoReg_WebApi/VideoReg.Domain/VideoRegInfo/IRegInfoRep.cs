@@ -11,7 +11,7 @@ namespace VideoReg.Domain.Contract
         /// <summary>
         /// Получить общюю информацию о видеорегистраторе
         /// </summary>
-        Task<RegInfo> GetInfo();
+        Task<RegInfo> GetInfoAsync();
         Action<RegInfo> RegInfoChanged { get; set; }
     }
 }

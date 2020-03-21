@@ -21,7 +21,7 @@ namespace ApiServicePack
 
         private CacheValue<TValue> CreateValue(TValue value)
         {
-            var timestamp = dateService.GetNow();
+            var timestamp = dateService.Now();
             return new CacheValue<TValue>(value, timestamp);
         }
         
@@ -64,7 +64,7 @@ namespace ApiServicePack
 
         public CacheKeyValue<TKey, TValue>[] GetAllActual(int oldMs)
         {
-            var now = dateService.GetNow();
+            var now = dateService.Now();
             return All.Where(x => (now - x.Timestamp).TotalMilliseconds <= oldMs).ToArray();
         }
 

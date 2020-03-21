@@ -56,18 +56,18 @@ namespace VideoReg.WebApi.Controllers
     }
 
     [ApiController]
-    public class CameraController : ControllerBase
+    public class CameraController : AppController
     {
         //readonly ICameraSettingsRep cameraSettingsRep;
         readonly IMapper mapper;
         private readonly ICameraStore cameraCache;
-        private const string ApiDateTimeFormat = "yyyy-M-dTH:m:s.fff";
         private readonly ILog log;
 
         public CameraController(//ICameraSettingsRep cameraSettingsRep,
             IMapper mapper, 
             ICameraStore cameraCache,
-            ILog log)
+            IDateTimeService dateTimeService,
+            ILog log) : base(dateTimeService)
         {
             //this.cameraSettingsRep = cameraSettingsRep;
             this.mapper = mapper;
@@ -162,32 +162,9 @@ namespace VideoReg.WebApi.Controllers
         //    return Ok();
         //}
 
-        /// <summary>
-        /// Получить картинку с камеры
-        /// </summary>
-        /// <response code="200">Картинка</response> 
-        /// <response code="404">Изображение не найдено</response>
-        private const string HeaderTimestamp = "X-IMAGE-DATE";
-        public const string ImageDateHeaderFormat = "yyyy-M-dTHH:mm:ss.fff";
-
-        private DateTime? ReadTimeStampFromRequest()
-        {
-            DateTime? timeStamp = null;
-            if (Response.Headers.TryGetValue(HeaderTimestamp, out var dtStr))
-            {
-                timeStamp = DateTime.ParseExact(dtStr[0], ImageDateHeaderFormat, CultureInfo.InvariantCulture);
-            }
-            return timeStamp;
-        }
-
-        private void SetResponseTimestampHeader(DateTime timestamp)
-        {
-            Response.Headers.Add(HeaderTimestamp, timestamp.ToString(ImageDateHeaderFormat, CultureInfo.InvariantCulture));
-        }
-
         private async Task<IActionResult> GenerateFileContentResultAsync(Func<DateTime?, Task<CameraResponse>> getImg)
         {
-            DateTime? timeStamp = ReadTimeStampFromRequest();
+            DateTime? timeStamp = ReadFromRequestTimestamp();
             CameraResponse img = default;
             try
             {
@@ -201,7 +178,7 @@ namespace VideoReg.WebApi.Controllers
             if (img == default) // Изображение по переданной камере не найдено
                 return NotFound();
 
-            SetResponseTimestampHeader(img.Timestamp);
+            SetHeaderToResponseTimestamp(img.Timestamp);
             return File(img.Img, "image/jpeg");
         }
 
@@ -212,7 +189,7 @@ namespace VideoReg.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status304NotModified)]
         [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         [Route("/[controller]/[action]")]
-        public async Task<IActionResult> GetImage([FromQuery]int num, [FromQuery]ImageTransformSettingsMV settings = default)
+        public async Task<IActionResult> GetImage([FromQuery]int camera, [FromQuery]ImageTransformSettingsMV settings = default)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState.Values.ToArray()[0].Errors);
@@ -221,7 +198,7 @@ namespace VideoReg.WebApi.Controllers
             {
                 imgSettings = mapper.Map<ImageSettings>(settings);
             }
-            return await GenerateFileContentResultAsync(timeStamp => cameraCache.GetCameraAsync(num, imgSettings, timeStamp));
+            return await GenerateFileContentResultAsync(timeStamp => cameraCache.GetCameraAsync(camera, imgSettings, timeStamp));
         }
 
         /// <summary>
@@ -236,11 +213,11 @@ namespace VideoReg.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status304NotModified)]
         [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         [Route("/[controller]/[action]")]
-        public async Task<IActionResult> GetImageFromCache([FromQuery]int num)
+        public async Task<IActionResult> GetImageFromCache([FromQuery]int camera)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState.Values.ToArray()[0].Errors);
-            return await GenerateFileContentResultAsync(timeStamp => cameraCache.GetCameraAsync(num, null, timeStamp));
+            return await GenerateFileContentResultAsync(timeStamp => cameraCache.GetCameraAsync(camera, null, timeStamp));
         }
     }
 }

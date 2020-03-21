@@ -32,12 +32,14 @@
             </summary>
             <response code="200">Настройки были изменены</response>
         </member>
-        <member name="F:VideoReg.WebApi.Controllers.CameraController.HeaderTimestamp">
+        <member name="M:VideoReg.WebApi.Controllers.CameraController.GenerateFileContentResultAsync(System.Func{System.Nullable{System.DateTime},System.Threading.Tasks.Task{VideoReg.Domain.OnlineVideo.Store.CameraResponse}})">
             <summary>
-            Получить картинку с камеры
+            Установить настройки для одной камеры
             </summary>
-            <response code="200">Картинка</response> 
-            <response code="404">Изображение не найдено</response>
+            <param name="cameraSettings">Номер камеры с настройками камеры</param>
+            <response code="200">Настройки были изменены</response>
+            <response code="400">Неверные входные параметры</response>  
+            <response code="500">Произошла ошибка</response>  
         </member>
         <member name="M:VideoReg.WebApi.Controllers.CameraController.GetImageFromCache(System.Int32)">
             <summary>
@@ -52,7 +54,7 @@
             </summary>
             <response code="200">Возвращает последнюю актуальную информацию о видеорегистраторе</response>
         </member>
-        <member name="M:VideoReg.WebApi.Controllers.VideoArchiveController.GetFile(System.String)">
+        <member name="M:VideoReg.WebApi.Controllers.VideoArchiveController.GetFile(System.Int32,System.DateTime)">
             <summary>
             Получить информацию по трендам
             </summary>

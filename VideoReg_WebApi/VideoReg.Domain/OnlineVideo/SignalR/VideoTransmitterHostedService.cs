@@ -16,9 +16,9 @@ namespace VideoReg.Domain.OnlineVideo.SignalR
     // TODO : Сделать регуляровку частоты взятия снапшотов в зависимости от нагрузки процессора
     // TODO : Сделать переподключаемые хабы
     // TODO : Продумать концепцию сдлотов для отправки
-    public class VideoTransmitterService : IHostedService
+    public class VideoTransmitterHostedService : IHostedService
     {
-        private readonly ILogger<VideoTransmitterService> log;
+        private readonly ILogger<VideoTransmitterHostedService> log;
         private readonly IClientVideoHub hub;
         private readonly ICameraStore cameraStore;
         private readonly ICameraSettingsStore settingsStore;
@@ -37,8 +37,8 @@ namespace VideoReg.Domain.OnlineVideo.SignalR
         /// </summary>
         readonly bool[] updatedCameras = new bool[CamerasCount];
 
-        public VideoTransmitterService(
-            ILogger<VideoTransmitterService> log,
+        public VideoTransmitterHostedService(
+            ILogger<VideoTransmitterHostedService> log,
             IVideoTransmitterConfig config,
             IRegInfoRep regInfoReg,
             IClientVideoHub hub,
@@ -54,23 +54,33 @@ namespace VideoReg.Domain.OnlineVideo.SignalR
         }
 
         private void RegInfoChanged(RegInfo regInfo)
-        { 
+        {
             hub.SendNewRegInfoAsync(regInfo);
         }
 
         private async Task TransmitDataLoopAsync()
         {
-            if(string.IsNullOrEmpty(config.AscRegServiceEndpoint))
+            if (string.IsNullOrEmpty(config.AscRegServiceEndpoint))
+            {
+                log.LogInformation($"VideoTransmitterService is off. config.AscRegServiceEndpoint is empty ");
                 return;
-            
+            }
+                
+            log.LogInformation($"VideoTransmitterService connect to {config.AscRegServiceEndpoint}");
+
+            hub.OnInitShow += InitShow;
+
             await InitSession();
+
+            cameraStore.OnImageChanged += GotSnapshot;
+            regInfoReg.RegInfoChanged += RegInfoChanged;
+
             while (true)
             {
                 try
                 {
                     for (int cameraNumber = FirstCamera; cameraNumber < CamerasCount; cameraNumber++)
                     {
-
                         if (!updatedCameras[cameraNumber]) continue;
                         var img = cameraStore.GetOrDefaultTransformedImage(cameraNumber);
                         if (img == default) continue;
@@ -90,13 +100,14 @@ namespace VideoReg.Domain.OnlineVideo.SignalR
 
         private async Task InitSession()
         {
+            OffCamera(AllCameras);
             while (true)
             {
+                log.LogInformation($"VideoTransmitterService InitSession()");
                 try
                 {
-                    OffCamera(AllCameras);
                     await hub.ConnectWithRetryAsync();
-                    var reg = await regInfoReg.GetInfo();
+                    var reg = await regInfoReg.GetInfoAsync();
                     await hub.InitSessionAsync(reg);
                     break;
                 }
@@ -105,15 +116,10 @@ namespace VideoReg.Domain.OnlineVideo.SignalR
                     log.LogError(e, "InitSession error with {ip}", config.AscRegServiceEndpoint);
                 }
             }
-            SubscribeHubForEvents();
+           
         }
 
-        private void SubscribeHubForEvents()
-        {
-            hub.OnInitShow += InitShow;
-            cameraStore.OnImageChanged += GotSnapshot;
-            regInfoReg.RegInfoChanged += RegInfoChanged;
-        }
+      
 
         public Task StartAsync(CancellationToken cancellationToken)
         {

@@ -9,12 +9,13 @@ namespace VideoReg.Domain.Archive.BrigadeHistory
         private readonly IFileSystemService fileSystem;
         private readonly IBrigadeHistoryConfig config;
         private readonly ILog log;
+        private readonly IDateTimeService dateTimeService;
 
-        public BrigadeHistoryRep(IFileSystemService fileSystem, IBrigadeHistoryConfig config, ILog log)
+        public BrigadeHistoryRep(IBrigadeHistoryConfig config, IDateTimeService dateTimeService, ILog log)
         {
-            this.fileSystem = fileSystem;
             this.config = config;
             this.log = log;
+            this.dateTimeService = dateTimeService;
         }
 
         string GetFileText() => fileSystem.ReadFileText(config.BrigadeHistoryFileName, Encoding.UTF8);
@@ -24,11 +25,12 @@ namespace VideoReg.Domain.Archive.BrigadeHistory
             try
             {
                 var text = GetFileText();
-                return new BrigadeHistory(text, log);
+                return new BrigadeHistory(text, dateTimeService, log);
             }
             catch (Exception e)
             {
-                return new BrigadeHistory(log);
+                log.Error($"Error then GetBrigadeHistory - {e.Message}");
+                return new BrigadeHistory(log, dateTimeService);
             }
         }
     }

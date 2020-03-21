@@ -13,23 +13,24 @@ namespace VideoReg.Domain.OnlineVideo.Store
     public class CameraSettingsStore : ICameraSettingsStore
     {
         public static ImageSettings DefaultSettings => new ImageSettings();
-        private readonly CamerasInfoArray<ImageSettings> store = new CamerasInfoArray<ImageSettings>();
+        private readonly CamerasInfoArray<ImageSettings> store = new CamerasInfoArray<ImageSettings>(DefaultSettings);
 
         public CameraSettingsStore()
         {
-            InitDefaultSettings();
+            
         }
+
         public ImageSettings GetOrDefault(int camera)
         { 
             
             return GetSettings(camera);
         }
 
-
         public void Set(CameraSettings setting)
         {
             store[setting.Camera] = setting.Settings;
         }
+
         public void Set(int camera, ImageSettings settings) => Set(new CameraSettings(camera, settings));
 
         public void SetAll(CameraSettings[] settings)
@@ -42,12 +43,5 @@ namespace VideoReg.Domain.OnlineVideo.Store
 
         private ImageSettings GetSettings(int camera) => store[camera];
 
-        private void InitDefaultSettings()
-        {
-            for (int i = store.firstCamera; i <= store.lastCamera; i++)
-            {
-                store[i] = DefaultSettings;
-            }
-        }
     }
 }

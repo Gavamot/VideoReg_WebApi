@@ -45,8 +45,6 @@ namespace VideoReg.WebApi.Core
             this.connection = ConfigureConnection(serverUrl, token);
         }
 
-        
-
         private HubConnection ConfigureConnection(Uri serverUrl, CancellationToken token)
         {
             this.token = token;
@@ -100,7 +98,6 @@ namespace VideoReg.WebApi.Core
 
         public async Task ConnectWithRetryAsync()
         {
-            // TODO : обработать ошибку при перезапуске сервера
             while (connection.State != HubConnectionState.Connected)
             {
                 log.LogInformation("[hub] ....... {serverUrl}", serverUrl);

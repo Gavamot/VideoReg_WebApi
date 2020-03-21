@@ -6,7 +6,7 @@ namespace VideoReg.Domain.Archive
 {
     public interface IVideoArchiveRep
     {
-        MemoryStream GetVideoFileStream(string fileName);
+        Stream GetVideoFileStream(DateTime pdt, int camera);
         FileVideoMp4[] GetStructure(DateTime startWith);
     }
 }

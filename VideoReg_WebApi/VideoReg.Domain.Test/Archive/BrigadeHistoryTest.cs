@@ -23,7 +23,7 @@ namespace VideoReg.Domain.Test
         private readonly ILog log = A.Fake<ILog>();
 
         private BrigadeHistory Bg(string text) =>
-            new BrigadeHistory(text, log);
+            new BrigadeHistory(text, new DateTimeService(), log);
 
         private string Text(params string[] str)
         {
@@ -45,7 +45,7 @@ namespace VideoReg.Domain.Test
         [SetUp]
         public void Setup()
         {
-            Empty = new BrigadeHistory("", log);
+            Empty = new BrigadeHistory("", new DateTimeService(), log);
             OneRow = Bg(Text(
                 GenerateLine(dt_start, null, 1)
                 ));

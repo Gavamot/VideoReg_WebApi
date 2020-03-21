@@ -11,18 +11,17 @@ using VideoRegService;
 namespace VideoReg.Domain.OnlineVideo
 {
     // TODO : переписать на нормальную реализацию для каждой камеры сделать индивидуальный подход.
-    public class CameraUpdateService : ServiceUpdater
+    public class CameraHostedService : ServiceUpdater
     {
         private readonly IImgRep imgRep;
         readonly ICameraStore cameraCache;
         readonly ICameraSourceRep sourceRep;
         private ICameraConfig config;
       
-        readonly ConcurrentDictionary<int, CancellationTokenSource> tasks 
-            = new ConcurrentDictionary<int, CancellationTokenSource>();
+        readonly CamerasInfoArray<bool> executingTask = new CamerasInfoArray<bool>(false);
 
       //  private readonly IServiceProvider di;
-        public CameraUpdateService(IImgRep imgRep,
+        public CameraHostedService(IImgRep imgRep,
             ICameraStore cameraCache,
             ICameraSourceRep cameraSourceRep,
             ICameraConfig config,
@@ -35,41 +34,39 @@ namespace VideoReg.Domain.OnlineVideo
         }
 
         public override string Name => "CameraUpdate";
+        async Task UpdateImage(Uri url, CameraSourceSettings setting)
+        {
+            try
+            {
+                var img = await imgRep.GetImgAsync(url, config.CameraGetImageTimeoutMs, CancellationToken.None);
+                cameraCache.SetCamera(setting.number, img);
+            }
+            catch (HttpImgRepStatusCodeException e)
+            {
+                await Task.Delay(config.CameraUpdateSleepIfAuthorizeErrorTimeoutMs);
+                log.Error($"Can not update camera[{setting.number}]({setting.snapshotUrl}) - {e.Message}", e);
+            }
+            catch (Exception e)
+            {
+                await Task.Delay(config.CameraUpdateSleepIfErrorTimeoutMs);
+                log.Error($"Can not update camera[{setting.number}]({setting.snapshotUrl}) - {e.Message}", e);
+            }
+            finally
+            {
+                executingTask[setting.number] = false;
+            }
+        }
 
         protected void UpdateCameraImage(CameraSourceSettings setting)
         {
-            async Task UpdateImage(Uri url, CameraSourceSettings setting, CancellationToken token)
+            if (executingTask[setting.number]) return;
+            if (!Uri.TryCreate(setting.snapshotUrl, UriKind.Absolute, out var uri))
             {
-                try
-                {
-                    var img = await imgRep.GetImgAsync(url, config.CameraGetImageTimeoutMs, token);
-                    cameraCache.SetCamera(setting.number, img);
-                }
-                catch (HttpImgRepStatusCodeException e)
-                {
-                    await Task.Delay(config.CameraUpdateSleepIfAuthorizeErrorTimeoutMs);
-                    log.Error($"Can not update camera[{setting.number}]({setting.snapshotUrl}) - {e.Message}", e);
-                }
-                catch (Exception e)
-                {
-                    await Task.Delay(config.CameraUpdateSleepIfErrorTimeoutMs);
-                    log.Error($"Can not update camera[{setting.number}]({setting.snapshotUrl}) - {e.Message}", e);
-                }
-                finally
-                {
-                    tasks.TryRemove(setting.number, out var task);
-                }
+                log.Error($"Camera[{setting.number}] has incorrect url {setting.snapshotUrl}");
+                return;
             }
-
-            if (tasks.ContainsKey(setting.number)) return;
-            if (!Uri.TryCreate(setting.snapshotUrl, UriKind.Absolute, out var uri)) return;
-            var tokenSource = new CancellationTokenSource();
-            tasks.AddOrUpdate(setting.number, key => tokenSource, (key, old) =>
-            {
-                old.Cancel();
-                return tokenSource;
-            });
-            var task = UpdateImage(uri, setting, tokenSource.Token);
+            executingTask[setting.number] = true;
+            _ = UpdateImage(uri, setting);
         }
 
         public override async void DoWork(CancellationToken cancellationToken)

@@ -16,6 +16,7 @@ namespace VideoReg.Domain.Archive.ArchiveFiles
             this.cameraNumber = cameraNumber;
             this.durationSeconds = durationSeconds;
         }
+
         public FileVideoMp4(int? brigade, DateTime pdt, DeviceSerialNumber serialNumber, string fullArchiveName, int cameraNumber, int? durationSeconds)
             : base(brigade, pdt, serialNumber, fullArchiveName)
         {

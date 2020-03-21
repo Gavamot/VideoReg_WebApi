@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using VideoReg.Domain.Archive;
 using VideoReg.Domain.Archive.Config;
@@ -6,13 +7,13 @@ using VideoReg.Infra.Services;
 
 namespace VideoRegService.Core.Archive
 {
-    public class VideoArchiveUpdateService : ServiceUpdater
+    public class VideoArchiveUpdateHostedService : ServiceUpdater
     {
         private readonly IVideoArchiveConfig config;
         private readonly IMemoryCache cache;
         private readonly IVideoArchiveSource rep;
 
-        public VideoArchiveUpdateService(ILog log, IVideoArchiveConfig config,
+        public VideoArchiveUpdateHostedService(ILog log, IVideoArchiveConfig config,
             IMemoryCache cache, IVideoArchiveSource rep) 
             : base(config.VideoArchiveUpdateTimeMs, log)
         {
@@ -28,5 +29,6 @@ namespace VideoRegService.Core.Archive
             var files = rep.GetCompletedVideoFiles(); 
             cache.SetVideoArchiveCache(files);
         }
+
     }
 }

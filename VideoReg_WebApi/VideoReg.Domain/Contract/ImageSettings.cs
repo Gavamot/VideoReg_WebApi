@@ -8,7 +8,6 @@ namespace VideoReg.Domain.Contract
         public static bool IsDefault(this ImageSettings self) 
             => self.Height == 0 || self.Width  == 0 || self.Quality == 0;
         
-
         public static bool IsNotDefault(this ImageSettings self)
         {
             return !self.IsDefault();

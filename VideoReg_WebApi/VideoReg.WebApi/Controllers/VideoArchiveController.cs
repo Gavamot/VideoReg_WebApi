@@ -3,20 +3,28 @@ using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using VideoReg.Domain.Archive;
+using VideoReg.Domain.Archive.ArchiveFiles;
+using VideoReg.Domain.Archive.BrigadeHistory;
 using VideoReg.Dto;
+using VideoReg.Infra.Services;
 
 namespace VideoReg.WebApi.Controllers
 {
     [ApiController]
-    public class VideoArchiveController : ControllerBase
+    public class VideoArchiveController : AppController
     {
         readonly IVideoArchiveRep videoArc;
         private readonly IMapper mapper;
-
-        public VideoArchiveController(IVideoArchiveRep videoArc, IMapper mapper)
+        private readonly IArchiveFileGenerator _fileGenerator;
+        private readonly IBrigadeHistoryRep brigadeHistoryRep;
+        public VideoArchiveController(IVideoArchiveRep videoArc,
+            IMapper mapper,
+            IDateTimeService dateTimeService, 
+            IBrigadeHistoryRep brigadeHistoryRep) : base(dateTimeService)
         {
             this.videoArc = videoArc;
             this.mapper = mapper;
+            this.brigadeHistoryRep = brigadeHistoryRep;
         }
 
         //netstat -n | wc -l
@@ -40,13 +48,17 @@ namespace VideoReg.WebApi.Controllers
         /// <response code="404">Запрошенный файл не существует</response>  
         [HttpGet]
         [Route("/[controller]/File")]
-        public IActionResult GetFile(string fileName)
+        public IActionResult GetFile(int camera, DateTime pdt)
         {
-            var stream = videoArc.GetVideoFileStream(fileName);
-            if (stream == default)
-                return NotFound(); 
+            var fileStream = videoArc.GetVideoFileStream(pdt, camera);
+            if (fileStream == default)
+                return NotFound();
+            
+            var brigade = brigadeHistoryRep.GetBrigadeHistory().GetBrigadeCode(pdt);
+            SetHeaderToResponseBrigade(brigade);
+
             Response.StatusCode = StatusCodes.Status206PartialContent;
-            return File(stream, "video/mp4", enableRangeProcessing: true);
+            return File(fileStream, "video/mp4", enableRangeProcessing: true);
         }
     }
 }
