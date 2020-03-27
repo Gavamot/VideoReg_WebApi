@@ -17,10 +17,10 @@ namespace VideoReg.Domain.OnlineVideo
         readonly ICameraStore cameraCache;
         readonly ICameraSourceRep sourceRep;
         private ICameraConfig config;
-      
+
         readonly CamerasInfoArray<bool> executingTask = new CamerasInfoArray<bool>(false);
 
-      //  private readonly IServiceProvider di;
+        //  private readonly IServiceProvider di;
         public CameraHostedService(IImgRep imgRep,
             ICameraStore cameraCache,
             ICameraSourceRep cameraSourceRep,
@@ -34,6 +34,7 @@ namespace VideoReg.Domain.OnlineVideo
         }
 
         public override string Name => "CameraUpdate";
+
         async Task UpdateImage(Uri url, CameraSourceSettings setting)
         {
             try
@@ -43,13 +44,13 @@ namespace VideoReg.Domain.OnlineVideo
             }
             catch (HttpImgRepStatusCodeException e)
             {
-                await Task.Delay(config.CameraUpdateSleepIfAuthorizeErrorTimeoutMs);
                 log.Error($"Can not update camera[{setting.number}]({setting.snapshotUrl}) - {e.Message}", e);
+                await Task.Delay(config.CameraUpdateSleepIfAuthorizeErrorTimeoutMs);
             }
             catch (Exception e)
             {
-                await Task.Delay(config.CameraUpdateSleepIfErrorTimeoutMs);
                 log.Error($"Can not update camera[{setting.number}]({setting.snapshotUrl}) - {e.Message}", e);
+                await Task.Delay(config.CameraUpdateSleepIfErrorTimeoutMs);
             }
             finally
             {
@@ -65,30 +66,25 @@ namespace VideoReg.Domain.OnlineVideo
                 log.Error($"Camera[{setting.number}] has incorrect url {setting.snapshotUrl}");
                 return;
             }
+
             executingTask[setting.number] = true;
             _ = UpdateImage(uri, setting);
         }
 
         public override async void DoWork(CancellationToken cancellationToken)
         {
-            try
+            while (true)
             {
-#if DEBUG
-                var settings = new[]
+                try
                 {
-                    new CameraSourceSettings(1, "http://192.168.88.10/tmpfs/auto.jpg"),
-                    new CameraSourceSettings(2, "http://192.168.88.242/webcapture.jpg?command=snap&amp;channel=1"),
-                    new CameraSourceSettings(3, "http://192.168.88.82/ISAPI/Streaming/channels/101/picture?snapShotImageType=JPEG")
-                };    
-#else
-                var settings = await sourceRep.GetAll();
-#endif
-                Parallel.ForEach(settings, UpdateCameraImage);
-            }
-            catch (Exception e)
-            {
-                await Task.Delay(config.CameraUpdateSleepIfErrorTimeoutMs, cancellationToken);
-                log.Error($"Cannot find Cameras Settings ({e.Message})");
+                    var settings = await sourceRep.GetAll();
+                    Parallel.ForEach(settings, UpdateCameraImage);
+                }
+                catch (Exception e)
+                {
+                    await Task.Delay(config.CameraUpdateSleepIfErrorTimeoutMs, cancellationToken);
+                    log.Error($"Cannot find Cameras Settings ({e.Message})");
+                }
             }
         }
     }

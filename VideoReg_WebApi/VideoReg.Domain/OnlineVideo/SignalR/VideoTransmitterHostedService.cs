@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
+using MustDo;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
@@ -13,9 +13,6 @@ using VideoReg.Domain.Contract;
 
 namespace VideoReg.Domain.OnlineVideo.SignalR
 {
-    // TODO : Сделать регуляровку частоты взятия снапшотов в зависимости от нагрузки процессора
-    // TODO : Сделать переподключаемые хабы
-    // TODO : Продумать концепцию сдлотов для отправки
     public class VideoTransmitterHostedService : IHostedService
     {
         private readonly ILogger<VideoTransmitterHostedService> log;
@@ -27,15 +24,16 @@ namespace VideoReg.Domain.OnlineVideo.SignalR
 
         const int AllCameras = 0;
         private const int FirstCamera = 1;
-        private const int CamerasCount = 10;
+        private const int CamerasArraySize = 10;
+        
         /// <summary>
         /// Камеры по которым необходимо передавать изображения
         /// </summary>
-        readonly bool[] enabledCameras = new bool[CamerasCount]; 
+        readonly bool[] enabledCameras = new bool[CamerasArraySize]; 
         /// <summary>
         /// Когда изображдение в cameraStore обновляется обновляется выставляется флаг, после отправки флаг снимается
         /// </summary>
-        readonly bool[] updatedCameras = new bool[CamerasCount];
+        readonly bool[] updatedCameras = new bool[CamerasArraySize];
 
         public VideoTransmitterHostedService(
             ILogger<VideoTransmitterHostedService> log,
@@ -58,6 +56,44 @@ namespace VideoReg.Domain.OnlineVideo.SignalR
             hub.SendNewRegInfoAsync(regInfo);
         }
 
+        private void SendCameraImages()
+        {
+            var tasks = new Task[CamerasArraySize - FirstCamera];
+            for (int cameraNumber = FirstCamera; cameraNumber < CamerasArraySize; cameraNumber++)
+            {
+                var camNum = cameraNumber;
+                tasks[camNum - FirstCamera] = Task.Run(async () =>
+                {
+                    if (!updatedCameras[camNum]) return;
+                    var img = cameraStore.GetOrDefaultTransformedImage(camNum);
+                    if (img == default) return;
+                    await hub.SendCameraImageAsync(camNum, img);
+                    updatedCameras[camNum] = false;
+                    log.LogInformation($"ReceiveCameraImage[{camNum}]");
+                });
+            }
+            Task.WaitAll(tasks);
+            
+        }
+
+        private async Task SendCameraImagesLoop()
+        {
+            while (true)
+            {
+                try
+                {
+                    SendCameraImages();
+                }
+                catch (Exception e)
+                {
+                    log.LogError("can not send SendCameraImages message={message}", e, e.Message);
+                    SwitchCamera(AllCameras, false);
+                    await Task.Delay(500);
+                    await InitSession();
+                }
+            }
+        }
+
         private async Task TransmitDataLoopAsync()
         {
             if (string.IsNullOrEmpty(config.AscRegServiceEndpoint))
@@ -67,59 +103,42 @@ namespace VideoReg.Domain.OnlineVideo.SignalR
             }
                 
             log.LogInformation($"VideoTransmitterService connect to {config.AscRegServiceEndpoint}");
-
-            hub.OnInitShow += InitShow;
-
+            
+            hub.OnInitShow = InitShow;
             await InitSession();
 
-            cameraStore.OnImageChanged += GotSnapshot;
-            regInfoReg.RegInfoChanged += RegInfoChanged;
-
-            while (true)
-            {
-                try
-                {
-                    for (int cameraNumber = FirstCamera; cameraNumber < CamerasCount; cameraNumber++)
-                    {
-                        if (!updatedCameras[cameraNumber]) continue;
-                        var img = cameraStore.GetOrDefaultTransformedImage(cameraNumber);
-                        if (img == default) continue;
-                        await hub.SendCameraImageAsync(cameraNumber, img);
-                        updatedCameras[cameraNumber] = false;
-                        log.LogInformation($"ReceiveCameraImage[{cameraNumber}]");
-                    }
-                }
-                catch (Exception e)
-                {
-                    await Task.Delay(500);
-                    await InitSession();
-                }
-                await Task.Delay(10);
-            }
+            cameraStore.OnImageChanged = GotSnapshot;
+            regInfoReg.RegInfoChanged = RegInfoChanged;
+            
+            await SendCameraImagesLoop();
         }
 
         private async Task InitSession()
         {
-            OffCamera(AllCameras);
-            while (true)
+            var must = new Must(1000);
+            must.OnError = exception => log.LogError(exception, exception.Message);
+            
+            var regInfo = await must.Exec(async() =>
             {
-                log.LogInformation($"VideoTransmitterService InitSession()");
-                try
-                {
-                    await hub.ConnectWithRetryAsync();
-                    var reg = await regInfoReg.GetInfoAsync();
-                    await hub.InitSessionAsync(reg);
-                    break;
-                }
-                catch(Exception e)
-                {
-                    log.LogError(e, "InitSession error with {ip}", config.AscRegServiceEndpoint);
-                }
-            }
-           
-        }
+                log.LogInformation($"Get reg info ...");
+                return await regInfoReg.GetInfoAsync();
+            });
 
-      
+            await must.Exec(async ()=>
+            {
+                await hub.ConnectWithRetryAsync();
+                log.LogInformation("VideoTransmitterService InitSession() to {ip}", config.AscRegServiceEndpoint);
+                await hub.InitSessionAsync(regInfo);
+            });
+
+            hub.OnStartShow = camera => SwitchCamera(camera, true);
+            hub.OnStopShow = camera => SwitchCamera(camera, false);
+            hub.OnSetCameraSettings = settings =>
+            {
+                log.LogInformation($"Have got new camera[{settings.Camera}] settings {settings.Settings}");
+                settingsStore.Set(settings);
+            };
+        }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
@@ -165,39 +184,38 @@ namespace VideoReg.Domain.OnlineVideo.SignalR
             {
                 enabledCameras[i] = enabled.Contains(i);
             }
-        } 
-
-        private void OnCamera(int camera) => SwitchCamera(camera, true);
-
-        private void OffCamera(int camera) => SwitchCamera(camera, false);
+        }
 
         private void SwitchCamera(int camera, bool enabled)
         {
+            string cameraStatus = enabled ? "enabled" : "disabled";
             ThrowArgumentExceptionIfBadCamera(camera);
-
+            
             if (camera == AllCameras)
             {
+                log.LogInformation($"All cameras - show {cameraStatus}");
                 SwitchAllCameras(enabled);
             }
             else
             {
+                log.LogInformation($"{camera} camera - show {cameraStatus}");
                 enabledCameras[camera] = enabled;
             }
         }
 
-        private bool IsCorrectCamera(int camera) => camera >= AllCameras && camera < CamerasCount;
+        private bool IsCorrectCamera(int camera) => camera >= AllCameras && camera < CamerasArraySize;
 
         private void ThrowArgumentExceptionIfBadCamera(int camera)
         {
             if (!IsCorrectCamera(camera))
             {
-                throw new ArgumentException($"camera number must be in range ({0},{CamerasCount - 1})");
+                throw new ArgumentException($"camera number must be in range ({0},{CamerasArraySize - 1})");
             }
         }
 
         private void SwitchAllCameras(bool enabled)
         {
-            for (int i = FirstCamera; i < CamerasCount; i++)
+            for (int i = FirstCamera; i < CamerasArraySize; i++)
             {
                 enabledCameras[i] = enabled;
             }
@@ -206,7 +224,7 @@ namespace VideoReg.Domain.OnlineVideo.SignalR
         private int[] GetEnabledCameras()
         {
             var res = new List<int>();
-            for (int i = FirstCamera; i < CamerasCount; i++)
+            for (int i = FirstCamera; i < CamerasArraySize; i++)
             {
                 if (enabledCameras[i])
                 {
@@ -220,7 +238,5 @@ namespace VideoReg.Domain.OnlineVideo.SignalR
         { 
             updatedCameras[camera] = enabledCameras[camera];
         }
-
-       
     }
 }

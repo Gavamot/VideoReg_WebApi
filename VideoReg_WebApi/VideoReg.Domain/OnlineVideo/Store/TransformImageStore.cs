@@ -122,7 +122,9 @@ namespace VideoReg.Domain.OnlineVideo.Store
             if(imgSettings.IsNotDefault())
                 convertedImg = videoConvector.ConvertVideo(img, imgSettings);
             store.AddOrUpdate(cameraNumber, new CameraImage(imgSettings, convertedImg), img);
+
             OnImageChanged?.Invoke(cameraNumber, convertedImg);
+
             log.Info($"camera[{cameraNumber}] was updated. Converted={imgSettings.IsNotDefault()} ({imgSettings})");
         }
 

@@ -11,6 +11,7 @@ namespace VideoReg.Domain.OnlineVideo.SignalR
         Task InitSessionAsync(RegInfo info);
         Task SendCameraImageAsync(int camera, byte[] image);
         Task SendNewRegInfoAsync(RegInfo info);
+        Task Close();
         Action<CameraSettings[]> OnInitShow { get; set; }
         Action<int> OnStopShow { get; set; }
         Action<int> OnStartShow { get; set; }

@@ -65,7 +65,8 @@ namespace VideoReg.WebApi
             services.AddSingleton<ICameraSourceRep, TestCameraRep>();
             services.AddSingleton<IRegInfoRep, TestRegInfo>();
             services.AddSingleton<ITrendsRep, TestFileTrendsRep>();
-            services.AddSingleton<IImgRep, TestRandomImgRep>();
+            services.AddSingleton<IImgRep, HttpImgRep>();
+            //services.AddSingleton<IImgRep, TestRandomImgRep>();
         }
 
         public static void AddMapper(this IServiceCollection services)

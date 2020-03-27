@@ -25,7 +25,7 @@ namespace VideoRegService
         {
             this.log = log;
             this.config = config;
-            WatchToBrigadeCode();
+            _ = WatchToBrigadeCode();
         }
 
         ~RegInfoRep()
@@ -35,8 +35,13 @@ namespace VideoRegService
 
         public async Task<RegInfo> GetInfoAsync()
         {
-            var (ip, vpn) = GetIpAddress();
             var brigadeCode = await GetBrigadeCodeAsync();
+            return GetInfo(brigadeCode);
+        }
+
+        RegInfo GetInfo(int brigadeCode)
+        {
+            var (ip, vpn) = GetIpAddress();
             return new RegInfo
             {
                 Ip = ip,
@@ -45,7 +50,7 @@ namespace VideoRegService
             };
         }
 
-        private void WatchToBrigadeCode()
+        private async Task WatchToBrigadeCode()
         {
             if (!File.Exists(BrigadeCodeFile))
             {
@@ -54,19 +59,19 @@ namespace VideoRegService
                 Environment.Exit(1);
             }
 
-            FileInfo fd = new FileInfo(config.BrigadeCodePath);
-            watcher = new FileSystemWatcher
+            int oldBrigadeCode = -1;
+            while (true)
             {
-                Path = fd.Directory.FullName,
-            };
-            watcher.Filter = fd.Name;
-            watcher.Changed += (sender, args) =>
-            {
-                var regInfo = GetInfoAsync().Result;
-                log.Info($"BrigadeCode was changed to {regInfo.BrigadeCode}");
-                RegInfoChanged(regInfo);
-            };
-            watcher.EnableRaisingEvents = true;
+                var newBrigadeCode = await GetBrigadeCodeAsync();
+                if (oldBrigadeCode != newBrigadeCode)
+                {
+                    oldBrigadeCode = newBrigadeCode;
+                    var regInfo = GetInfo(newBrigadeCode);
+                    log.Info($"BrigadeCode was changed to {regInfo.BrigadeCode}");
+                    RegInfoChanged(regInfo);
+                }
+                await Task.Delay(1000);
+            }
         }
 
         private NetworkInterface[] TryGetNetworkInterfaces()

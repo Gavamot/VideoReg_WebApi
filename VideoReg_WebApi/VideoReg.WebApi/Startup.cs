@@ -60,7 +60,6 @@ namespace VideoReg.WebApi
                 services.AddDependencies();
             #endif
 
-
             services.AddMapper();
 
             services.AddHttpClient();
@@ -102,7 +101,6 @@ namespace VideoReg.WebApi
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
                 c.RoutePrefix = string.Empty;
             });
-
         }
     }
 }

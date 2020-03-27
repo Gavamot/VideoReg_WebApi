@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Net.Http;
-using System.Net.Security;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using MessagePack;
@@ -12,9 +8,7 @@ using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Serilog.Formatting.Display;
 using VideoReg.Domain.Archive.Config;
-using VideoReg.Domain.OnlineVideo;
 using VideoReg.Domain.OnlineVideo.SignalR;
 using VideoReg.Domain.Contract;
 
@@ -35,14 +29,18 @@ namespace VideoReg.WebApi.Core
         public Action<int> OnStopShow { get; set; }
         public Action<int> OnStartShow { get; set; }
         public Action<CameraSettings> OnSetCameraSettings { get; set; }
+
         private IVideoTransmitterConfig config;
 
         public ClientVideoHub(ILogger<ClientVideoHub> log, IVideoTransmitterConfig config)
         {
             this.log = log;
             this.config = config;
-            this.serverUrl = GenerateServerUrl(config.AscRegServiceEndpoint);
-            this.connection = ConfigureConnection(serverUrl, token);
+            if (!string.IsNullOrEmpty(config.AscRegServiceEndpoint))
+            {
+                this.serverUrl = GenerateServerUrl(config.AscRegServiceEndpoint);
+                this.connection = ConfigureConnection(serverUrl, token);
+            }
         }
 
         private HubConnection ConfigureConnection(Uri serverUrl, CancellationToken token)
@@ -88,23 +86,47 @@ namespace VideoReg.WebApi.Core
                 .Build();
 
 
-            connection.On<CameraSettings[]>("SendInitShow", cameras => OnInitShow(cameras));
-            connection.On<int>("SendStopShow", camera => OnStopShow(camera));
-            connection.On<int>("SendStartShow", camera => OnStartShow(camera));
-            connection.On<CameraSettings>("SendCameraSettings", settings => OnSetCameraSettings(settings));
+            connection.On<CameraSettings[]>("SendInitShow", cameras =>
+            {
+                OnInitShow(cameras);
+            });
+               
+            connection.On<int>("SendStopShow", camera =>
+            {
+                OnStopShow(camera);
+            });
+
+            connection.On<int>("SendStartShow", camera =>
+            {
+                OnStartShow(camera);
+            });
+                
+            connection.On<CameraSettings>("SendCameraSettings", settings =>
+            {
+                OnSetCameraSettings(settings);
+            });
 
             return connection;
+        }
+
+        public async Task Close()
+        {
+            await connection.StopAsync(CancellationToken.None);
+            await connection.DisposeAsync();
         }
 
         public async Task ConnectWithRetryAsync()
         {
             while (connection.State != HubConnectionState.Connected)
             {
-                log.LogInformation("[hub] ....... {serverUrl}", serverUrl);
                 try
                 {
-                    await connection.StartAsync(token);
-                    log.LogInformation("[hub] -------- {serverUrl}", serverUrl);
+                    if (connection.State == HubConnectionState.Disconnected)
+                    {
+                        await connection.StartAsync(token);
+                        log.LogInformation("[hub] -------- {serverUrl}", serverUrl);
+                    }
+                    await Task.Delay(500, token);
                 }
                 catch when (token.IsCancellationRequested)
                 {
