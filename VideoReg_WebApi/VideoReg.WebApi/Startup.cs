@@ -54,11 +54,13 @@ namespace VideoReg.WebApi
 
             services.AddSingleton<ICameraStore, TransformImageStore>();
             services.AddSingleton<ICameraSettingsStore, CameraSettingsStore>();
-#if (DEBUG)
+
             services.AddTestDependencies();
-            #else
-                services.AddDependencies();
-            #endif
+//#if (DEBUG)
+//            services.AddTestDependencies();
+//            #else
+//                services.AddDependencies();
+//            #endif
 
             services.AddMapper();
 

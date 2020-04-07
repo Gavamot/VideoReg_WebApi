@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using VideoReg.Infra.Services;
 
 namespace VideoReg.Infra.Test
@@ -19,6 +20,11 @@ namespace VideoReg.Infra.Test
         public byte[] ReadFile(string file)
         {
             return files.First(x => x.fullName == file).body;
+        }
+
+        public Task<byte[]> ReadFileAsync(string file)
+        {
+            throw new NotImplementedException();
         }
 
         public string[] GetFiles(string directory, string pattern = "")
@@ -61,6 +67,16 @@ namespace VideoReg.Infra.Test
         public string ReadFileText(string file, Encoding encoding)
         {
             return encoding.GetString(files.First(x => x.fullName == file).body); 
+        }
+
+        public Task<string> ReadFileTextAsync(string file, Encoding encoding)
+        {
+            throw new NotImplementedException();
+        }
+
+        public DateTime GetLastModification(string file)
+        {
+            throw new NotImplementedException();
         }
 
         public MemoryStream ReadFileToMemory(string file)

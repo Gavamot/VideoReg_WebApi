@@ -1,9 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace VideoReg.Domain.OnlineVideo
 {
     public interface ITrendsRep
     {
-        Task<string> GetThrendsAsync();
+        DateTime GetLastChanged();
+        Task<string> TryGetTrendsIfChangedAsync(DateTime timestamp);
     }
 }

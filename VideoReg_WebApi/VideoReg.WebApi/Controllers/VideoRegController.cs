@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using VideoReg.Domain.OnlineVideo;
@@ -75,7 +76,7 @@ namespace VideoReg.WebApi.Controllers
         [Route("/[controller]/Trends")]
         public async Task<ActionResult> GetTrends()
         {
-            var file = await trendsRep.GetThrendsAsync();
+            var file = await trendsRep.TryGetTrendsIfChangedAsync(DateTime.MinValue);
             return Ok(File(file, "application/json"));
         }
     }
