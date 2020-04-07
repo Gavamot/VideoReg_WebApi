@@ -1,6 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -14,47 +12,10 @@ using VideoReg.Domain.OnlineVideo;
 using VideoReg.Domain.OnlineVideo.Store;
 using VideoReg.Domain.Store;
 using VideoReg.Infra.Services;
+using VideoReg.WebApi.Dto;
 
 namespace VideoReg.WebApi.Controllers
 {
-    public class ImageTransformSettingsMV
-    {
-        public const int MinSizePx = 0;
-        public const int MaxSizePx = 1920;
-        public const int MinQuality = 0;
-        public const int MaxQuality = 100;
-
-        /// <summary>
-        /// Ширина изображения (px)
-        /// </summary>
-        [Range(MinSizePx, MaxSizePx)]
-        [Display(Name = "Ширина")]
-        [DefaultValue(0)]
-        public int Width { get; set; }
-
-        /// <summary>
-        /// Высота изображения (px)
-        /// </summary>
-        [Range(MinSizePx, MaxSizePx)]
-        [Display(Name = "Высота")]
-        [DefaultValue(0)]
-        public int Height { get; set; }
-
-        /// <summary>
-        /// Качество изображения (%)
-        /// </summary>
-        [Range(MinQuality, MaxQuality)]
-        [Display(Name = "Качество изображения  %")]
-        [DefaultValue(0)]
-        public int Quality { get; set; }
-
-        public bool IsDefault() => 
-            Height == 0 
-            || Width == 0 
-            || Quality == 0;
-        
-    }
-
     [ApiController]
     public class CameraController : AppController
     {
@@ -119,7 +80,7 @@ namespace VideoReg.WebApi.Controllers
         /// <response code="500">Произошла ошибка</response>  
         //[HttpPost]
         //[Route("/[controller]/[action]")]
-        //public async Task<IActionResult> SetSettingsForAll([FromBody]ImageTransformSettingsMV cameraSettings)
+        //public async Task<IActionResult> SetSettingsForAll([FromBody]ImageTransformSettingsDto cameraSettings)
         //{
         //    if (!ModelState.IsValid)
         //        return BadRequest(ModelState);
@@ -189,7 +150,7 @@ namespace VideoReg.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status304NotModified)]
         [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         [Route("/[controller]/[action]")]
-        public async Task<IActionResult> GetImage([FromQuery]int camera, [FromQuery]ImageTransformSettingsMV settings = default)
+        public async Task<IActionResult> GetImage([FromQuery]int camera, [FromQuery]ImageTransformSettingsDto settings = default)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState.Values.ToArray()[0].Errors);

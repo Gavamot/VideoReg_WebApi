@@ -11,21 +11,6 @@
             <response code="200">Настройки были изменены</response>
             <response code="500">Произошла ошибка</response>  
         </member>
-        <member name="P:VideoReg.WebApi.Controllers.ImageTransformSettingsMV.Width">
-            <summary>
-            Ширина изображения (px)
-            </summary>
-        </member>
-        <member name="P:VideoReg.WebApi.Controllers.ImageTransformSettingsMV.Height">
-            <summary>
-            Высота изображения (px)
-            </summary>
-        </member>
-        <member name="P:VideoReg.WebApi.Controllers.ImageTransformSettingsMV.Quality">
-            <summary>
-            Качество изображения (%)
-            </summary>
-        </member>
         <member name="M:VideoReg.WebApi.Controllers.CameraController.GetAvailableCameras">
             <summary>
             Получить доступные камеры
@@ -112,6 +97,21 @@
         </member>
         <member name="M:VideoReg.WebApi.DateTimeMvc.DateTimeModelBinderProvider.GetBinder(Microsoft.AspNetCore.Mvc.ModelBinding.ModelBinderProviderContext)">
             <inheritdoc />
+        </member>
+        <member name="P:VideoReg.WebApi.Dto.ImageTransformSettingsDto.Width">
+            <summary>
+            Ширина изображения (px)
+            </summary>
+        </member>
+        <member name="P:VideoReg.WebApi.Dto.ImageTransformSettingsDto.Height">
+            <summary>
+            Высота изображения (px)
+            </summary>
+        </member>
+        <member name="P:VideoReg.WebApi.Dto.ImageTransformSettingsDto.Quality">
+            <summary>
+            Качество изображения (%)
+            </summary>
         </member>
     </members>
 </doc>

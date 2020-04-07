@@ -11,11 +11,12 @@ namespace VideoReg.Domain.Archive.BrigadeHistory
         private readonly ILog log;
         private readonly IDateTimeService dateTimeService;
 
-        public BrigadeHistoryRep(IBrigadeHistoryConfig config, IDateTimeService dateTimeService, ILog log)
+        public BrigadeHistoryRep(IBrigadeHistoryConfig config, IDateTimeService dateTimeService, IFileSystemService fileSystem, ILog log)
         {
             this.config = config;
             this.log = log;
             this.dateTimeService = dateTimeService;
+            this.fileSystem = fileSystem;
         }
 
         string GetFileText() => fileSystem.ReadFileText(config.BrigadeHistoryFileName, Encoding.UTF8);

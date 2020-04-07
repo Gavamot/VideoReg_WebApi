@@ -4,6 +4,7 @@ using VideoReg.Domain.Contract;
 using VideoReg.Domain.OnlineVideo;
 using VideoReg.Dto;
 using VideoReg.WebApi.Controllers;
+using VideoReg.WebApi.Dto;
 
 namespace VideoReg.WebApi
 {
@@ -16,8 +17,8 @@ namespace VideoReg.WebApi
 
         private void CreateCameraProfile()
         {
-            CreateMap<ImageTransformSettingsMV, ImageSettings>();
-            CreateMap<ImageSettings, ImageTransformSettingsMV>();
+            CreateMap<ImageTransformSettingsDto, ImageSettings>();
+            CreateMap<ImageSettings, ImageTransformSettingsDto>();
             CreateMap<FileVideoMp4, FileVideoMp4Dto>()
                 .ForMember(dest => dest.Brigade, member => member.MapFrom(source => source.brigade))
                 .ForMember(dest => dest.Pdt, member => member.MapFrom(source => source.pdt))
