@@ -83,8 +83,8 @@ namespace ApiProxy
                 catch (Exception e)
                 {
                     Console.WriteLine(e.Message);
-                    client.FullClose();
-                    api.FullClose();
+                    client?.FullClose();
+                    api?.FullClose();
                     GC.Collect();
                     GC.WaitForPendingFinalizers();
                     Thread.Sleep(config.exceptionDelayMs);

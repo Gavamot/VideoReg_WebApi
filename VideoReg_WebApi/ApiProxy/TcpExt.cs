@@ -24,7 +24,6 @@ namespace ApiProxy
         }
         public static void FullClose(this Socket socket)
         {
-            if (socket == null) return;
             try
             {
                 socket.Shutdown(SocketShutdown.Both);
