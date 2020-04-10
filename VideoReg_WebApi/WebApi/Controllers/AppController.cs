@@ -9,8 +9,10 @@ namespace WebApi.Controllers
     [ApiController]
     public class AppController : ControllerBase
     {
-        const string HeaderTimestamp = "X-IMAGE-DATE";
-        const string HeaderBrigade = "X-BRIGADE";
+        public const string HeaderTimestamp = "X-TIMESTAMP";
+        public const string HeaderBrigade = "X-BRIGADE";
+        public const string ImageDateHeaderFormat = "yyyy-MM-ddTHH:mm:ss.fff";
+
         private readonly IDateTimeService dateTimeService;
 
         public AppController(IDateTimeService dateTimeService)
@@ -29,7 +31,7 @@ namespace WebApi.Controllers
         }
 
         protected DateTime? ReadFromRequestTimestamp() =>
-            ReadFromRequest(HeaderTimestamp, timestamp => dateTimeService.Parse(timestamp, DateTimeService.DefaultMsFormat));
+            ReadFromRequest(HeaderTimestamp, timestamp => dateTimeService.Parse(timestamp, ImageDateHeaderFormat));
         protected int? ReadFromRequestBrigade() =>
             ReadFromRequest(HeaderBrigade, int.Parse);
         

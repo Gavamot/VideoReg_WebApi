@@ -14,8 +14,8 @@ namespace WebApi.Core.Archive
 
         public void Set(FileVideoMp4[] value)
         {
-            storeByCamera = CreateStoreByCamera(value);
             storeAll = value;
+            storeByCamera = CreateStoreByCamera(value);
         }
 
         public FileVideoMp4[] GetAll()

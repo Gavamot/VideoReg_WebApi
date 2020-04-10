@@ -1,0 +1,10 @@
+﻿[
+  {
+    "number": 1,
+    "snapshotUrl": "http://192.168.20.125:8080/Snapshot/GetSnapshot"
+  },
+  {
+    "number": 3,
+    "snapshotUrl": "http://192.168.20.125:80/Snapshot/GetSnapshot"
+  }
+]

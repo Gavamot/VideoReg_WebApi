@@ -6,10 +6,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using Swashbuckle.AspNetCore.Filters;
 using WebApi.Core;
 using WebApiTest;
 using WebApi.CoreService;
 using WebApi.Configuration;
+using WebApi.Controllers;
 using WebApi.OnlineVideo;
 using WebApi.Trends;
 
@@ -48,8 +50,21 @@ namespace WebApi
                 var xmlFile = $"{ Assembly.GetExecutingAssembly().GetName().Name }.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
+
                 c.DescribeAllEnumsAsStrings();
                 c.DescribeStringEnumsInCamelCase();
+
+                c.OperationFilter<AddHeaderOperationFilter>(AppController.HeaderTimestamp, AppController.ImageDateHeaderFormat, false);
+                c.OperationFilter<AddResponseHeadersFilter>();
+
+                //c.OperationFilter<SecurityRequirementsOperationFilter>();
+                //c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+                //{
+                //    Description = "Standard Authorization header using the Bearer scheme. Example: \"bearer {token}\"",
+                //    In = ParameterLocation.Header,
+                //    Name = "Authorization",
+                //    Type = SecuritySchemeType.ApiKey
+                //});
             });
         }
 

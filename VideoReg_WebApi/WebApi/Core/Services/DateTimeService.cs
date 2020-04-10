@@ -11,8 +11,8 @@ namespace WebApi.Services
         /// <summary>
         /// Формат архивных файлов .json и .mp4
         /// </summary>
-        public const string ArchiveFileFormat = "yyyy.MM.ddTHH.mm.ss";
-        public const string BrigadeHistoryFormat = "yyyy-MM-ddTHH:mm:ss";
+        public const string DateDotSeparatorTimeFormat = "yyyy.MM.ddTHH.mm.ss";
+        public const string DateDashSeparatorTimeFormat = "yyyy-MM-ddTHH:mm:ss";
 
 
         readonly CultureInfo culture = CultureInfo.InvariantCulture;
@@ -20,9 +20,8 @@ namespace WebApi.Services
         {
             DefaultFormat,
             DefaultMsFormat,
-            ArchiveFileFormat,
-            BrigadeHistoryFormat,
-            "dd.MM.yyyy HH:mm:ss",
+            DateDotSeparatorTimeFormat,
+            DateDashSeparatorTimeFormat
         };
 
         public DateTime Parse(string date)

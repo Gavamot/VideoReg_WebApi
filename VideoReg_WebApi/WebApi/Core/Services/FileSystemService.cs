@@ -37,8 +37,24 @@ namespace WebApi.Services
 
         public DateTime GetLastModification(string file) =>
             File.GetLastWriteTime(file);
-        
-        public MemoryStream ReadFileToMemory(string file)
+
+        public async Task<MemoryStream> ReadFileToMemoryAsync(string file)
+        {
+            var ms = new MemoryStream();
+            await using var fs = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.None, 4096, FileOptions.Asynchronous);
+            await fs.CopyToAsync(ms);
+            return ms;
+        }
+
+        public async Task<MemoryStream> ReadFileToMemory(string file)
+        {
+            var ms = new MemoryStream();
+            await using var fs = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.None, 4096, FileOptions.Asynchronous);
+            await fs.CopyToAsync(ms);
+            return ms;
+        }
+
+        MemoryStream IFileSystemService.ReadFileToMemory(string file)
         {
             var ms = new MemoryStream();
             using var fs = new FileStream(file, FileMode.Open, FileAccess.Read);

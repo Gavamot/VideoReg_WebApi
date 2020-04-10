@@ -79,10 +79,20 @@ namespace WebApiTest
             throw new NotImplementedException();
         }
 
-        public MemoryStream ReadFileToMemory(string file)
+        public MemoryStream ReadFileToMemoryAsync(string file)
         {
             var f = files.First(x => x.fullName == file);
             return new MemoryStream(f.body);
+        }
+
+        public MemoryStream ReadFileToMemory(string file)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<MemoryStream> IFileSystemService.ReadFileToMemoryAsync(string file)
+        {
+            throw new NotImplementedException();
         }
     }
 }

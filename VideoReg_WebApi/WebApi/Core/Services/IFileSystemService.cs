@@ -17,6 +17,7 @@ namespace WebApi.Services
         string ReadFileText(string file, Encoding encoding);
         Task<string> ReadFileTextAsync(string file, Encoding encoding);
         DateTime GetLastModification(string file);
+        Task<MemoryStream> ReadFileToMemoryAsync(string file);
         MemoryStream ReadFileToMemory(string file);
     }
 }

@@ -7,25 +7,64 @@ using WebApi.Services;
 
 namespace WebApi
 {
-    public abstract class ServiceUpdater : IHostedService, IServiceUpdater
+    public abstract class ServiceUpdater : IServiceUpdater, IHostedService
     {
         protected readonly int updateTimeMs;
         protected readonly ILog log;
-
+        public abstract object Context { get; protected set; }
         protected ServiceUpdater(
             int updateTimeMs,
             ILog log)
         {
-            if (updateTimeMs <= 0)
-                updateTimeMs = 1;
-            this.updateTimeMs = updateTimeMs;
+            this.updateTimeMs = GetCorrectUpdateTimeMs(updateTimeMs);
             this.log = log;
+          
         }
 
         public abstract string Name { get; }
         public string ServiceName => $"Service {Name}";
 
-        protected Action BeforeStart;
+        /// <summary>
+        /// Происходит перед вызовом основного цикла
+        /// </summary>
+        /// <returns>true - запустить цикл постоянного обновления, false - не запускать  цикл постоянного обновления</returns>
+        public abstract Task<bool> BeforeStart(object context, CancellationToken cancellationToken);
+
+        public abstract Task DoWorkAsync(object context, CancellationToken cancellationToken);
+
+        public async Task StartAsync(CancellationToken cancellationToken)
+        {
+            var isStart = await BeforeStart(Context, cancellationToken);
+            if (!isStart) return;
+            new Task(action: async () =>
+            {
+                while (!cancellationToken.IsCancellationRequested)
+                {
+                    var stopwatch = Stopwatch.StartNew();
+                    try
+                    {
+                        await DoWorkAsync(Context, cancellationToken);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        break;
+                    }
+                    catch (Exception e)
+                    {
+                        log.Error($"{ServiceName} has error. ({e.Message})", e);
+                    }
+                    stopwatch.Stop();
+                    await SleepIfNeedMsAsync(stopwatch.ElapsedMilliseconds, cancellationToken);
+                }
+            }, cancellationToken, TaskCreationOptions.LongRunning).Start();
+            log.Info($"{ServiceName} is started");
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            log.Info($"{ServiceName} is stopped");
+            return Task.CompletedTask;
+        }
 
         protected int GetSleepTimeMs(long elapsedMilliseconds)
         {
@@ -43,40 +82,14 @@ namespace WebApi
                 await Task.Delay(sleepMs, token);
         }
 
-        public Task StartAsync(CancellationToken cancellationToken)
+        private int GetCorrectUpdateTimeMs(int updateTimeMs)
         {
-            BeforeStart?.Invoke();
-            new Task(action: async () =>
+            if (updateTimeMs <= 0)
             {
-                while (!cancellationToken.IsCancellationRequested)
-                {
-                    var stopwatch = Stopwatch.StartNew();
-                    try
-                    {
-                        await DoWorkAsync(cancellationToken);
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        break;
-                    }
-                    catch (Exception e)
-                    {
-                        log.Error($"{ServiceName} has error. ({e.Message})", e);
-                    }
-                    stopwatch.Stop();
-                    await SleepIfNeedMsAsync(stopwatch.ElapsedMilliseconds, cancellationToken);
-                }
-            }, cancellationToken, TaskCreationOptions.LongRunning).Start();
-            log.Info($"{ServiceName} is started");
-            return Task.CompletedTask;
+                log.Warning($"{Name} - updateTimeMs have value={updateTimeMs} this value was changed to {1} (Cause for performance reasons shout have interaction between loop operations)");
+                updateTimeMs = 1;
+            }
+            return updateTimeMs;
         }
-
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            log.Info($"{ServiceName} is stopped");
-            return Task.CompletedTask;
-        }
-
-        public abstract Task DoWorkAsync(CancellationToken cancellationToken);
     }
 }

@@ -1,6 +1,8 @@
-﻿using System.Threading;
+﻿using System.Security.Policy;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Hosting;
 using WebApi.CoreService;
 using WebApi.Configuration;
 using WebApi.Core.Archive;
@@ -8,14 +10,16 @@ using WebApi.Services;
 
 namespace WebApi.Archive
 {
-    public class VideoArchiveUpdateHostedService : ServiceUpdater
+    public class VideoArchiveUpdaterHostedService : ServiceUpdater, IHostedService
     {
         private readonly IVideoArchiveConfig config;
         private readonly IVideoArchiveStructureStore cache;
         private readonly IVideoArchiveSource rep;
+
+        public override object Context { get; protected set; }
         public override string Name => "VideoArchiveUpdater";
 
-        public VideoArchiveUpdateHostedService(ILog log, IVideoArchiveConfig config,
+        public VideoArchiveUpdaterHostedService(ILog log, IVideoArchiveConfig config,
             IVideoArchiveStructureStore cache, IVideoArchiveSource rep) 
             : base(config.VideoArchiveUpdateTimeMs, log)
         {
@@ -24,7 +28,9 @@ namespace WebApi.Archive
             this.rep = rep;
         }
 
-        public override Task DoWorkAsync(CancellationToken cancellationToken)
+        public override Task<bool> BeforeStart(object context, CancellationToken cancellationToken) => Task.FromResult(true);
+
+        public override Task DoWorkAsync(object context, CancellationToken cancellationToken)
         {
             var files = rep.GetCompletedVideoFiles();
             cache.Set(files);

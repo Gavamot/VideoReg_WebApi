@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using WebApi.Core.Dto;
 using WebApi.Archive;
 using WebApi.Archive.ArchiveFiles;
 using WebApi.Archive.BrigadeHistory;
+using WebApi.Dto;
 using WebApi.Services;
 
 namespace WebApi.Controllers
@@ -48,9 +49,9 @@ namespace WebApi.Controllers
         /// <response code="404">Запрошенный файл не существует</response>  
         [HttpGet]
         [Route("/[controller]/File")]
-        public IActionResult GetFile(int camera, DateTime pdt)
+        public async Task<IActionResult> GetFile(int camera, DateTime pdt)
         {
-            var fileStream = videoArc.GetVideoFileStream(pdt, camera);
+            var fileStream = await videoArc.GetVideoFileStreamAsync(pdt, camera);
             if (fileStream == default)
                 return NotFound();
             

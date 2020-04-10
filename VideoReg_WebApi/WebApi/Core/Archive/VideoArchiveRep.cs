@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using WebApi.Archive.ArchiveFiles;
 using WebApi.Configuration;
@@ -30,13 +31,23 @@ namespace WebApi.Archive
             this.cache = cache;
         }
 
-        public Stream GetVideoFileStream(DateTime pdt, int camera)
+        public MemoryStream GetVideoFileStream(DateTime pdt, int camera)
         {
-            var fileFactory = fileGeneratorFactory.Create();
-            var file = fileFactory.CreateVideoMp4(pdt, camera);
-            var fullPath = Path.Combine(config.VideoArchivePath, file.fullArchiveName);
-            if (!File.Exists(fullPath)) return default;
-            var stream = fs.ReadFileToMemory(fullPath);
+            var file = cache.GetAll().FirstOrDefault(x => x.cameraNumber == camera && x.pdt == pdt);
+            if (file == default)
+                throw new FileNotFoundException("File does not exist in store");
+            string filePath = Path.Combine(config.VideoArchivePath, file.fullArchiveName);
+            var stream = fs.ReadFileToMemory(filePath);
+            return stream;
+        }
+
+        public async Task<byte[]> GetVideoFileStreamAsync(DateTime pdt, int camera)
+        {
+            var file = cache.GetAll().FirstOrDefault(x => x.cameraNumber == camera && x.pdt == pdt);
+            if (file == default)
+                throw new FileNotFoundException("File does not exist in store");
+            string filePath = Path.Combine(config.VideoArchivePath, file.fullArchiveName);
+            var stream = await fs.ReadFileAsync(filePath);
             return stream;
         }
 

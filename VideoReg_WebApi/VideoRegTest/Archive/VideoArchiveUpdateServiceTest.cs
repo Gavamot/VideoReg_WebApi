@@ -17,7 +17,7 @@ namespace WebApiTest.Archive
     class VideoArchiveUpdateServiceTest
     {
         private IVideoArchiveStructureStore cache;
-        private VideoArchiveUpdateHostedService _updateHostedService;
+        private VideoArchiveUpdaterHostedService _updaterHostedService;
         private ILog log;
         private IVideoArchiveConfig config;
         private IVideoArchiveSource rep;
@@ -47,7 +47,7 @@ namespace WebApiTest.Archive
             A.CallTo(()=>rep.GetCompletedVideoFiles(""))
                 .WithAnyArguments()
                 .ReturnsNextFromSequence(files);
-            _updateHostedService = new VideoArchiveUpdateHostedService(log, config, cache, rep);
+            _updaterHostedService = new VideoArchiveUpdaterHostedService(log, config, cache, rep);
         }
 
         [Test]
@@ -62,7 +62,7 @@ namespace WebApiTest.Archive
         {
             foreach (var f in files)
             {
-                await _updateHostedService.DoWorkAsync(new CancellationToken());
+                await _updaterHostedService.DoWorkAsync(null, CancellationToken.None);
                 Assert.AreEqual(cache.GetAll(), f);
             }
         }

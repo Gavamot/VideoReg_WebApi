@@ -80,7 +80,7 @@ namespace WebApi
                 })
                 .AddNewtonsoftJson(opt =>
                 {
-                    opt.SerializerSettings.Converters.Add(new DateTimeMvc.DateTimeConverter());
+                    opt.SerializerSettings.Converters.Add(new DateTimeMvc.DateTimeConverter(new DateTimeService()));
                 });
 
             services.AddSwagger();
@@ -105,6 +105,7 @@ namespace WebApi
             });
 
             app.UseSerilogRequestLogging();
+
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {

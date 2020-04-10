@@ -4,38 +4,47 @@ using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json;
+using WebApi.Services;
 
 namespace WebApi
 {
     public class DateTimeMvc
     {
-        public const string Format = "yyyy-MM-ddTHH.mm.ss.fff";
         public static CultureInfo Culture => CultureInfo.InvariantCulture;
 
         public class DateTimeConverter : JsonConverter<DateTime>
         {
-
+            readonly DateTimeService dateTimeService;
+            public DateTimeConverter(DateTimeService dateTimeService)
+            {
+                this.dateTimeService = dateTimeService;
+            }
+            
             public override DateTime ReadJson(JsonReader reader, Type objectType, [AllowNull] DateTime existingValue, bool hasExistingValue, JsonSerializer serializer)
             {
-                var _ = reader.ReadAsString();
-                return DateTime.ParseExact(_, Format, Culture);
+                var value = reader.ReadAsString();
+                return dateTimeService.Parse(value);
             }
 
             public override void WriteJson(JsonWriter writer, [AllowNull] DateTime value, JsonSerializer serializer)
             {
-                var _ = value.ToString(Format, Culture);
+                var _ = value.ToString(DateTimeService.DefaultMsFormat, Culture);
                 writer.WriteValue(_);
             }
         }
 
         public class UtcAwareDateTimeModelBinder : IModelBinder
         {
+            
             private readonly DateTimeStyles _supportedStyles;
-            private readonly DateTimeConverter converter = new DateTimeConverter();
+            readonly DateTimeService dateTimeService;
+            private readonly DateTimeConverter converter;
 
             public UtcAwareDateTimeModelBinder(DateTimeStyles supportedStyles)
             {
                 _supportedStyles = supportedStyles;
+                dateTimeService = new DateTimeService();
+                converter = new DateTimeConverter(dateTimeService);
             }
 
             public Task BindModelAsync(ModelBindingContext bindingContext)
@@ -67,15 +76,7 @@ namespace WebApi
                 }
                 else if (type == typeof(DateTime))
                 {
-                    // You could put custom logic here to sniff the raw value and call other DateTime.Parse overloads, e.g. forcing UTC
-                    if (DateTime.TryParseExact(value, Format, Culture, DateTimeStyles.None, out var res))
-                    {
-                        model = res;
-                    }
-                    //else
-                    //{
-                    //    throw new NotSupportedException();
-                    //}
+                    model = dateTimeService.Parse(value);
                 }
                 else
                 {

@@ -7,11 +7,12 @@ using WebApi.Configuration;
 using WebApi.OnlineVideo.Store;
 using WebApi.Services;
 using System.Diagnostics;
+using Microsoft.Extensions.Hosting;
 
 namespace WebApi.OnlineVideo
 {
     // TODO : переписать на нормальную реализацию для каждой камеры сделать индивидуальный подход.
-    public class CameraHostedService : ServiceUpdater
+    public class CameraHostedService : ServiceUpdater, IHostedService
     {
         private readonly IImgRep imgRep;
         readonly ICameraStore cameraCache;
@@ -19,6 +20,7 @@ namespace WebApi.OnlineVideo
         private ICameraConfig config;
 
         readonly CamerasInfoArray<bool> executingTask = new CamerasInfoArray<bool>(false);
+        public override object Context { get; protected set; }
         public override string Name => "CameraUpdate";
 
         //  private readonly IServiceProvider di;
@@ -34,7 +36,7 @@ namespace WebApi.OnlineVideo
             this.config = config;
         }
 
-        public override async Task DoWorkAsync(CancellationToken cancellationToken)
+        public override async Task DoWorkAsync(object context, CancellationToken cancellationToken)
         {
             var stopwatch = Stopwatch.StartNew();
             var settings = await sourceRep.GetAll();
@@ -42,6 +44,8 @@ namespace WebApi.OnlineVideo
             stopwatch.Stop();
             await SleepIfNeedMsAsync(stopwatch.ElapsedMilliseconds, cancellationToken);
         }
+
+        public override Task<bool> BeforeStart(object context, CancellationToken cancellationToken) => Task.FromResult(true);
 
         async Task UpdateImage(Uri url, CameraSourceSettings setting)
         {

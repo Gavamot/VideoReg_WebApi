@@ -29,8 +29,8 @@ namespace WebApi
                     services.AddHostedService<CameraHostedService>();
                     services.AddHostedService<VideoTransmitterHostedService>();
 
-                    services.AddHostedService<VideoArchiveUpdateHostedService>();
-                    services.AddHostedService<TrendsHostedService>();
+                    services.AddHostedService<VideoArchiveUpdaterHostedService>();
+                    services.AddHostedService<TrendsTransmitterHostedService>();
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {

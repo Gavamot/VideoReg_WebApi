@@ -58,14 +58,14 @@ namespace WebApiTest.Archive
             fs = A.Fake<IFileSystemService>();
             var f1 = Path.Combine(Root, fd1);
 
-            A.CallTo(() => fs.ReadFileToMemory(A<string>.Ignored))
+            A.CallTo(() => fs.ReadFileToMemoryAsync(A<string>.Ignored))
                 .Throws(new FileNotFoundException());
           
-            A.CallTo(() => fs.ReadFileToMemory(f1))
+            A.CallTo(() => fs.ReadFileToMemoryAsync(f1))
                 .Returns(new MemoryStream(file1));
 
             var f2 = Path.Combine(Root, fd2);
-            A.CallTo(() => fs.ReadFileToMemory(f2))
+            A.CallTo(() => fs.ReadFileToMemoryAsync(f2))
                 .Returns(new MemoryStream(file2));
 
             _acrhiveGenerator = A.Fake<IArchiveFileGeneratorFactory>();
@@ -105,21 +105,21 @@ namespace WebApiTest.Archive
         //[Test]
         //public void ReadFile_1()
         //{
-        //    var res = rep.GetVideoFileStream(fd1);
+        //    var res = rep.GetVideoFileStreamAsync(fd1);
         //    Assert.AreEqual(file1, res.ToArray());
         //}
 
         //[Test]
         //public void ReadFile_2()
         //{
-        //    var res = rep.GetVideoFileStream(fd2);
+        //    var res = rep.GetVideoFileStreamAsync(fd2);
         //    Assert.AreEqual(file2, res.ToArray());
         //}
 
         //[Test]
         //public void ReadFile_NotExist()
         //{
-        //    Assert.Throws<FileNotFoundException>(() => rep.GetVideoFileStream("NotExist"));
+        //    Assert.Throws<FileNotFoundException>(() => rep.GetVideoFileStreamAsync("NotExist"));
         //}
     }
 }

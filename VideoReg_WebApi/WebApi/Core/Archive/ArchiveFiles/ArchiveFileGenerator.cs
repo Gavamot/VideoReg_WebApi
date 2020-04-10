@@ -51,11 +51,6 @@ namespace WebApi.Archive.ArchiveFiles
             return new FileVideoMp4(data.brigade, data.pdt, data.serialNumber, data.fullArchiveName, cameraNumber, duration);
         }
 
-        public FileVideoMp4 CreateVideoMp4(DateTime pdt, int cameraNumber)
-        {
-            throw new NotImplementedException();
-        }
-
         protected void CheckFileExtension(string file, string ext)
         {
             var fe = Path.GetExtension(file);
