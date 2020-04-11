@@ -3,7 +3,7 @@
     public interface ITrendsConfig
     {
         string TrendsFileName { get; set; }
-        string TrendsAscWebSet { get; set; }
+        string TrendsAscWebSetUrl { get; set; }
         int TrendsIterationMs { get; set; }
     }
 }

@@ -8,7 +8,7 @@ namespace WebApi.Core.Archive
 {
     public interface ITrendsArchiveStructureStore
     {
-        public void Set(FileChannelJson[] value);
-        public FileChannelJson[] GetAll();
+        public void Set(FileTrendsJson[] value);
+        public FileTrendsJson[] GetAll();
     }
 }

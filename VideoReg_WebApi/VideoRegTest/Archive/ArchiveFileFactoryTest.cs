@@ -25,8 +25,8 @@ namespace WebApiTest.Test
         string JsonFile(string date, DeviceSerialNumber? serial = default)
         {
             string res = serial == null
-                ? FileChannelJson.GetEmptySerialFile(date)
-                : FileChannelJson.GetStringFile(date, serial.Value);
+                ? FileTrendsJson.GetEmptySerialFile(date)
+                : FileTrendsJson.GetStringFile(date, serial.Value);
             return Path.Combine(acrJson, res);
         }
 
@@ -41,7 +41,7 @@ namespace WebApiTest.Test
         private IArchiveConfig GetFakeConfig()
         {
             var config = A.Fake<IArchiveConfig>();
-            A.CallTo(() => config.ChannelArchivePath)
+            A.CallTo(() => config.TrendsArchivePath)
                 .Returns(acrJson);
             A.CallTo(() => config.VideoArchivePath)
                 .Returns(acrVideo);
@@ -105,7 +105,7 @@ namespace WebApiTest.Test
         [Test]
         public void JsonIncorrect_OnlyExtension()
         {
-            Assert.Throws<FormatException>(() => _generator.CreteJson(FileChannelJson.Extension));
+            Assert.Throws<FormatException>(() => _generator.CreteJson(FileTrendsJson.Extension));
         }
 
         [Test]

@@ -3,7 +3,7 @@ using WebApi.ValueType;
 
 namespace WebApi.Archive.ArchiveFiles
 {
-    public class FileChannelJson : ArchiveFile
+    public class FileTrendsJson : ArchiveFile
     {
         public const string Extension = ".json";
         public bool IsComplete => true;
@@ -12,7 +12,7 @@ namespace WebApi.Archive.ArchiveFiles
             return $"{base.ToString()}{Extension}";
         }
 
-        public FileChannelJson(int? brigade, DateTime pdt, DeviceSerialNumber serialNumber, string fullArchiveName) 
+        public FileTrendsJson(int? brigade, DateTime pdt, DeviceSerialNumber serialNumber, string fullArchiveName) 
             : base(brigade, pdt, serialNumber, fullArchiveName)
         {
 

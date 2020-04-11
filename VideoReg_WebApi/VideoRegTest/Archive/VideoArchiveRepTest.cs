@@ -70,7 +70,7 @@ namespace WebApiTest.Archive
 
             _acrhiveGenerator = A.Fake<IArchiveFileGeneratorFactory>();
 
-            rep = new VideoArchiveRep(cache, fs, config, _acrhiveGenerator);
+            rep = new VideoArchiveRep(cache, fs, config);
         }
 
         [Test]
@@ -105,21 +105,21 @@ namespace WebApiTest.Archive
         //[Test]
         //public void ReadFile_1()
         //{
-        //    var res = rep.GetVideoFileStreamAsync(fd1);
+        //    var res = rep.GetTrendFileAsync(fd1);
         //    Assert.AreEqual(file1, res.ToArray());
         //}
 
         //[Test]
         //public void ReadFile_2()
         //{
-        //    var res = rep.GetVideoFileStreamAsync(fd2);
+        //    var res = rep.GetTrendFileAsync(fd2);
         //    Assert.AreEqual(file2, res.ToArray());
         //}
 
         //[Test]
         //public void ReadFile_NotExist()
         //{
-        //    Assert.Throws<FileNotFoundException>(() => rep.GetVideoFileStreamAsync("NotExist"));
+        //    Assert.Throws<FileNotFoundException>(() => rep.GetTrendFileAsync("NotExist"));
         //}
     }
 }

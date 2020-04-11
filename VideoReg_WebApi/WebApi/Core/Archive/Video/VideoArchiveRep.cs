@@ -19,33 +19,20 @@ namespace WebApi.Archive
         private readonly IVideoArchiveStructureStore cache;
         private readonly IVideoArchiveConfig config;
         private readonly IFileSystemService fs;
-        readonly IArchiveFileGeneratorFactory fileGeneratorFactory;
         public VideoArchiveRep(IVideoArchiveStructureStore cache,
             IFileSystemService fs, 
-            IVideoArchiveConfig config,
-            IArchiveFileGeneratorFactory fileGeneratorFactory)
+            IVideoArchiveConfig config)
         {
             this.config = config;
             this.fs = fs;
-            this.fileGeneratorFactory = fileGeneratorFactory;
             this.cache = cache;
         }
 
-        public MemoryStream GetVideoFileStream(DateTime pdt, int camera)
+        public async Task<byte[]> TryGetVideoFileAsync(DateTime pdt, int camera)
         {
             var file = cache.GetAll().FirstOrDefault(x => x.cameraNumber == camera && x.pdt == pdt);
             if (file == default)
-                throw new FileNotFoundException("File does not exist in store");
-            string filePath = Path.Combine(config.VideoArchivePath, file.fullArchiveName);
-            var stream = fs.ReadFileToMemory(filePath);
-            return stream;
-        }
-
-        public async Task<byte[]> GetVideoFileStreamAsync(DateTime pdt, int camera)
-        {
-            var file = cache.GetAll().FirstOrDefault(x => x.cameraNumber == camera && x.pdt == pdt);
-            if (file == default)
-                throw new FileNotFoundException("File does not exist in store");
+                return null;
             string filePath = Path.Combine(config.VideoArchivePath, file.fullArchiveName);
             var stream = await fs.ReadFileAsync(filePath);
             return stream;

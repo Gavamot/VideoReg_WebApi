@@ -38,10 +38,10 @@ namespace WebApi.Archive.ArchiveFiles
           return new ArchiveFileGenerator(brigadeHistory, config);
         }
 
-        public FileChannelJson CreteJson(string fileFullName)
+        public FileTrendsJson CreteJson(string fileFullName)
         {
-            var data = GetArchiveFileData(fileFullName, config.ChannelArchivePath, FileChannelJson.Extension);
-            return new FileChannelJson(data.brigade, data.pdt, data.serialNumber, data.fullArchiveName);
+            var data = GetArchiveFileData(fileFullName, config.TrendsArchivePath, FileTrendsJson.Extension);
+            return new FileTrendsJson(data.brigade, data.pdt, data.serialNumber, data.fullArchiveName);
         }
 
         public FileVideoMp4 CreateVideoMp4(string fileFullName, int cameraNumber)

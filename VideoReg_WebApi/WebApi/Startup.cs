@@ -45,21 +45,30 @@ namespace WebApi
             services.AddConfig(config);
             //services.AddMemoryCache();
 
-            services.AddSingleton<IDateTimeService, DateTimeService>();
-            services.AddSingleton<IFileSystemService, FileSystemService>();
-            services.AddSingleton<ILog, AppLogger>();
+            services.AddScoped<IDateTimeService, DateTimeService>();
+            services.AddScoped<IFileSystemService, FileSystemService>();
+            services.AddTransient<ILog, AppLogger>();
             services.AddSingleton<IRedisRep>(x => new RedisRep(config.Redis));
 
-            services.AddSingleton<ITrendsArchiveStructureStore, TrendsArchiveStructureStore>();
+           
+
+            //Архивы 
+            services.AddSingleton<IBrigadeHistoryRep, BrigadeHistoryRep>();
+            services.AddTransient<IArchiveFileGeneratorFactory, ArchiveFileGeneratorFactory>();
+
+            // Видеоархив
             services.AddSingleton<IVideoArchiveStructureStore, VideoArchiveStructureStore>();
             services.AddSingleton<IVideoArchiveSource, VideoArchiveSourceFS>();
-            services.AddSingleton<IBrigadeHistoryRep, BrigadeHistoryRep>();
             services.AddSingleton<IVideoArchiveRep, VideoArchiveRep>();
-            services.AddSingleton<IArchiveFileGeneratorFactory, ArchiveFileGeneratorFactory>();
-            
+
+            // Тренды архив
+            services.AddSingleton<ITrendsArchiveStructureStore, TrendsArchiveStructureStore>();
+            services.AddSingleton<ITrendsArchiveSource, TrendsArchiveSourceFS>();
+            services.AddSingleton<ITrendsArchiveRep, TrendsArchiveRep>();
+
+
             services.AddSingleton<IVideoConvector, ImagicVideoConvector>();
             services.AddSingleton<IClientVideoHub, ClientVideoHub>();
-
             services.AddSingleton<ICameraStore, TransformImageStore>();
             services.AddSingleton<ICameraSettingsStore, CameraSettingsStore>();
 

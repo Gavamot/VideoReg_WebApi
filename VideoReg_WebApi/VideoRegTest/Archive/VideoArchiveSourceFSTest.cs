@@ -36,7 +36,7 @@ namespace WebApiTest.Archive
                 FileVideoMp4.GetEmptySerialFile(dt2Str, duration),
                 FileVideoMp4.GetEmptySerialFile(dt3Str, null),
                 "arc/1/34324.mp4",
-                FileChannelJson.GetEmptySerialFile(dt1Str)
+                FileTrendsJson.GetEmptySerialFile(dt1Str)
             });
             f2 = Files(dir2, new[]
             {
@@ -44,7 +44,7 @@ namespace WebApiTest.Archive
                 FileVideoMp4.GetEmptySerialFile(dt2Str, null),
                 FileVideoMp4.GetEmptySerialFile(dt3Str, duration),
                 "arc/2/34324.mp4",
-                FileChannelJson.GetEmptySerialFile(dt1Str)
+                FileTrendsJson.GetEmptySerialFile(dt1Str)
             });
 
             var files = f1.Concat(f2)
@@ -89,7 +89,7 @@ namespace WebApiTest.Archive
         [Test]
         public void Correct_CheckCalls()
         {
-            var files = videoArchiveSourceFs.GetCompletedVideoFiles(Pattern).ToArray();
+            var files = videoArchiveSourceFs.GetCompletedFiles(Pattern).ToArray();
 
             A.CallTo(() => config.VideoArchivePath)
                 .MustHaveHappened(1, Times.OrMore);
@@ -104,7 +104,7 @@ namespace WebApiTest.Archive
         [Test]
         public void Correct_SkipWithOutDuration()
         {
-            var files = videoArchiveSourceFs.GetCompletedVideoFiles(Pattern);
+            var files = videoArchiveSourceFs.GetCompletedFiles(Pattern);
             Assert.IsTrue(files.All(x => x.IsComplete));
         }
 
@@ -114,7 +114,7 @@ namespace WebApiTest.Archive
             FileVideoMp4 Mp4(DateTime dt, string path, int cam) => 
                 new FileVideoMp4(1, dt, default, 
                     path.Replace(root + "\\", ""), cam, duration);
-            var files = videoArchiveSourceFs.GetCompletedVideoFiles(Pattern);
+            var files = videoArchiveSourceFs.GetCompletedFiles(Pattern);
             var actual = new[]
             {
                 Mp4(dt1, f1[0], 1),

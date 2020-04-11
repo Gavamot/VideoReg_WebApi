@@ -9,14 +9,14 @@ namespace WebApi.Core.Archive
 {
     public class TrendsArchiveStructureStore : ITrendsArchiveStructureStore
     {
-        volatile FileChannelJson[] storeAll = new FileChannelJson[0];
+        volatile FileTrendsJson[] storeAll = new FileTrendsJson[0];
 
-        public void Set(FileChannelJson[] value)
+        public void Set(FileTrendsJson[] value)
         {
             storeAll = value;
         }
 
-        public FileChannelJson[] GetAll()
+        public FileTrendsJson[] GetAll()
         {
             return storeAll;
         }

@@ -44,7 +44,7 @@ namespace WebApiTest.Archive
                 .Returns(ArcPath);
             cache = new VideoArchiveStructureStore();
             rep = A.Fake<IVideoArchiveSource>();
-            A.CallTo(()=>rep.GetCompletedVideoFiles(""))
+            A.CallTo(()=>rep.GetCompletedFiles(""))
                 .WithAnyArguments()
                 .ReturnsNextFromSequence(files);
             _updaterHostedService = new VideoArchiveUpdaterHostedService(log, config, cache, rep);

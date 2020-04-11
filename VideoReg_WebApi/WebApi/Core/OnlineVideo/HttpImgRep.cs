@@ -38,13 +38,10 @@ namespace WebApi.OnlineVideo
             this.log = log;
         }
 
-        private const string UserName = "admin";
-        private const string Password = "admin1336";
-        
         private async Task<(HttpStatusCode, bool, byte[])> GetByBasicAuthorization(Uri url, CancellationToken token)
         {
             using var httpClient = new HttpClient();
-            string namePwd = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{UserName}:{Password}"));
+            string namePwd = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{config.UserName}:{config.Password}"));
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", namePwd);
             using var response = await httpClient.GetAsync(url, token);
             if (response.IsSuccessStatusCode)
@@ -58,7 +55,7 @@ namespace WebApi.OnlineVideo
         private async Task<(HttpStatusCode, bool, byte[])> GetByDigestAuthorization(Uri url, CancellationToken token)
         {
             var digestAuthorization = new CredentialCache();
-            digestAuthorization.Add(url, "Digest", new NetworkCredential(UserName, Password));
+            digestAuthorization.Add(url, "Digest", new NetworkCredential(config.UserName, config.Password));
             using var httpHandler = new HttpClientHandler { Credentials = digestAuthorization };
             using var httpClient = new HttpClient(httpHandler);
             using var response = await httpClient.GetAsync(url, token);

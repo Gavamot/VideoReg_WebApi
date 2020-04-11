@@ -71,15 +71,14 @@ namespace WebApi
             int sleepMs = (int)(updateTimeMs - elapsedMilliseconds);
             if (sleepMs > 0 && sleepMs <= updateTimeMs)
                 return sleepMs;
-            return 0;
+            return 1;
         }
 
         protected async Task SleepIfNeedMsAsync(long elapsedMilliseconds, CancellationToken token)
         {
             int sleepMs = GetSleepTimeMs(elapsedMilliseconds);
-            log.Debug($"{ServiceName} update operation is completed. Execution time = {elapsedMilliseconds} ms");
-            if (sleepMs > 0)
-                await Task.Delay(sleepMs, token);
+            log.Debug($"{ServiceName} update operation is completed. Execution time = {elapsedMilliseconds} ms"); 
+            await Task.Delay(1, token);
         }
 
         private int GetCorrectUpdateTimeMs(int updateTimeMs)

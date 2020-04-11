@@ -1,6 +1,6 @@
 ﻿namespace WebApi.Configuration
 {
-    public interface IChannelArchiveCacheUpdaterConfig : IChannelArchiveConfig
+    public interface ITrendsArchiveCacheUpdaterConfig : ITrendsArchiveConfig
     {
         int UpdateChannelArchiveMs { get; }
     } 

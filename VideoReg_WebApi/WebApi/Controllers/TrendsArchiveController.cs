@@ -4,7 +4,6 @@ using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Archive;
-using WebApi.Archive.ArchiveFiles;
 using WebApi.Archive.BrigadeHistory;
 using WebApi.Dto;
 using WebApi.Services;
@@ -12,17 +11,17 @@ using WebApi.Services;
 namespace WebApi.Controllers
 {
     [ApiController]
-    public class VideoArchiveController : AppController
+    public class TrendsArchiveController : AppController
     {
-        readonly IVideoArchiveRep videoArc;
+        readonly ITrendsArchiveRep arc;
         private readonly IMapper mapper;
         private readonly IBrigadeHistoryRep brigadeHistoryRep;
-        public VideoArchiveController(IVideoArchiveRep videoArc,
+        public TrendsArchiveController(ITrendsArchiveRep arc,
             IMapper mapper,
             IDateTimeService dateTimeService, 
             IBrigadeHistoryRep brigadeHistoryRep) : base(dateTimeService)
         {
-            this.videoArc = videoArc;
+            this.arc = arc;
             this.mapper = mapper;
             this.brigadeHistoryRep = brigadeHistoryRep;
         }
@@ -34,10 +33,10 @@ namespace WebApi.Controllers
         /// <response code="200">Возвращает последнюю актуальную информацию о видеорегистраторе</response>
         [HttpGet]
         [Route("/[controller]/Structure")]
-        public ActionResult<FileVideoMp4Dto[]> GetStructure(DateTime startWith)
+        public ActionResult<FileTrendsDto[]> GetStructure(DateTime startWith)
         {
-            var data = videoArc.GetFullStructure(startWith);
-            var res = mapper.Map<FileVideoMp4Dto[]>(data);
+            var data = arc.GetFullStructure(startWith);
+            var res = mapper.Map<FileTrendsDto[]>(data);
             return Ok(res);
         }
 
@@ -50,7 +49,7 @@ namespace WebApi.Controllers
         [Route("/[controller]/File")]
         public async Task<IActionResult> GetFile(int camera, DateTime pdt)
         {
-            var fileStream = await videoArc.TryGetVideoFileAsync(pdt, camera);
+            var fileStream = await arc.GetTrendFileAsync(pdt);
             if (fileStream == default)
                 return NotFound();
             
@@ -58,7 +57,7 @@ namespace WebApi.Controllers
             SetHeaderToResponseBrigade(brigade);
 
             Response.StatusCode = StatusCodes.Status206PartialContent;
-            return File(fileStream, "application/json", enableRangeProcessing: true);
+            return File(fileStream, "video/mp4", enableRangeProcessing: true);
         }
     }
 }

@@ -31,7 +31,7 @@ namespace WebApi.Archive
             this.fileSystem = fileSystem;
         }
 
-        public FileVideoMp4[] GetCompletedVideoFiles(string pattern = Pattern)
+        public FileVideoMp4[] GetCompletedFiles(string pattern = Pattern)
         {
             var brigadeHistory = brigadeHistoryRep.GetBrigadeHistory();
             var fileFactory = ArchiveFileGenerator.Create(brigadeHistory, config);

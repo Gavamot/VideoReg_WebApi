@@ -22,6 +22,10 @@ namespace WebApi
                 .ForMember(dest => dest.Pdt, member => member.MapFrom(source => source.pdt))
                 .ForMember(dest => dest.Camera, member => member.MapFrom(source => source.cameraNumber))
                 .ForMember(dest => dest.Duration, member => member.MapFrom(source => source.durationSeconds));
+
+            CreateMap<FileTrendsJson, FileTrendsDto>()
+                .ForMember(dest => dest.Brigade, member => member.MapFrom(source => source.brigade))
+                .ForMember(dest => dest.Pdt, member => member.MapFrom(source => source.pdt));
         }
     }
 }

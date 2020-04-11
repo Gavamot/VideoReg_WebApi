@@ -14,25 +14,25 @@ namespace WebApi.Archive
     {
         private readonly IVideoArchiveConfig config;
         private readonly IVideoArchiveStructureStore cache;
-        private readonly IVideoArchiveSource rep;
+        private readonly ITrendsArchiveSource source;
 
         public override object Context { get; protected set; }
         public override string Name => "VideoArchiveUpdater";
 
         public VideoArchiveUpdaterHostedService(ILog log, IVideoArchiveConfig config,
-            IVideoArchiveStructureStore cache, IVideoArchiveSource rep) 
+            IVideoArchiveStructureStore cache, ITrendsArchiveSource source) 
             : base(config.VideoArchiveUpdateTimeMs, log)
         {
             this.config = config;
             this.cache = cache;
-            this.rep = rep;
+            this.source = source;
         }
 
         public override Task<bool> BeforeStart(object context, CancellationToken cancellationToken) => Task.FromResult(true);
 
         public override Task DoWorkAsync(object context, CancellationToken cancellationToken)
         {
-            var files = rep.GetCompletedVideoFiles();
+            var files = source.GetCompletedVideoFiles();
             cache.Set(files);
             return Task.CompletedTask;
         }

@@ -7,7 +7,7 @@ namespace WebApi.Archive
 {
     public interface IVideoArchiveRep
     {
-        Task<byte[]> GetVideoFileStreamAsync(DateTime pdt, int camera);
+        Task<byte[]> TryGetVideoFileAsync(DateTime pdt, int camera);
         FileVideoMp4[] GetFullStructure(DateTime startWith = default);
         FileVideoMp4[] GetStructureByCameraNumber(int cameraNumber, DateTime startWith = default);
     }
