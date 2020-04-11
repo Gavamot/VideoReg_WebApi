@@ -4,6 +4,6 @@ namespace WebApi.Archive
 {
     public interface ITrendsArchiveSource
     {
-        FileTrendsJson[] GetCompletedFiles(string pattern ="*T*_*_*_*_*.json");
+        FileTrendsJson[] GetCompletedFiles();
     }
 }

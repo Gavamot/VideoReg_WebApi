@@ -64,7 +64,6 @@ namespace WebApiTest.Archive
         private IBrigadeHistory brigadeHistory;
         private IBrigadeHistoryRep brigadeHistoryRep;
         private IFileSystemService fs;
-        private const string Pattern = "^.*T.*(_.*){5}\\.mp4$";
 
         [SetUp]
         public void Setup()
@@ -89,7 +88,7 @@ namespace WebApiTest.Archive
         [Test]
         public void Correct_CheckCalls()
         {
-            var files = videoArchiveSourceFs.GetCompletedFiles(Pattern).ToArray();
+            var files = videoArchiveSourceFs.GetCompletedFiles().ToArray();
 
             A.CallTo(() => config.VideoArchivePath)
                 .MustHaveHappened(1, Times.OrMore);
@@ -104,7 +103,7 @@ namespace WebApiTest.Archive
         [Test]
         public void Correct_SkipWithOutDuration()
         {
-            var files = videoArchiveSourceFs.GetCompletedFiles(Pattern);
+            var files = videoArchiveSourceFs.GetCompletedFiles();
             Assert.IsTrue(files.All(x => x.IsComplete));
         }
 
@@ -114,7 +113,7 @@ namespace WebApiTest.Archive
             FileVideoMp4 Mp4(DateTime dt, string path, int cam) => 
                 new FileVideoMp4(1, dt, default, 
                     path.Replace(root + "\\", ""), cam, duration);
-            var files = videoArchiveSourceFs.GetCompletedFiles(Pattern);
+            var files = videoArchiveSourceFs.GetCompletedFiles();
             var actual = new[]
             {
                 Mp4(dt1, f1[0], 1),

@@ -9,7 +9,7 @@ namespace WebApi.Services
     {
         byte[] ReadFile(string file);
         Task<byte[]> ReadFileAsync(string file);
-        string[] GetFiles(string directory, string pattern = "");
+        string[] GetFiles(string directory, SearchOption options = SearchOption.AllDirectories, string pattern = "*");
         string[] GetDirectories(string directory);
         long GetFileLengthBytes(string file);
         string GetFullFileName(string file);

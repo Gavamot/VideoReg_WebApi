@@ -27,12 +27,13 @@ namespace WebApiTest
             throw new NotImplementedException();
         }
 
-        public string[] GetFiles(string directory, string pattern = "")
+
+        public string[] GetFiles(string directory, SearchOption options = SearchOption.AllDirectories, string pattern = "*")
         {
             var regex = new Regex(pattern);
             return files.Where(x => x.IsInDirectory(directory))
                 .Where(x => regex.IsMatch(x.name))
-                .Select(x=>x.fullName)
+                .Select(x => x.fullName)
                 .Distinct()
                 .ToArray();
         }

@@ -64,4 +64,35 @@
     </None>
   </ItemGroup>
 
+
+  <ItemGroup>
+    <Folder Include="Test\trends_arc\2020\4\11\11\0\" />
+    <Folder Include="Test\trends_arc\2020\4\11\11\10\" />
+    <Folder Include="Test\trends_arc\2020\4\11\11\11\" />
+    <Folder Include="Test\trends_arc\2020\4\11\11\1\" />
+    <Folder Include="Test\trends_arc\2020\4\11\11\2\" />
+    <Folder Include="Test\trends_arc\2020\4\11\11\3\" />
+    <Folder Include="Test\trends_arc\2020\4\11\11\4\" />
+    <Folder Include="Test\trends_arc\2020\4\11\11\5\" />
+    <Folder Include="Test\trends_arc\2020\4\11\11\6\" />
+    <Folder Include="Test\trends_arc\2020\4\11\11\7\" />
+    <Folder Include="Test\trends_arc\2020\4\11\11\8\" />
+    <Folder Include="Test\trends_arc\2020\4\11\11\9\" />
+    <Folder Include="Test\trends_arc\2020\4\11\1\0\" />
+    <Folder Include="Test\trends_arc\2020\4\11\1\10\" />
+    <Folder Include="Test\trends_arc\2020\4\11\1\11\" />
+    <Folder Include="Test\trends_arc\2020\4\11\1\12\" />
+    <Folder Include="Test\trends_arc\2020\4\11\1\13\" />
+    <Folder Include="Test\trends_arc\2020\4\11\1\14\" />
+    <Folder Include="Test\trends_arc\2020\4\11\1\15\" />
+    <Folder Include="Test\trends_arc\2020\4\11\1\16\" />
+    <Folder Include="Test\trends_arc\2020\4\11\1\17\" />
+    <Folder Include="Test\trends_arc\2020\4\11\1\18\" />
+    <Folder Include="Test\trends_arc\2020\4\11\1\19\" />
+    <Folder Include="Test\trends_arc\2020\4\11\1\1\" />
+    <Folder Include="Test\trends_arc\2020\4\11\1\20\" />
+    <Folder Include="Test\trends_arc\2020\4\11\1\21\" />
+    <Folder Include="Test\trends_arc\2020\4\11\1\2\" />
+  </ItemGroup>
+
 </Project>

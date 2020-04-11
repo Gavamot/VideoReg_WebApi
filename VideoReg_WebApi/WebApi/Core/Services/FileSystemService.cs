@@ -14,8 +14,8 @@ namespace WebApi.Services
         public async Task<byte[]> ReadFileAsync(string file)
             => await File.ReadAllBytesAsync(file);
 
-        public string[] GetFiles(string directory, string pattern = "*") 
-            => Directory.GetFiles(directory, pattern, SearchOption.AllDirectories);
+        public string[] GetFiles(string directory, SearchOption options = SearchOption.AllDirectories, string pattern = "*") 
+            => Directory.GetFiles(directory, pattern, options);
 
         public string[] GetDirectories(string directory) 
             => Directory.GetDirectories(directory);

@@ -74,5 +74,24 @@ namespace WebApi.Ext
                 return max;
             }
         }
+
+        public static IEnumerable<TResult> TrySelect<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, TResult> selector, Action<TSource, Exception> onError = null)
+        {
+            foreach (var item in source)
+            {
+                TResult resItem;
+                try
+                {
+                    resItem = selector(item);
+                }
+                catch (Exception e)
+                {
+                    onError(item, e);
+                    continue;
+                }
+                yield return resItem;
+            }
+
+        }
     }
 }

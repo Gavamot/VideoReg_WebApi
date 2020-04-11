@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using WebApi.Archive.ArchiveFiles;
 using WebApi.Archive.BrigadeHistory;
 using WebApi.Configuration;
+using WebApi.Ext;
 using WebApi.Services;
 
 namespace WebApi.Archive
@@ -31,7 +33,7 @@ namespace WebApi.Archive
             this.fileSystem = fileSystem;
         }
 
-        public FileVideoMp4[] GetCompletedFiles(string pattern = Pattern)
+        public FileVideoMp4[] GetCompletedFiles()
         {
             var brigadeHistory = brigadeHistoryRep.GetBrigadeHistory();
             var fileFactory = ArchiveFileGenerator.Create(brigadeHistory, config);
@@ -40,7 +42,7 @@ namespace WebApi.Archive
             foreach (var camDir in directories)
             {
                 if (!TryParseIntFolder(camDir, "camera", out var cameraNumber)) continue;
-                var files = GetFilesForAdd(fileFactory, camDir, cameraNumber, pattern);
+                var files = GetFilesForAdd(fileFactory, camDir, cameraNumber, Pattern);
                 res.AddRange(files);
             }
             return res.ToArray();
@@ -55,28 +57,17 @@ namespace WebApi.Archive
             return false;
         }
 
-        private List<FileVideoMp4> GetFilesForAdd(ArchiveFileGenerator fileGenerator, string camDir, int cameraNumber, string pattern)
+        private IEnumerable<FileVideoMp4> GetFilesForAdd(ArchiveFileGenerator fileGenerator, string camDir, int cameraNumber, string pattern)
         {
-            var res = new List<FileVideoMp4>();
             string cameraNumberStr = cameraNumber.ToString();
-            var files = fileSystem.GetFiles(camDir, pattern)
+            var files = fileSystem.GetFiles(camDir, SearchOption.AllDirectories, pattern)
                 .Select(x => x.Replace(camDir, cameraNumberStr))
-                .ToArray();
-
-            foreach (var file in files)
-            {
-                try
-                {
-                    var vf = fileGenerator.CreateVideoMp4(file, cameraNumber);
-                    if (vf.IsComplete)
-                        res.Add(vf);
-                }
-                catch (Exception e)
+                .TrySelect(file=> fileGenerator.CreateVideoMp4(file, cameraNumber), (file, e) =>
                 {
                     log.Error($"The file {file} has bad name. It must match to patten {pattern} [{e.Message}]");
-                }
-            }
-            return res;
+                })
+                .Where(x=> x.IsComplete);
+            return files;
         }
     }
 }
