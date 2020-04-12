@@ -1,24 +1,19 @@
-using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 using Serilog;
 using WebApi.Core;
-using WebApi.CoreService;
 using WebApi.CoreService.Core;
 using WebApi.Archive;
 using WebApi.Archive.ArchiveFiles;
 using WebApi.Archive.BrigadeHistory;
 using WebApi.Configuration;
-using WebApi.Core.Archive;
 using WebApi.OnlineVideo;
 using WebApi.OnlineVideo.SignalR;
 using WebApi.OnlineVideo.Store;
 using WebApi.Services;
-using WebApi.Trends;
 using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 namespace WebApi
@@ -34,40 +29,28 @@ namespace WebApi
             this.env = env;
             this.configuration = configuration;
             configuration.GetSection("Settings").Bind(config);
+            config.Validate(new AppLogger());
         }
 
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddHttpClient();
-             
-
             services.AddSerilogServices(configuration);
             services.AddConfig(config);
-            //services.AddMemoryCache();
+            services.AddMemoryCache();
 
-            services.AddScoped<IDateTimeService, DateTimeService>();
-            services.AddScoped<IFileSystemService, FileSystemService>();
+            services.AddTransient<IDateTimeService, DateTimeService>();
+            services.AddTransient<IFileSystemService, FileSystemService>();
             services.AddTransient<ILog, AppLogger>();
             services.AddSingleton<IRedisRep>(x => new RedisRep(config.Redis));
 
-           
-
             //Архивы 
-            services.AddSingleton<IBrigadeHistoryRep, BrigadeHistoryRep>();
+            services.AddTransient<IBrigadeHistoryRep, BrigadeHistoryRep>();
             services.AddTransient<IArchiveFileGeneratorFactory, ArchiveFileGeneratorFactory>();
-
-            // Видеоархив
-            services.AddSingleton<IVideoArchiveStructureStore, VideoArchiveStructureStore>();
-            services.AddSingleton<IVideoArchiveSource, VideoArchiveSourceFS>();
             services.AddSingleton<IVideoArchiveRep, VideoArchiveRep>();
+            services.AddSingleton<ITrendsArchiveRep, TrendsArchiveUpCacheRep>();
 
-            // Тренды архив
-            services.AddSingleton<ITrendsArchiveStructureStore, TrendsArchiveStructureStore>();
-            services.AddSingleton<ITrendsArchiveSource, TrendsArchiveSourceFS>();
-            services.AddSingleton<ITrendsArchiveRep, TrendsArchiveRep>();
-
-
-            services.AddSingleton<IVideoConvector, ImagicVideoConvector>();
+            services.AddTransient<IVideoConvector, ImagicVideoConvector>();
             services.AddSingleton<IClientVideoHub, ClientVideoHub>();
             services.AddSingleton<ICameraStore, TransformImageStore>();
             services.AddSingleton<ICameraSettingsStore, CameraSettingsStore>();
@@ -80,8 +63,6 @@ namespace WebApi
 //            #endif
 
             services.AddMapper();
-
-            services.AddHttpClient();
             services.AddControllers()
                 .AddMvcOptions(opt =>
                 {

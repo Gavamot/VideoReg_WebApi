@@ -28,19 +28,19 @@ namespace WebApi.OnlineVideo
 
     public class HttpImgRep : IImgRep
     {
-       // private readonly IHttpClientFactory httpFactory;
         private readonly ICameraConfig config;
         private readonly ILog log;
-        public HttpImgRep(ICameraConfig config, ILog log)
+        private readonly IHttpClientFactory httpFactory;
+        public HttpImgRep(ICameraConfig config, ILog log, IHttpClientFactory httpFactory)
         {
-           // this.httpFactory = httpFactory;
             this.config = config;
             this.log = log;
+            this.httpFactory = httpFactory;
         }
 
         private async Task<(HttpStatusCode, bool, byte[])> GetByBasicAuthorization(Uri url, CancellationToken token)
         {
-            using var httpClient = new HttpClient();
+            var httpClient = httpFactory.CreateClient(url.AbsoluteUri);
             string namePwd = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{config.UserName}:{config.Password}"));
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", namePwd);
             using var response = await httpClient.GetAsync(url, token);

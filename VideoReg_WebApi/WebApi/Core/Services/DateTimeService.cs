@@ -15,8 +15,8 @@ namespace WebApi.Services
         public const string DateDashSeparatorTimeFormat = "yyyy-MM-ddTHH:mm:ss";
 
 
-        readonly CultureInfo culture = CultureInfo.InvariantCulture;
-        readonly string[] Formats = new string[]
+        static readonly CultureInfo culture = CultureInfo.InvariantCulture;
+        static readonly string[] Formats = new string[]
         {
             DefaultFormat,
             DefaultMsFormat,

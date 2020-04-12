@@ -9,7 +9,7 @@ namespace WebApi.Core
         private readonly ILogger log;
         public AppLogger()
         {
-            this.log = (Serilog.ILogger) Log.Logger;
+            this.log = Log.Logger;
         }
 
         public void Debug(string message, object obj = default)

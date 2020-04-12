@@ -22,21 +22,22 @@ namespace WebApi.Trends
 
         readonly ITrendsRep trends;
         readonly ITrendsConfig config;
-        readonly HttpClient ascRegService;
+        readonly IHttpClientFactory httpClientFactory;
         readonly IDateTimeService dateTimeService;
         readonly IRegInfoRep regInfoRep;
         public override object Context { get; protected set; } = new State();
         public override string Name => "TrendsTransmitter";
-        readonly State state;
+
         public TrendsTransmitterHostedService(ITrendsRep trends, 
             ITrendsConfig config,
-            IHttpClientFactory httpClientFactory, ILog log,
+            IHttpClientFactory httpClientFactory, 
+            ILog log,
             IDateTimeService dateTimeService,
             IRegInfoRep regInfoRep) : base(config.TrendsIterationMs, log)
         {
             this.trends = trends;
             this.config = config;
-            this.ascRegService = httpClientFactory.CreateClient("ascRegService");
+            this.httpClientFactory = httpClientFactory;
             this.dateTimeService = dateTimeService;
             this.regInfoRep = regInfoRep;
         }
@@ -57,8 +58,9 @@ namespace WebApi.Trends
             var content = new MultipartFormDataContent();
             content.Add(new StringContent(vpn), "vpn");
             content.Add(new StringContent(trends), "trendsJson");
-            var responce = await ascRegService.PostAsync(config.TrendsAscWebSetUrl, content);
-            if (!responce.IsSuccessStatusCode)
+            var ascRegService = httpClientFactory.CreateClient("ascRegService");
+            using var response = await ascRegService.PostAsync(config.TrendsAscWebSetUrl, content);
+            if (!response.IsSuccessStatusCode)
             {
                 log.Error($"{config.TrendsAscWebSetUrl} - return BadStatusCode");
             }
