@@ -15,15 +15,13 @@ namespace WebApi.Controllers
     {
         readonly ITrendsArchiveRep arc;
         private readonly IMapper mapper;
-        private readonly IBrigadeHistoryRep brigadeHistoryRep;
+
         public TrendsArchiveController(ITrendsArchiveRep arc,
             IMapper mapper,
-            IDateTimeService dateTimeService, 
-            IBrigadeHistoryRep brigadeHistoryRep) : base(dateTimeService)
+            IDateTimeService dateTimeService) : base(dateTimeService)
         {
             this.arc = arc;
             this.mapper = mapper;
-            this.brigadeHistoryRep = brigadeHistoryRep;
         }
 
         //netstat -n | wc -l
@@ -49,15 +47,14 @@ namespace WebApi.Controllers
         [Route("/[controller]/File")]
         public async Task<IActionResult> GetFile(int camera, DateTime pdt)
         {
-            var fileStream = await arc.GetTrendFileAsync(pdt);
-            if (fileStream == default)
+            var file = await arc.GetTrendFileAsync(pdt);
+            if (file == default)
                 return NotFound();
-            
-            var brigade = brigadeHistoryRep.GetBrigadeHistory().GetBrigadeCode(pdt);
-            SetHeaderToResponseBrigade(brigade);
+
+            SetHeaderToResponseBrigade(file.File.brigade);
 
             Response.StatusCode = StatusCodes.Status206PartialContent;
-            return File(fileStream, "video/mp4", enableRangeProcessing: true);
+            return File(file.Data, "application/json", enableRangeProcessing: true);
         }
     }
 }

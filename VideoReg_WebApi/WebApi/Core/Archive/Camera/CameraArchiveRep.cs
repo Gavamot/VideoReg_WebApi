@@ -41,18 +41,28 @@ namespace WebApi.Archive
             this.log = log;
         }
 
-        public async Task<ArhiveFileData> TryGetVideoFileAsync(DateTime pdt, int camera)
+        private async Task<ArchiveFileData> TryGetFileAsync(Func<FileVideoMp4, bool> selector)
         {
-            var file = GetCache().FirstOrDefault(x => x.cameraNumber == camera && x.pdt == pdt);
+            var file = GetCache().FirstOrDefault(selector);
             if (file == default)
                 return null;
             string filePath = Path.Combine(config.VideoArchivePath, file.fullArchiveName);
             var data = await fs.ReadFileAsync(filePath);
-            return new ArhiveFileData
+            return new ArchiveFileData
             {
                 File = file,
                 Data = data
             };
+        }
+
+        public async Task<ArchiveFileData> GetNearestFrontTrendFileAsync(DateTime pdt, int camera)
+        {
+            return await TryGetFileAsync(x => x.cameraNumber == camera && x.pdt >= pdt);
+        }
+
+        public async Task<ArchiveFileData> TryGetVideoFileAsync(DateTime pdt, int camera)
+        {
+            return await TryGetFileAsync(x => x.cameraNumber == camera && x.pdt == pdt);
         }
 
         public FileVideoMp4[] GetFullStructure(DateTime startWith = default)
@@ -68,7 +78,8 @@ namespace WebApi.Archive
             var res = GetCache().Where(x=>x.cameraNumber == cameraNumber);
             if (startWith == default)
                 return res.ToArray();
-            return res.Where(x => x.pdt >= startWith).OrderBy(x => x.pdt).ToArray();
+            return res.Where(x => x.pdt >= startWith)
+                .OrderBy(x => x.pdt).ToArray();
         }
 
         public FileVideoMp4[] GetFullStructureByCameraNumberAndInterval(int cameraNumber, DateTime start, DateTime end)
@@ -149,7 +160,8 @@ namespace WebApi.Archive
                 {
                     log.Error($"The file {file} has bad name. It must match to patten {pattern} [{e.Message}]");
                 })
-                .Where(x => x.IsComplete).OrderBy(x=>x.pdt);
+                .Where(x => x.IsComplete)
+                .OrderBy(x=>x.pdt);
             return files;
         }
     }

@@ -6,6 +6,8 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
+using WebApi.Archive;
+using WebApi.Archive.ArchiveFiles;
 using WebApi.Configuration;
 using WebApi.OnlineVideo.OnlineVideo;
 using WebApi.OnlineVideo.Store;
@@ -24,26 +26,39 @@ namespace WebApi.Core.SignalR
         private readonly ILog log;
         private readonly IClientAscHub hub;
         private readonly ICameraStore cameraStore;
-        private readonly ICameraSettingsStore settingsStore;
         private readonly IRegInfoRep regInfoRep;
         private readonly IArchiveConfig config;
         private readonly IHttpClientFactory httpClientFactory;
+        private readonly ICameraArchiveRep cameraArchiveRep;
+        readonly ITrendsArchiveRep trendsArchiveRep;
+        string vpn = null;
+        string Vpn
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(vpn))
+                {
+                    vpn = regInfoRep.GetInfoAsync().Result.Vpn;
+                }
+                return vpn;
+            }
+        }
 
         public ArchiveTransmitter(
             ILog log,
             IArchiveConfig config,
             IRegInfoRep regInfoRep,
             IClientAscHub hub,
-            ICameraStore cameraStore,
-            ICameraSettingsStore settingsStore,
+            ICameraArchiveRep cameraArchiveRep,
+            ITrendsArchiveRep trendsArchiveRep,
             IHttpClientFactory httpClientFactory)
         {
+            this.log = log;
             this.config = config;
-            this.cameraStore = cameraStore;
-            this.settingsStore = settingsStore;
             this.regInfoRep = regInfoRep;
             this.hub = hub;
-            this.log = log;
+            this.cameraArchiveRep = cameraArchiveRep;
+            this.trendsArchiveRep = trendsArchiveRep;
             this.httpClientFactory = httpClientFactory;
         }
 
@@ -55,24 +70,58 @@ namespace WebApi.Core.SignalR
         public Task UploadTrendsFile(DateTime pdt)
         {
 
-            throw new NotImplementedException();
+            var checkContent = CreateBaseFormData(brigadeCode, fileName);
+            var uploadContent = CreateBaseFormData(vpn, brigadeCode, fileName, file);
+
         }
 
-        private async Task UploadFile(int camera, string vpn, int brigadeCode, string fileName, byte[] file)
+        private ArchiveFile GetFileInfo(DateTime pdt)
         {
-            
+
+        }
+
+        private MultipartFormDataContent CreateBaseFormData(int brigadeCode, string fileName)
+        {
             var content = new MultipartFormDataContent();
-            content.Add(new StringContent(vpn), "vpn");
+            content.Add(new StringContent(Vpn), "vpn");
             content.Add(new StringContent(brigadeCode.ToString()), "brigadeCode");
             content.Add(new StringContent(fileName), "fileName");
+            return content;
+        }
+
+        private async Task CreateBaseFormData(int brigadeCode, string fileName, byte[] file)
+        {
+            var content = CreateBaseFormData(Vpn, brigadeCode, fileName);
             content.Add(new ByteArrayContent(file), "file");
-            content.Add(new StringContent(camera.ToString()), "camera");
-            if (camera == 0)
-            {
+        }
 
-            } 
+        private async Task<FtpStatusCode> Head()
+        {
+            
+        }
+
+        private async Task UploadFile()
+        {
+
+        }
+
+        private async Task CheckFile(string vpn, int brigadeCode, string fileName)
+        {
+         
             var client = httpClientFactory.CreateClient(Global.AscWebClient);
+            //204
+        }
 
+
+        
+
+        private async Task UploadFile(string vpn, int brigadeCode, string fileName, byte[] file)
+        {
+           
+
+
+
+            var client = httpClientFactory.CreateClient(Global.AscWebClient);
         }
     }
 }

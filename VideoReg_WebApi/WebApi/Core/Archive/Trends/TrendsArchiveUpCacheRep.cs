@@ -7,6 +7,7 @@ using WebApi.Archive.ArchiveFiles;
 using WebApi.Archive.BrigadeHistory;
 using WebApi.Configuration;
 using WebApi.Core;
+using WebApi.Core.Archive;
 using WebApi.Ext;
 using WebApi.Services;
 
@@ -71,13 +72,18 @@ namespace WebApi.Archive
             return new FileTrendsJson[0];
         }
 
-        public async Task<byte[]> GetTrendFileAsync(DateTime pdt)
+        public async Task<ArchiveFileData> GetTrendFileAsync(DateTime pdt)
         {
             var file = GetCache().FirstOrDefault(x => x.pdt == pdt);
             if (file == default)
                 return null;
             string filePath = Path.Combine(config.TrendsArchivePath, file.fullArchiveName);
-            return await fs.ReadFileAsync(filePath);
+            var data = await fs.ReadFileAsync(filePath);
+            return new ArchiveFileData()
+            {
+                File = file,
+                Data =data
+            };
         }
 
         public FileTrendsJson[] GetFullStructure(DateTime startWith)
