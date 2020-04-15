@@ -6,19 +6,21 @@ using WebApi.Services;
 
 namespace WebApi.Archive
 {
-    public class UpdateCacheHostedService : IHostedService
+    public class InitHostedService : IHostedService
     {
         private readonly ILog log;
         private ITrendsArchiveRep trendsArchiveRep;
-        private readonly IVideoArchiveRep videoArchiveRep;
-        public UpdateCacheHostedService(ILog log, ITrendsArchiveRep trendsArchiveRep, IVideoArchiveRep videoArchiveRep)
+        private readonly ICameraArchiveRep videoArchiveRep;
+      
+
+        public InitHostedService(ILog log, ITrendsArchiveRep trendsArchiveRep, ICameraArchiveRep videoArchiveRep)
         {
             this.log = log;
             this.trendsArchiveRep = trendsArchiveRep;
             this.videoArchiveRep = videoArchiveRep;
         }
 
-        private void TryStartUpdate<T>(T obj)
+        private void TryStart<T>(T obj)
         {
             var rep = obj as IUpdatedCache;
             rep?.BeginUpdate();
@@ -26,8 +28,8 @@ namespace WebApi.Archive
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            TryStartUpdate(trendsArchiveRep);
-            //TryStartUpdate(videoArchiveRep);
+            TryStart(trendsArchiveRep);
+            TryStart(videoArchiveRep);
             return Task.CompletedTask;
         }
 

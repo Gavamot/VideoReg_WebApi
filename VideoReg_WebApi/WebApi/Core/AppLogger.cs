@@ -32,6 +32,11 @@ namespace WebApi.Core
             log.Error(message, e, obj);
         }
 
+        public void Error(Exception e)
+        {
+            Error(e.Message, e);
+        }
+
         public void Fatal(string message, Exception e = default, object obj = default)
         {
             log.Fatal(message, e, obj);

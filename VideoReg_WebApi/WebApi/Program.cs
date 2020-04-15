@@ -1,14 +1,10 @@
-using System;
-using System.Net.NetworkInformation;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
-using Serilog.Enrichers.AspNetCore;
 using WebApi.Archive;
 using WebApi.OnlineVideo;
-using WebApi.OnlineVideo.SignalR;
+using WebApi.OnlineVideo.OnlineVideo;
 using WebApi.Trends;
 
 namespace WebApi
@@ -29,7 +25,7 @@ namespace WebApi
                     services.AddHostedService<CameraHostedService>();
                     services.AddHostedService<VideoTransmitterHostedService>();
 
-                    services.AddHostedService<UpdateCacheHostedService>();
+                    services.AddHostedService<InitHostedService>();
                     services.AddHostedService<TrendsTransmitterHostedService>();
                 })
                 .ConfigureWebHostDefaults(webBuilder =>

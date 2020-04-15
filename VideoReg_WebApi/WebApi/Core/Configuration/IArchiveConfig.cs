@@ -1,6 +1,6 @@
 ﻿namespace WebApi.Configuration
 {
-    public interface IArchiveConfig : ITrendsArchiveConfig, IVideoArchiveConfig
+    public interface IArchiveConfig : ITrendsArchiveConfig, ICameraArchiveConfig
     {
 
     }

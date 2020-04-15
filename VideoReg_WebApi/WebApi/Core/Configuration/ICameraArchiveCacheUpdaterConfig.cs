@@ -1,6 +1,6 @@
 ﻿namespace WebApi.Configuration
 {
-    public interface IVideoArchiveCacheUpdaterConfig : IVideoArchiveConfig
+    public interface ICameraArchiveCacheUpdaterConfig : ICameraArchiveConfig
     {
         int UpdateVideoArchiveMs { get; }
     } 

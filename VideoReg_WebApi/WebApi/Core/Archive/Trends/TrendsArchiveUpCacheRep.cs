@@ -20,7 +20,7 @@ namespace WebApi.Archive
         private readonly IBrigadeHistoryRep brigadeHistoryRep;
         private readonly ILog log;
 
-        static readonly object updateTaskLock = new object();
+        static readonly object cacheIsReady = new object();
         static Task updateTask = null;
 
         public TrendsArchiveUpCacheRep(IMemoryCache cache,
@@ -36,29 +36,29 @@ namespace WebApi.Archive
             this.log = log;
         }
 
+        /// <summary>
+        ///  Dont call me oftel
+        /// </summary>
         public void BeginUpdate()
         {
-            lock (updateTaskLock)
+            if (updateTask == null)
             {
-                if (updateTask == null)
+                new Task(async () =>
                 {
-                    new Task(async () =>
+                    while (true)
                     {
-                        while (true)
+                        try
                         {
-                            try
-                            {
-                                var files = GetCompletedFiles();
-                                cache.Set(CacheKeys.TrendsArchive, files);
-                            }
-                            catch (Exception e)
-                            {
-                                log.Error($"Can not update cache in TrendsArchiveUpCacheRep. [{e.Message}]", e);
-                            }
-                            await Task.Delay(config.TrendsArchiveUpdateTimeMs);
+                            var files = GetCompletedFiles();
+                            cache.Set(CacheKeys.TrendsArchive, files);
                         }
-                    }, TaskCreationOptions.LongRunning).Start();
-                }
+                        catch (Exception e)
+                        {
+                            log.Error($"Can not update cache in TrendsArchiveUpCacheRep. [{e.Message}]", e);
+                        }
+                        await Task.Delay(config.TrendsArchiveUpdateTimeMs);
+                    }
+                }, TaskCreationOptions.LongRunning).Start();
             }
         }
 
@@ -85,7 +85,15 @@ namespace WebApi.Archive
             var res = GetCache();
             if (startWith == default)
                 return res;
-            return res.Where(x => x.pdt >= startWith).ToArray();
+            return res.Where(x => x.pdt >= startWith)
+                .OrderBy(x => x.pdt).ToArray();
+        }
+
+        public FileTrendsJson[] GetFullStructureByInterval(DateTime start, DateTime end)
+        {
+            var res = GetCache();
+            return res.Where(x => x.pdt >= start && x.pdt <= end)
+                .OrderBy(x=>x.pdt).ToArray();
         }
 
         FileTrendsJson[] GetCompletedFiles()
@@ -99,7 +107,7 @@ namespace WebApi.Archive
                     .TrySelect(fileFactory.CreteJson,
                         (file, e) =>
                             log.Error($"The file {file} has bad name. It must match to patten {pattern} [{e.Message}]"));
-            return files.ToArray();
+            return files.OrderBy(x => x.pdt).ToArray();
         }
     }
 }

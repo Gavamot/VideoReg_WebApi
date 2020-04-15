@@ -8,16 +8,16 @@ using WebApi.Archive.ArchiveFiles;
 using WebApi.Archive.BrigadeHistory;
 using WebApi.Configuration;
 using WebApi.Core;
+using WebApi.Core.Archive;
 using WebApi.Ext;
 using WebApi.Services;
-using WebApi.ValueType;
 
 namespace WebApi.Archive
 {
     /// <summary>
     /// 
     /// </summary>
-    public class VideoArchiveRep : IVideoArchiveRep, IUpdatedCache
+    public class CameraArchiveRep : ICameraArchiveRep, IUpdatedCache
     {
         private readonly IMemoryCache cache;
         private readonly IArchiveConfig config;
@@ -28,7 +28,7 @@ namespace WebApi.Archive
         static readonly object updateTaskLock = new object();
         static Task updateTask = null;
 
-        public VideoArchiveRep(IMemoryCache cache,
+        public CameraArchiveRep(IMemoryCache cache,
             IFileSystemService fs,
             IArchiveConfig config,
             IBrigadeHistoryRep brigadeHistoryRep,
@@ -41,14 +41,18 @@ namespace WebApi.Archive
             this.log = log;
         }
 
-        public async Task<byte[]> TryGetVideoFileAsync(DateTime pdt, int camera)
+        public async Task<ArhiveFileData> TryGetVideoFileAsync(DateTime pdt, int camera)
         {
             var file = GetCache().FirstOrDefault(x => x.cameraNumber == camera && x.pdt == pdt);
             if (file == default)
                 return null;
             string filePath = Path.Combine(config.VideoArchivePath, file.fullArchiveName);
-            var stream = await fs.ReadFileAsync(filePath);
-            return stream;
+            var data = await fs.ReadFileAsync(filePath);
+            return new ArhiveFileData
+            {
+                File = file,
+                Data = data
+            };
         }
 
         public FileVideoMp4[] GetFullStructure(DateTime startWith = default)
@@ -56,7 +60,7 @@ namespace WebApi.Archive
             var res = GetCache();
             if (startWith == default)
                 return res;
-            return res.Where(x => x.pdt >= startWith).ToArray();
+            return res.Where(x => x.pdt >= startWith).OrderBy(x => x.pdt).ToArray();
         }
 
         public FileVideoMp4[] GetStructureByCameraNumber(int cameraNumber, DateTime startWith = default)
@@ -64,7 +68,16 @@ namespace WebApi.Archive
             var res = GetCache().Where(x=>x.cameraNumber == cameraNumber);
             if (startWith == default)
                 return res.ToArray();
-            return res.Where(x => x.pdt >= startWith).ToArray();
+            return res.Where(x => x.pdt >= startWith).OrderBy(x => x.pdt).ToArray();
+        }
+
+        public FileVideoMp4[] GetFullStructureByCameraNumberAndInterval(int cameraNumber, DateTime start, DateTime end)
+        {
+            var res = GetCache();
+            return res.Where(x => 
+                x.pdt >= start && x.pdt <= end 
+                               && x.cameraNumber == cameraNumber)
+                .OrderBy(x => x.pdt).ToArray();
         }
 
         public void BeginUpdate()
@@ -136,7 +149,7 @@ namespace WebApi.Archive
                 {
                     log.Error($"The file {file} has bad name. It must match to patten {pattern} [{e.Message}]");
                 })
-                .Where(x => x.IsComplete);
+                .Where(x => x.IsComplete).OrderBy(x=>x.pdt);
             return files;
         }
     }

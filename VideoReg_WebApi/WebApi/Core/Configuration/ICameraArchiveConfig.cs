@@ -1,8 +1,9 @@
 ﻿namespace WebApi.Configuration
 {
-    public interface IVideoArchiveConfig
+    public interface ICameraArchiveConfig
     {
         string VideoArchivePath { get; }
         int VideoArchiveUpdateTimeMs { get; }
+        string SetCameraArchiveUrl { get; }
     }
 }

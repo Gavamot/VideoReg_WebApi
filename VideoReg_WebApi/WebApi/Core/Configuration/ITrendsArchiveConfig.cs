@@ -4,5 +4,7 @@
     {
         string TrendsArchivePath { get; }
         int TrendsArchiveUpdateTimeMs { get; }
+        string SetTrendsArchiveUrl { get; }
+      
     }
 }

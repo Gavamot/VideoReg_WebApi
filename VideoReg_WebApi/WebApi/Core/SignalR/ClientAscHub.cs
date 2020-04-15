@@ -10,35 +10,41 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using WebApi.Configuration;
 using WebApi.Contract;
-using WebApi.OnlineVideo.SignalR;
+using WebApi.OnlineVideo.OnlineVideo;
 
 namespace WebApi.Core
 {
     /// <summary>
     /// Hub is not thread-safe ( Use only in 1 thread this instance)
     /// </summary>
-    public class ClientVideoHub : IClientVideoHub
+    public class ClientAscHub : IClientAscHub
     {
         private const int ConnectRetryTimeoutMs = 500;
-        private Uri GenerateServerUrl(string endpoint) => new Uri($"{endpoint}/onlineVideoHub");
         private HubConnection connection;
-        private ILogger<ClientVideoHub> log;
+        private ILogger<ClientAscHub> log;
         private CancellationToken token;
         private volatile Uri serverUrl;
+        private IVideoTransmitterConfig config;
+
         public Action<CameraSettings[]> OnInitShow { get; set; }
         public Action<int> OnStopShow { get; set; }
         public Action<int> OnStartShow { get; set; }
         public Action<CameraSettings> OnSetCameraSettings { get; set; }
+        
+        
+        public Action OnStartTrends { get; set; }
+        public Action OnStopTrends { get; set; }
 
-        private IVideoTransmitterConfig config;
+        public Action OnTrendsArchiveTask { get; set; }
+        public Action OnCameraArchiveTask { get; set; }
 
-        public ClientVideoHub(ILogger<ClientVideoHub> log, IVideoTransmitterConfig config)
+        public ClientAscHub(ILogger<ClientAscHub> log, IVideoTransmitterConfig config)
         {
             this.log = log;
             this.config = config;
             if (!string.IsNullOrEmpty(config.AscRegServiceEndpoint))
             {
-                this.serverUrl = GenerateServerUrl(config.AscRegServiceEndpoint);
+                this.serverUrl = new Uri(config.AscRegServiceEndpoint);
                 this.connection = ConfigureConnection(serverUrl, token);
             }
         }
@@ -88,22 +94,39 @@ namespace WebApi.Core
 
             connection.On<CameraSettings[]>("SendInitShow", cameras =>
             {
-                OnInitShow(cameras);
+                OnInitShow?.Invoke(cameras);
             });
                
             connection.On<int>("SendStopShow", camera =>
             {
-                OnStopShow(camera);
+                OnStopShow?.Invoke(camera);
             });
 
             connection.On<int>("SendStartShow", camera =>
             {
-                OnStartShow(camera);
+                OnStartShow?.Invoke(camera);
             });
                 
             connection.On<CameraSettings>("SendCameraSettings", settings =>
             {
-                OnSetCameraSettings(settings);
+                OnSetCameraSettings?.Invoke(settings);
+            });
+
+            connection.On("SendStartTrends", () => { OnStartTrends?.Invoke(); });
+
+            connection.On("SendStopTrends", () =>
+            {
+                OnStopTrends?.Invoke();
+            });
+
+            connection.On("SendTrendsArchiveTask", () =>
+            {
+                OnTrendsArchiveTask?.Invoke();
+            });
+
+            connection.On("SendCameraArchiveTask", () =>
+            {
+                OnCameraArchiveTask?.Invoke();
             });
 
             return connection;
@@ -154,5 +177,6 @@ namespace WebApi.Core
 
         public async Task SendNewRegInfoAsync(RegInfo info) =>
             await Send("ReceiveRegInfoChanged", info);
+
     }
 }

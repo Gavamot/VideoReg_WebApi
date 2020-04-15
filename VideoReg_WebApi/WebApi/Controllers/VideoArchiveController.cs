@@ -11,13 +11,16 @@ using WebApi.Services;
 
 namespace WebApi.Controllers
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [ApiController]
     public class VideoArchiveController : AppController
     {
-        readonly IVideoArchiveRep videoArc;
+        readonly ICameraArchiveRep videoArc;
         private readonly IMapper mapper;
         private readonly IBrigadeHistoryRep brigadeHistoryRep;
-        public VideoArchiveController(IVideoArchiveRep videoArc,
+        public VideoArchiveController(ICameraArchiveRep videoArc,
             IMapper mapper,
             IDateTimeService dateTimeService, 
             IBrigadeHistoryRep brigadeHistoryRep) : base(dateTimeService)
@@ -50,15 +53,14 @@ namespace WebApi.Controllers
         [Route("/[controller]/File")]
         public async Task<IActionResult> GetFile(int camera, DateTime pdt)
         {
-            var fileStream = await videoArc.TryGetVideoFileAsync(pdt, camera);
-            if (fileStream == default)
+            var file = await videoArc.TryGetVideoFileAsync(pdt, camera);
+            if (file == default)
                 return NotFound();
             
-            var brigade = brigadeHistoryRep.GetBrigadeHistory().GetBrigadeCode(pdt);
-            SetHeaderToResponseBrigade(brigade);
+            SetHeaderToResponseBrigade(file.File.brigade);
 
             Response.StatusCode = StatusCodes.Status206PartialContent;
-            return File(fileStream, "application/json", enableRangeProcessing: true);
+            return File(file.Data, "video/mp4", enableRangeProcessing: true);
         }
     }
 }

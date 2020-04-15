@@ -11,22 +11,20 @@ using WebApi.Archive.ArchiveFiles;
 using WebApi.Archive.BrigadeHistory;
 using WebApi.Configuration;
 using WebApi.OnlineVideo;
-using WebApi.OnlineVideo.SignalR;
+using WebApi.OnlineVideo.OnlineVideo;
 using WebApi.OnlineVideo.Store;
 using WebApi.Services;
-using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebApi
 {
     public class Startup
     {
         private readonly IConfiguration configuration;
-        readonly IHostingEnvironment env;
         readonly Config config = new Config();
 
-        public Startup(IHostingEnvironment env, IConfiguration configuration)
+        public Startup(IConfiguration configuration)
         {
-            this.env = env;
             this.configuration = configuration;
             configuration.GetSection("Settings").Bind(config);
             config.Validate(new AppLogger());
@@ -44,14 +42,16 @@ namespace WebApi
             services.AddTransient<ILog, AppLogger>();
             services.AddSingleton<IRedisRep>(x => new RedisRep(config.Redis));
 
+            services.AddDbContext<AppDbContext>(opt => opt.UseInMemoryDatabase("AppDbContext"));
+
             //Архивы 
             services.AddTransient<IBrigadeHistoryRep, BrigadeHistoryRep>();
             services.AddTransient<IArchiveFileGeneratorFactory, ArchiveFileGeneratorFactory>();
-            services.AddSingleton<IVideoArchiveRep, VideoArchiveRep>();
+            services.AddSingleton<ICameraArchiveRep, CameraArchiveRep>();
             services.AddSingleton<ITrendsArchiveRep, TrendsArchiveUpCacheRep>();
 
             services.AddTransient<IVideoConvector, ImagicVideoConvector>();
-            services.AddSingleton<IClientVideoHub, ClientVideoHub>();
+            services.AddSingleton<IClientAscHub, ClientAscHub>();
             services.AddSingleton<ICameraStore, TransformImageStore>();
             services.AddSingleton<ICameraSettingsStore, CameraSettingsStore>();
 

@@ -2,12 +2,14 @@
 using System.Threading.Tasks;
 using WebApi.Contract;
 
-namespace WebApi.OnlineVideo.SignalR
+namespace WebApi.OnlineVideo.OnlineVideo
 {
-    public interface IClientVideoHub
+    public interface IClientAscHub
     {
         Task ConnectWithRetryAsync();
         Task InitSessionAsync(RegInfo info);
+
+        #region Video
         Task SendCameraImageAsync(int camera, byte[] image);
         Task SendNewRegInfoAsync(RegInfo info);
         Task Close();
@@ -15,5 +17,13 @@ namespace WebApi.OnlineVideo.SignalR
         Action<int> OnStopShow { get; set; }
         Action<int> OnStartShow { get; set; }
         Action<CameraSettings> OnSetCameraSettings { get; set; }
+        #endregion
+
+        Action OnStartTrends { get; set; }
+        Action OnStopTrends { get; set; }
+
+        Action OnTrendsArchiveTask { get; set; }
+        Action OnCameraArchiveTask { get; set; }
+
     }
 }

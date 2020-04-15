@@ -1,14 +1,13 @@
 ﻿using System;
-using System.IO;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using Microsoft.Extensions.Hosting;
 using WebApi.Configuration;
 using WebApi.Contract;
 using WebApi.Services;
 using WebApi.Core;
+using WebApi.OnlineVideo.OnlineVideo;
 
 namespace WebApi.Trends
 {
@@ -25,6 +24,7 @@ namespace WebApi.Trends
         readonly IHttpClientFactory httpClientFactory;
         readonly IDateTimeService dateTimeService;
         readonly IRegInfoRep regInfoRep;
+        private readonly IClientAscHub hub;
         public override object Context { get; protected set; } = new State();
         public override string Name => "TrendsTransmitter";
 
@@ -33,13 +33,16 @@ namespace WebApi.Trends
             IHttpClientFactory httpClientFactory, 
             ILog log,
             IDateTimeService dateTimeService,
-            IRegInfoRep regInfoRep) : base(config.TrendsIterationMs, log)
+            IRegInfoRep regInfoRep, 
+            IClientAscHub hub) : base(config.TrendsIterationMs, log)
         {
             this.trends = trends;
             this.config = config;
             this.httpClientFactory = httpClientFactory;
             this.dateTimeService = dateTimeService;
             this.regInfoRep = regInfoRep;
+            this.hub = hub;
+
         }
 
         public override async Task DoWorkAsync(object context, CancellationToken cancellationToken)
@@ -58,26 +61,29 @@ namespace WebApi.Trends
             var content = new MultipartFormDataContent();
             content.Add(new StringContent(vpn), "vpn");
             content.Add(new StringContent(trends), "trendsJson");
-            var ascRegService = httpClientFactory.CreateClient("ascRegService");
-            using var response = await ascRegService.PostAsync(config.TrendsAscWebSetUrl, content);
+            var ascRegService = httpClientFactory.CreateClient(Global.AscWebClient);
+            using var response = await ascRegService.PostAsync(config.TrendsSetUrl, content);
             if (!response.IsSuccessStatusCode)
             {
-                log.Error($"{config.TrendsAscWebSetUrl} - return BadStatusCode");
+                log.Error($"{config.TrendsSetUrl} - return BadStatusCode");
             }
         }
 
-        public Task StopAsync(CancellationToken cancellationToken)
+        public new Task StopAsync(CancellationToken cancellationToken)
         {
             return Task.CompletedTask;
         }
 
         public override async Task<bool> BeforeStart(object context, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrEmpty(config.TrendsAscWebSetUrl))
+            if (string.IsNullOrEmpty(config.TrendsSetUrl))
             {
                 log.Warning("In the file [appsettings.json] parameter [Settings.TrendsAscWebSetUrl] - is empty. Trends will not pass to asc_reg_service.");
                 return false;
             }
+
+            hub.OnStartTrends = this.Continue;
+            hub.OnStopTrends = this.Pause;
 
             var c = (State)context;
             c.Timestamp = dateTimeService.GetNow();

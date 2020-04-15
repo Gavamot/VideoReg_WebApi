@@ -11,7 +11,6 @@ using Microsoft.Extensions.Hosting;
 
 namespace WebApi.OnlineVideo
 {
-    // TODO : переписать на нормальную реализацию для каждой камеры сделать индивидуальный подход.
     public class CameraHostedService : ServiceUpdater, IHostedService
     {
         private readonly IImgRep imgRep;

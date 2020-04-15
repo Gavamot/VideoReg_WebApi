@@ -12,18 +12,30 @@ namespace WebApi
         protected readonly int updateTimeMs;
         protected readonly ILog log;
         public abstract object Context { get; protected set; }
+
+        private volatile object isPause = false;
+         
         protected ServiceUpdater(
             int updateTimeMs,
             ILog log)
         {
             this.updateTimeMs = GetCorrectUpdateTimeMs(updateTimeMs);
             this.log = log;
-          
+
+        }
+
+        public void Pause()
+        {
+            isPause = true;
+        }
+
+        public void Continue()
+        {
+            isPause = false;
         }
 
         public abstract string Name { get; }
         public string ServiceName => $"Service {Name}";
-
         /// <summary>
         /// Происходит перед вызовом основного цикла
         /// </summary>
@@ -31,7 +43,7 @@ namespace WebApi
         public abstract Task<bool> BeforeStart(object context, CancellationToken cancellationToken);
 
         public abstract Task DoWorkAsync(object context, CancellationToken cancellationToken);
-
+        
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             var isStart = await BeforeStart(Context, cancellationToken);
@@ -40,6 +52,12 @@ namespace WebApi
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
+                    if ((bool) isPause)
+                    {
+                        await Task.Delay(1000, cancellationToken);
+                        continue;
+                    }
+
                     var stopwatch = Stopwatch.StartNew();
                     try
                     {

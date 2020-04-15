@@ -4,19 +4,18 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using WebApi.Configuration;
 using WebApi.Contract;
 using WebApi.OnlineVideo.Store;
 using WebApi.Core;
 using WebApi.Services;
 
-namespace WebApi.OnlineVideo.SignalR
+namespace WebApi.OnlineVideo.OnlineVideo
 {
     public class VideoTransmitterHostedService : IHostedService
     {
         private readonly ILog log;
-        private readonly IClientVideoHub hub;
+        private readonly IClientAscHub hub;
         private readonly ICameraStore cameraStore;
         private readonly ICameraSettingsStore settingsStore;
         private readonly IRegInfoRep regInfoRep;
@@ -39,7 +38,7 @@ namespace WebApi.OnlineVideo.SignalR
             ILog log,
             IVideoTransmitterConfig config,
             IRegInfoRep regInfoRep,
-            IClientVideoHub hub,
+            IClientAscHub hub,
             ICameraStore cameraStore,
             ICameraSettingsStore settingsStore)
         {
@@ -56,33 +55,43 @@ namespace WebApi.OnlineVideo.SignalR
             hub.SendNewRegInfoAsync(regInfo);
         }
 
-        private void SendCameraImages()
+        private int SendCameraImages()
         {
-            var tasks = new Task[CamerasArraySize - FirstCamera];
+            var tasks = new List<Task>();
             for (int cameraNumber = FirstCamera; cameraNumber < CamerasArraySize; cameraNumber++)
             {
                 var camNum = cameraNumber;
-                tasks[camNum - FirstCamera] = Task.Run(async () =>
+                if (!updatedCameras[camNum]) continue;
+                var task= Task.Run(async () =>
                 {
-                    if (!updatedCameras[camNum]) return;
                     var img = cameraStore.GetOrDefaultTransformedImage(camNum);
                     if (img == default) return;
                     await hub.SendCameraImageAsync(camNum, img);
                     updatedCameras[camNum] = false;
                     log.Info($"ReceiveCameraImage[{camNum}]");
                 });
+                tasks.Add(task);
             }
-            Task.WaitAll(tasks);
-            
+
+            if(tasks.Any())
+            {
+                Task.WaitAll(tasks.ToArray());
+                return tasks.Count;
+            }
+            return 0;
         }
 
         private async Task SendCameraImagesLoop(CancellationToken cancellationToken)
         {
-            while (true)
+            while (!cancellationToken.IsCancellationRequested)
             {
                 try
                 {
-                    SendCameraImages();
+                    int sendImages = SendCameraImages();
+                    if (sendImages == 0)
+                    {
+                        await Task.Delay(5, cancellationToken);
+                    }
                 }
                 catch (Exception e)
                 {
@@ -91,6 +100,7 @@ namespace WebApi.OnlineVideo.SignalR
                     await Task.Delay(500, cancellationToken);
                     await InitSession(cancellationToken);
                 }
+    
             }
         }
 
@@ -130,7 +140,6 @@ namespace WebApi.OnlineVideo.SignalR
             {
                 log.Error($"VideoTransmitterService ({exception.Message})", exception);
             });
-
 
             hub.OnStartShow = camera => SwitchCamera(camera, true);
             hub.OnStopShow = camera => SwitchCamera(camera, false);
@@ -220,19 +229,6 @@ namespace WebApi.OnlineVideo.SignalR
             {
                 enabledCameras[i] = enabled;
             }
-        }
-
-        private int[] GetEnabledCameras()
-        {
-            var res = new List<int>();
-            for (int i = FirstCamera; i < CamerasArraySize; i++)
-            {
-                if (enabledCameras[i])
-                {
-                    res.Add(i);
-                }
-            }
-            return res.ToArray();
         }
 
         private void GotSnapshot(int camera, byte[] image)

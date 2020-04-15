@@ -9,5 +9,6 @@ namespace WebApi.Archive
     {
         Task<byte[]> GetTrendFileAsync(DateTime pdt);
         FileTrendsJson[] GetFullStructure(DateTime startWith = default);
+        FileTrendsJson[] GetFullStructureByInterval(DateTime start, DateTime end);
     }
 }

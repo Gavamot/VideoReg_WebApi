@@ -8,6 +8,7 @@ namespace WebApi.Services
         void Info(string message, object obj = default);
         void Warning(string message, object obj = default);
         void Error(string message, Exception e = default, object obj = default);
+        public void Error(Exception e);
         void Fatal(string message, Exception e = default, object obj = default);
     }
 }
