@@ -29,7 +29,7 @@ namespace WebApi.Archive.BrigadeHistory
         private readonly ILog log;
         private readonly BrigadeDateInterval[] history = new BrigadeDateInterval[0];
         private readonly IDateTimeService dateTimeService;
-
+        public const int EmptyBrigadeCode = -1;
         public BrigadeHistory(ILog log, IDateTimeService dateTimeService)
         {
             this.log = log;
@@ -113,9 +113,15 @@ namespace WebApi.Archive.BrigadeHistory
             return res;
         }
 
-        public int? GetBrigadeCode(DateTime pdt)
+        public int GetBrigadeCode(DateTime pdt)
         {
-            return history.FirstOrDefault(x => x.Interval.IsInInterval(pdt))?.BrigadeCode;
+            var res = history.FirstOrDefault(x => x.Interval.IsInInterval(pdt))?.BrigadeCode;
+            return res ?? EmptyBrigadeCode;
+        }
+
+        public bool IsEmptyCode(int brigade)
+        {
+            return brigade == EmptyBrigadeCode;
         }
     }
 }

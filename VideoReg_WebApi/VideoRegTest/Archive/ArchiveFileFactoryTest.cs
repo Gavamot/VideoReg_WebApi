@@ -14,7 +14,7 @@ namespace WebApiTest.Test
     public class ArchiveFileFactoryTest
     {
         private ArchiveFileGenerator _generator;
-        private readonly int?[] brigadeSequence = {2, null, 1};
+        private readonly int[] brigadeSequence = {2, BrigadeHistory.EmptyBrigadeCode, 1};
         private static readonly DateTime dt1 = new DateTime(2018, 12, 11, 2, 3, 4);
         private readonly string dt1Str = dt1.ToString(ArchiveFileGenerator.FileNameDateFormat);
         private const string acrJson = "arc/json";

@@ -2,7 +2,6 @@ using AutoMapper;
 using WebApi.Archive.ArchiveFiles;
 using WebApi.Contract;
 using WebApi.Controllers;
-using WebApi.Core.Entity;
 using WebApi.Dto;
 
 namespace WebApi

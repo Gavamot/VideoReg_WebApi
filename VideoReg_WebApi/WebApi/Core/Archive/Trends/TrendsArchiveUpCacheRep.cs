@@ -72,9 +72,9 @@ namespace WebApi.Archive
             return new FileTrendsJson[0];
         }
 
-        public async Task<ArchiveFileData> GetTrendFileAsync(DateTime pdt)
+        private async Task<ArchiveFileData> GetFileAsync(Func<FileTrendsJson, bool> selector)
         {
-            var file = GetCache().FirstOrDefault(x => x.pdt == pdt);
+            var file = GetCache().FirstOrDefault(selector);
             if (file == default)
                 return null;
             string filePath = Path.Combine(config.TrendsArchivePath, file.fullArchiveName);
@@ -82,9 +82,20 @@ namespace WebApi.Archive
             return new ArchiveFileData()
             {
                 File = file,
-                Data =data
+                Data = data
             };
         }
+
+        public async Task<ArchiveFileData> GetNearestFrontTrendFileAsync(DateTime pdt)
+        {
+            return await GetFileAsync(x => x.pdt >= pdt);
+        }
+
+        public async Task<ArchiveFileData> GetTrendFileAsync(DateTime pdt)
+        {
+            return await GetFileAsync(x => x.pdt == pdt);
+        }
+
 
         public FileTrendsJson[] GetFullStructure(DateTime startWith)
         {

@@ -7,14 +7,14 @@ namespace WebApi.Archive.ArchiveFiles
 {
     public abstract class ArchiveFile
     {
-        protected ArchiveFile(int? brigade, DateTime pdt, DeviceSerialNumber serialNumber, string fullArchiveName)
+        protected ArchiveFile(int brigade, DateTime pdt, DeviceSerialNumber serialNumber, string fullArchiveName)
         {
             this.brigade = brigade;
             this.pdt = pdt;
             this.serialNumber = serialNumber;
             this.fullArchiveName = fullArchiveName;
         }
-        public readonly int? brigade;
+        public readonly int brigade;
         public readonly DateTime pdt;
         public readonly DeviceSerialNumber serialNumber;
 

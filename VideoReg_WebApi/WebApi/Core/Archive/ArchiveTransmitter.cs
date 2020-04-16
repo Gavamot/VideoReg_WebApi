@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Hosting;
 using WebApi.Archive;
-using WebApi.Archive.ArchiveFiles;
 using WebApi.Configuration;
 using WebApi.OnlineVideo.OnlineVideo;
 using WebApi.OnlineVideo.Store;
@@ -17,7 +12,7 @@ namespace WebApi.Core.SignalR
 {
     public interface IArchiveTransmitter
     {
-        public Task UploadCameraFile(DateTime pdt);
+        public Task UploadCameraFile(DateTime pdt, int camera);
         public Task UploadTrendsFile(DateTime pdt);
     }
 
@@ -62,22 +57,62 @@ namespace WebApi.Core.SignalR
             this.httpClientFactory = httpClientFactory;
         }
 
-        public Task UploadCameraFile(DateTime pdt)
+        public async Task UploadCameraFile(DateTime pdt, int camera)
         {
-            throw new NotImplementedException();
+            var file = await cameraArchiveRep.GetNearestFrontTrendFileAsync(pdt, camera);
+            int brigadeCode = file.File.brigade;
+            string fileName = file.File.fullArchiveName;
+            var checkContent = CreateBaseFormData(brigadeCode, fileName, camera);
+            string url = config.SetCameraArchiveUrl;
+            if (await IsFileExistAsync(checkContent, url))
+            {
+                return;
+            }
+            var uploadContent = CreateBaseFormData(brigadeCode, fileName, file.Data, camera);
+            await UploadFileAsync(uploadContent, url);
         }
 
-        public Task UploadTrendsFile(DateTime pdt)
+        public async Task UploadTrendsFile(DateTime pdt)
         {
-
+            var file = await trendsArchiveRep.GetNearestFrontTrendFileAsync(pdt);
+            int brigadeCode = file.File.brigade;
+            string fileName = file.File.fullArchiveName;
             var checkContent = CreateBaseFormData(brigadeCode, fileName);
-            var uploadContent = CreateBaseFormData(vpn, brigadeCode, fileName, file);
-
+            string url = config.SetTrendsArchiveUrl;
+            if (await IsFileExistAsync(checkContent, url))
+            {
+                return;
+            }
+            var uploadContent = CreateBaseFormData(brigadeCode, fileName, file.Data);
+            await UploadFileAsync(uploadContent, url);
         }
 
-        private ArchiveFile GetFileInfo(DateTime pdt)
-        {
 
+        private async Task UploadFileAsync(string url, MultipartFormDataContent uploadContent)
+        {
+            var client = httpClientFactory.CreateClient(Global.AscWebClient);
+            var res = await client.PostAsync(url, uploadContent);
+        }
+
+        private async Task<bool> IsFileExistAsync(MultipartFormDataContent content, string url)
+        {
+            var client = httpClientFactory.CreateClient(Global.AscWebClient);
+            using var message=  new HttpRequestMessage(HttpMethod.Head, url);
+            message.Content = content;
+            using var response = await client.SendAsync(message);
+            content.Dispose();
+            return response.StatusCode == HttpStatusCode.NoContent;
+        }
+
+        private async Task<bool> UploadFileAsync(MultipartFormDataContent content, string url)
+        {
+            var client = httpClientFactory.CreateClient(Global.AscWebClient);
+            using var message = new HttpRequestMessage(HttpMethod.Head, url);
+            message.Content = content;
+            using var response = await client.SendAsync(message);
+            content.Dispose();
+            return response.StatusCode == HttpStatusCode.NoContent;
+            //204
         }
 
         private MultipartFormDataContent CreateBaseFormData(int brigadeCode, string fileName)
@@ -89,39 +124,26 @@ namespace WebApi.Core.SignalR
             return content;
         }
 
-        private async Task CreateBaseFormData(int brigadeCode, string fileName, byte[] file)
+        private MultipartFormDataContent CreateBaseFormData(int brigadeCode, string fileName, int camera)
         {
-            var content = CreateBaseFormData(Vpn, brigadeCode, fileName);
+            var content = CreateBaseFormData(brigadeCode, fileName);
+            content.Add(new StringContent(camera.ToString()), "camera");
+            return content;
+        }
+
+        private MultipartFormDataContent CreateBaseFormData(int brigadeCode, string fileName, byte[] file)
+        {
+            var content = CreateBaseFormData(brigadeCode, fileName);
             content.Add(new ByteArrayContent(file), "file");
+            return content;
         }
 
-        private async Task<FtpStatusCode> Head()
+        private MultipartFormDataContent CreateBaseFormData(int brigadeCode, string fileName, byte[] file, int camera)
         {
-            
+            var content = CreateBaseFormData(brigadeCode, fileName, camera);
+            content.Add(new ByteArrayContent(file), "file");
+            return content;
         }
 
-        private async Task UploadFile()
-        {
-
-        }
-
-        private async Task CheckFile(string vpn, int brigadeCode, string fileName)
-        {
-         
-            var client = httpClientFactory.CreateClient(Global.AscWebClient);
-            //204
-        }
-
-
-        
-
-        private async Task UploadFile(string vpn, int brigadeCode, string fileName, byte[] file)
-        {
-           
-
-
-
-            var client = httpClientFactory.CreateClient(Global.AscWebClient);
-        }
     }
 }
