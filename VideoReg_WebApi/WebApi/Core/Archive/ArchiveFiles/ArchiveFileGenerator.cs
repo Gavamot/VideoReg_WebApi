@@ -13,7 +13,7 @@ namespace WebApi.Archive.ArchiveFiles
     {
         protected class ArchiveFileData
         {
-            public int? brigade;
+            public int brigade;
             public DateTime pdt;
             public DeviceSerialNumber serialNumber;
             public string fullArchiveName;

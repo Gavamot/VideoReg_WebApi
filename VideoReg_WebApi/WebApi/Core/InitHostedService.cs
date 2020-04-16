@@ -2,6 +2,8 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using WebApi.Core;
+using WebApi.Core.SignalR;
+using WebApi.OnlineVideo.OnlineVideo;
 using WebApi.Services;
 
 namespace WebApi.Archive
@@ -11,13 +13,19 @@ namespace WebApi.Archive
         private readonly ILog log;
         private ITrendsArchiveRep trendsArchiveRep;
         private readonly ICameraArchiveRep videoArchiveRep;
-      
-
-        public InitHostedService(ILog log, ITrendsArchiveRep trendsArchiveRep, ICameraArchiveRep videoArchiveRep)
+        private readonly IClientAscHub clientHub;
+        private readonly IArchiveTransmitter archiveTransmitter;
+        public InitHostedService(ILog log,
+            ITrendsArchiveRep trendsArchiveRep, 
+            ICameraArchiveRep videoArchiveRep,
+            IClientAscHub clientHub,
+            IArchiveTransmitter archiveTransmitter)
         {
             this.log = log;
             this.trendsArchiveRep = trendsArchiveRep;
             this.videoArchiveRep = videoArchiveRep;
+            this.archiveTransmitter = archiveTransmitter;
+            this.clientHub = clientHub;
         }
 
         private void TryStart<T>(T obj)
@@ -30,6 +38,17 @@ namespace WebApi.Archive
         {
             TryStart(trendsArchiveRep);
             TryStart(videoArchiveRep);
+
+            clientHub.OnTrendsArchiveTask = async (pdt) => 
+            {
+                await archiveTransmitter.UploadTrendsFileAsync(pdt);
+            };
+
+            clientHub.OnCameraArchiveTask = async (pdt,camera) =>
+            {
+                await archiveTransmitter.UploadCameraFileAsync(pdt,camera);
+            };
+
             return Task.CompletedTask;
         }
 

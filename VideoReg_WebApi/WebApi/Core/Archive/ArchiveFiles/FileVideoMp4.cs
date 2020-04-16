@@ -17,7 +17,7 @@ namespace WebApi.Archive.ArchiveFiles
             this.durationSeconds = durationSeconds;
         }
 
-        public FileVideoMp4(int? brigade, DateTime pdt, DeviceSerialNumber serialNumber, string fullArchiveName, int cameraNumber, int? durationSeconds)
+        public FileVideoMp4(int brigade, DateTime pdt, DeviceSerialNumber serialNumber, string fullArchiveName, int cameraNumber, int? durationSeconds)
             : base(brigade, pdt, serialNumber, fullArchiveName)
         {
             this.cameraNumber = cameraNumber;

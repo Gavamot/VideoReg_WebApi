@@ -26,13 +26,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Remove="Test\values.json" />
+    <None Remove="Test\brigade.history" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Test\values.json">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
+    <Content Include="Test\brigade.history">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -68,8 +68,56 @@
     <None Update="public.crt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Test\brigade.history">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    <None Update="Test\video_arc\1\2018\7\16\1\2018.07.16T01.00.00_14_14422_0_14422_60.mp4">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Test\video_arc\1\2018\7\16\1\2018.07.16T01.01.00_14_14422_0_14422_60.mp4">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Test\video_arc\1\2018\7\16\1\2018.07.16T01.02.00_14_14422_0_14422_60.mp4">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Test\video_arc\1\2018\7\16\1\2018.07.16T01.03.00_14_14422_0_14422_60.mp4">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Test\video_arc\1\2018\7\16\1\2018.07.16T01.04.00_14_14422_0_14422_60.mp4">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Test\video_arc\1\2018\7\16\1\2018.07.16T01.05.00_14_14422_0_14422_60.mp4">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Test\video_arc\1\2018\7\16\1\2018.07.16T01.06.00_14_14422_0_14422_60.mp4">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Test\video_arc\1\2018\7\16\1\2018.07.16T01.07.00_14_14422_0_14422_60.mp4">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Test\video_arc\1\2018\7\16\1\2018.07.16T01.08.00_14_14422_0_14422_60.mp4">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Test\video_arc\1\2018\7\16\1\2018.07.16T01.09.00_14_14422_0_14422_60.mp4">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Test\video_arc\1\2018\7\16\1\2018.07.16T01.10.00_14_14422_0_14422_60.mp4">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Test\video_arc\1\2018\7\16\1\2018.07.16T01.11.00_14_14422_0_14422_60.mp4">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Test\video_arc\1\2018\7\16\1\2018.07.16T01.12.00_14_14422_0_14422_60.mp4">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Test\video_arc\1\2018\7\16\1\2018.07.16T01.13.00_14_14422_0_14422_60.mp4">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Test\video_arc\1\2018\7\16\1\2018.07.16T01.14.00_14_14422_0_14422_60.mp4">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Test\video_arc\1\2018\7\16\1\2018.07.16T01.15.00_14_14422_0_14422_60.mp4">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Test\video_arc\1\2018\7\16\1\2018.07.16T01.16.00_14_14422_0_14422_60.mp4">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

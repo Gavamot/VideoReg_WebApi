@@ -32,6 +32,7 @@ namespace WebApi.Core
                 try
                 {
                     await action();
+                    break;
                 }
                 catch (Exception e)
                 {

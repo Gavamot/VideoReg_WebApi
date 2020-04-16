@@ -54,7 +54,8 @@ namespace WebApi.Configuration
             CheckWarning(log, nameof(Password), Password);
             CheckWarning(log, nameof(Redis), Redis);
             CheckWarning(log, nameof(AscRegServiceEndpoint), AscRegServiceEndpoint);
-            CheckWarning(log, nameof(TrendsAscWebSetUrl), TrendsAscWebSetUrl);
+            CheckWarning(log, nameof(SetTrendsArchiveUrl), SetTrendsArchiveUrl);
+            CheckWarning(log, nameof(SetCameraArchiveUrl), SetCameraArchiveUrl);
 #endif
         }
 

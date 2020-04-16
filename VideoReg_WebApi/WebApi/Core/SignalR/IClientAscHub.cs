@@ -22,8 +22,8 @@ namespace WebApi.OnlineVideo.OnlineVideo
         Action OnStartTrends { get; set; }
         Action OnStopTrends { get; set; }
 
-        Action OnTrendsArchiveTask { get; set; }
-        Action OnCameraArchiveTask { get; set; }
+        Action<DateTime> OnTrendsArchiveTask { get; set; }
+        Action<DateTime, int> OnCameraArchiveTask { get; set; }
 
     }
 }

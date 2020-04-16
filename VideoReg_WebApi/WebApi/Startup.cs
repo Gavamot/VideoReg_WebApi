@@ -15,6 +15,7 @@ using WebApi.OnlineVideo.OnlineVideo;
 using WebApi.OnlineVideo.Store;
 using WebApi.Services;
 using Microsoft.EntityFrameworkCore;
+using WebApi.Core.SignalR;
 
 namespace WebApi
 {
@@ -54,7 +55,7 @@ namespace WebApi
             services.AddSingleton<IClientAscHub, ClientAscHub>();
             services.AddSingleton<ICameraStore, TransformImageStore>();
             services.AddSingleton<ICameraSettingsStore, CameraSettingsStore>();
-
+            services.AddSingleton<IArchiveTransmitter, ArchiveTransmitter>();
             services.AddTestDependencies();
 //#if (DEBUG)
 //            services.AddTestDependencies();

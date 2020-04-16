@@ -96,7 +96,7 @@ namespace WebApi
         {
             int sleepMs = GetSleepTimeMs(elapsedMilliseconds);
             log.Debug($"{ServiceName} update operation is completed. Execution time = {elapsedMilliseconds} ms"); 
-            await Task.Delay(1, token);
+            await Task.Delay(sleepMs, token);
         }
 
         private int GetCorrectUpdateTimeMs(int updateTimeMs)

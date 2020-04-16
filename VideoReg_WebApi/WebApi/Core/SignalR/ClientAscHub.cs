@@ -35,8 +35,8 @@ namespace WebApi.Core
         public Action OnStartTrends { get; set; }
         public Action OnStopTrends { get; set; }
 
-        public Action OnTrendsArchiveTask { get; set; }
-        public Action OnCameraArchiveTask { get; set; }
+        public Action<DateTime> OnTrendsArchiveTask { get; set; }
+        public Action<DateTime, int> OnCameraArchiveTask { get; set; }
 
         public ClientAscHub(ILogger<ClientAscHub> log, IVideoTransmitterConfig config)
         {
@@ -119,14 +119,15 @@ namespace WebApi.Core
                 OnStopTrends?.Invoke();
             });
 
-            connection.On("SendTrendsArchiveTask", () =>
+            connection.On<DateTime>("SendTrendsArchiveTask", (pdt) => 
             {
-                OnTrendsArchiveTask?.Invoke();
+
+                OnTrendsArchiveTask?.Invoke(pdt);
             });
 
-            connection.On("SendCameraArchiveTask", () =>
+            connection.On<DateTime, int>("SendCameraArchiveTask", (pdt, camera) =>
             {
-                OnCameraArchiveTask?.Invoke();
+                OnCameraArchiveTask?.Invoke(pdt, camera);
             });
 
             return connection;

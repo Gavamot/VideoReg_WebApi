@@ -12,8 +12,8 @@ namespace WebApi.Core.SignalR
 {
     public interface IArchiveTransmitter
     {
-        public Task UploadCameraFile(DateTime pdt, int camera);
-        public Task UploadTrendsFile(DateTime pdt);
+        public Task UploadCameraFileAsync(DateTime pdt, int camera);
+        public Task UploadTrendsFileAsync(DateTime pdt);
     }
 
     public class ArchiveTransmitter : IArchiveTransmitter
@@ -57,7 +57,7 @@ namespace WebApi.Core.SignalR
             this.httpClientFactory = httpClientFactory;
         }
 
-        public async Task UploadCameraFile(DateTime pdt, int camera)
+        public async Task UploadCameraFileAsync(DateTime pdt, int camera)
         {
             var file = await cameraArchiveRep.GetNearestFrontTrendFileAsync(pdt, camera);
             int brigadeCode = file.File.brigade;
@@ -72,7 +72,7 @@ namespace WebApi.Core.SignalR
             await UploadFileAsync(uploadContent, url);
         }
 
-        public async Task UploadTrendsFile(DateTime pdt)
+        public async Task UploadTrendsFileAsync(DateTime pdt)
         {
             var file = await trendsArchiveRep.GetNearestFrontTrendFileAsync(pdt);
             int brigadeCode = file.File.brigade;

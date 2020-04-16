@@ -12,7 +12,7 @@ namespace WebApi.Archive.ArchiveFiles
             return $"{base.ToString()}{Extension}";
         }
 
-        public FileTrendsJson(int? brigade, DateTime pdt, DeviceSerialNumber serialNumber, string fullArchiveName) 
+        public FileTrendsJson(int brigade, DateTime pdt, DeviceSerialNumber serialNumber, string fullArchiveName) 
             : base(brigade, pdt, serialNumber, fullArchiveName)
         {
 
