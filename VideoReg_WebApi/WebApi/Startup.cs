@@ -67,7 +67,7 @@ namespace WebApi
             services.AddControllers()
                 .AddMvcOptions(opt =>
                 {
-                    opt.ModelBinderProviders.Insert(0, new DateTimeMvc.DateTimeModelBinderProvider());
+                    opt.ModelBinderProviders.Insert(0, new DateTimeMvc.DateTimeModelBinderProvider(new DateTimeService()));
                 })
                 .AddNewtonsoftJson(opt =>
                 {

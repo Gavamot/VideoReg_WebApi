@@ -26,6 +26,8 @@ namespace WebApi.Core.SignalR
         private readonly IHttpClientFactory httpClientFactory;
         private readonly ICameraArchiveRep cameraArchiveRep;
         readonly ITrendsArchiveRep trendsArchiveRep;
+        private readonly IDateTimeService dateTimeService;
+
         string vpn = null;
         string Vpn
         {
@@ -44,6 +46,7 @@ namespace WebApi.Core.SignalR
             IArchiveConfig config,
             IRegInfoRep regInfoRep,
             IClientAscHub hub,
+            IDateTimeService dateTimeService,
             ICameraArchiveRep cameraArchiveRep,
             ITrendsArchiveRep trendsArchiveRep,
             IHttpClientFactory httpClientFactory)
@@ -55,6 +58,7 @@ namespace WebApi.Core.SignalR
             this.cameraArchiveRep = cameraArchiveRep;
             this.trendsArchiveRep = trendsArchiveRep;
             this.httpClientFactory = httpClientFactory;
+            this.dateTimeService = dateTimeService;
         }
 
         public async Task UploadCameraFileAsync(DateTime pdt, int camera)
@@ -62,13 +66,13 @@ namespace WebApi.Core.SignalR
             var file = await cameraArchiveRep.GetNearestFrontTrendFileAsync(pdt, camera);
             int brigadeCode = file.File.brigade;
             string fileName = file.File.fullArchiveName;
-            var checkContent = CreateBaseFormData(brigadeCode, fileName, camera);
+            var checkContent = CreateBaseFormData(brigadeCode, fileName, file.File.pdt, camera);
             string url = config.SetCameraArchiveUrl;
             if (await IsFileExistAsync(checkContent, url))
             {
                 return;
             }
-            var uploadContent = CreateBaseFormData(brigadeCode, fileName, file.Data, camera);
+            var uploadContent = CreateBaseFormData(brigadeCode, fileName, file.File.pdt, file.Data, camera);
             await UploadFileAsync(uploadContent, url);
         }
 
@@ -77,13 +81,13 @@ namespace WebApi.Core.SignalR
             var file = await trendsArchiveRep.GetNearestFrontTrendFileAsync(pdt);
             int brigadeCode = file.File.brigade;
             string fileName = file.File.fullArchiveName;
-            var checkContent = CreateBaseFormData(brigadeCode, fileName);
+            var checkContent = CreateBaseFormData(brigadeCode, fileName, file.File.pdt);
             string url = config.SetTrendsArchiveUrl;
             if (await IsFileExistAsync(checkContent, url))
             {
                 return;
             }
-            var uploadContent = CreateBaseFormData(brigadeCode, fileName, file.Data);
+            var uploadContent = CreateBaseFormData(brigadeCode, fileName, file.File.pdt, file.Data);
             await UploadFileAsync(uploadContent, url);
         }
 
@@ -115,33 +119,35 @@ namespace WebApi.Core.SignalR
             //204
         }
 
-        private MultipartFormDataContent CreateBaseFormData(int brigadeCode, string fileName)
+        private MultipartFormDataContent CreateBaseFormData(int brigadeCode, string fileName, DateTime pdt)
         {
             var content = new MultipartFormDataContent();
             content.Add(new StringContent(Vpn), "vpn");
             content.Add(new StringContent(brigadeCode.ToString()), "brigadeCode");
             content.Add(new StringContent(fileName), "fileName");
+            content.Add(new StringContent(dateTimeService.ToStringFull(pdt)), "pdt");
             return content;
         }
 
-        private MultipartFormDataContent CreateBaseFormData(int brigadeCode, string fileName, int camera)
+        private MultipartFormDataContent CreateBaseFormData(int brigadeCode, string fileName, DateTime pdt, int camera)
         {
-            var content = CreateBaseFormData(brigadeCode, fileName);
+            var content = new MultipartFormDataContent();
             content.Add(new StringContent(camera.ToString()), "camera");
             return content;
         }
 
-        private MultipartFormDataContent CreateBaseFormData(int brigadeCode, string fileName, byte[] file)
+
+        private MultipartFormDataContent CreateBaseFormData(int brigadeCode, string fileName, DateTime pdt, byte[] file)
         {
-            var content = CreateBaseFormData(brigadeCode, fileName);
+            var content = CreateBaseFormData(brigadeCode, fileName, pdt);
             content.Add(new ByteArrayContent(file), "file");
             return content;
         }
 
-        private MultipartFormDataContent CreateBaseFormData(int brigadeCode, string fileName, byte[] file, int camera)
+        private MultipartFormDataContent CreateBaseFormData(int brigadeCode, string fileName, DateTime pdt, byte[] file, int camera)
         {
-            var content = CreateBaseFormData(brigadeCode, fileName, camera);
-            content.Add(new ByteArrayContent(file), "file");
+            var content = CreateBaseFormData(brigadeCode, fileName, pdt, file);
+            content.Add(new StringContent(camera.ToString()), "camera");
             return content;
         }
 

@@ -45,7 +45,7 @@ namespace WebApi.Controllers
         /// <response code="404">Запрошенный файл не существует</response>  
         [HttpGet]
         [Route("/[controller]/File")]
-        public async Task<IActionResult> GetFile(int camera, DateTime pdt)
+        public async Task<IActionResult> GetFile(DateTime pdt)
         {
             var file = await arc.GetTrendFileAsync(pdt);
             if (file == default)

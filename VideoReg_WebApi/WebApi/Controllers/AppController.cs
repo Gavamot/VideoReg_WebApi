@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using WebApi.Archive.ArchiveFiles;
 using WebApi.Services;
 
 namespace WebApi.Controllers
@@ -14,6 +15,7 @@ namespace WebApi.Controllers
         public const string ImageDateHeaderFormat = "yyyy-MM-ddTHH:mm:ss.fff";
 
         private readonly IDateTimeService dateTimeService;
+
 
         public AppController(IDateTimeService dateTimeService)
         {
@@ -46,9 +48,8 @@ namespace WebApi.Controllers
             string timestampString = timestamp == null ?  null : dateTimeService.ToStringFullMs(timestamp.Value);
             SetHeaderToResponse(HeaderTimestamp, timestampString );
         }
-        
+
         protected void SetHeaderToResponseBrigade(int? brigade) => 
             SetHeaderToResponse(HeaderBrigade, brigade);
-
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using WebApi.ValueType;
 
@@ -14,9 +15,11 @@ namespace WebApi.Archive.ArchiveFiles
             this.serialNumber = serialNumber;
             this.fullArchiveName = fullArchiveName;
         }
+
         public readonly int brigade;
         public readonly DateTime pdt;
         public readonly DeviceSerialNumber serialNumber;
+        public readonly string fileName;
 
         /// <summary>
         /// Полное имя файла относительно папки с архивами

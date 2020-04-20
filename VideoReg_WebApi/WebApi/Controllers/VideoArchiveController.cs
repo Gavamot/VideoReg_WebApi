@@ -34,7 +34,7 @@ namespace WebApi.Controllers
         /// <summary>
         /// Получить структуру видеоархива
         /// </summary>
-        /// <response code="200">Возвращает последнюю актуальную информацию о видеорегистраторе</response>
+        /// <response code="200">Возвращает последнюю актуальную структуру видеоархива</response>
         [HttpGet]
         [Route("/[controller]/Structure")]
         public ActionResult<FileVideoMp4Dto[]> GetStructure(DateTime startWith)

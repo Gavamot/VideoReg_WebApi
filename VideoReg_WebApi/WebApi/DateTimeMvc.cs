@@ -14,8 +14,8 @@ namespace WebApi
 
         public class DateTimeConverter : JsonConverter<DateTime>
         {
-            readonly DateTimeService dateTimeService;
-            public DateTimeConverter(DateTimeService dateTimeService)
+            readonly IDateTimeService dateTimeService;
+            public DateTimeConverter(IDateTimeService dateTimeService)
             {
                 this.dateTimeService = dateTimeService;
             }
@@ -37,13 +37,13 @@ namespace WebApi
         {
             
             private readonly DateTimeStyles _supportedStyles;
-            readonly DateTimeService dateTimeService;
+            readonly IDateTimeService dateTimeService;
             private readonly DateTimeConverter converter;
 
-            public UtcAwareDateTimeModelBinder(DateTimeStyles supportedStyles)
+            public UtcAwareDateTimeModelBinder(DateTimeStyles supportedStyles, IDateTimeService dateTimeService)
             {
                 _supportedStyles = supportedStyles;
-                dateTimeService = new DateTimeService();
+                this.dateTimeService = dateTimeService;
                 converter = new DateTimeConverter(dateTimeService);
             }
 
@@ -109,6 +109,12 @@ namespace WebApi
             internal static readonly DateTimeStyles SupportedStyles =
                 DateTimeStyles.AdjustToUniversal | DateTimeStyles.AllowWhiteSpaces;
 
+            private readonly IDateTimeService dateTimeService;
+            public DateTimeModelBinderProvider(IDateTimeService dateTimeService)
+            {
+                this.dateTimeService = dateTimeService;
+            }
+
             /// <inheritdoc />
             public IModelBinder GetBinder(ModelBinderProviderContext context)
             {
@@ -120,7 +126,7 @@ namespace WebApi
                 var modelType = context.Metadata.UnderlyingOrModelType;
                 if (modelType == typeof(DateTime))
                 {
-                    return new UtcAwareDateTimeModelBinder(SupportedStyles);
+                    return new UtcAwareDateTimeModelBinder(SupportedStyles, this.dateTimeService);
                 }
 
                 return null;
