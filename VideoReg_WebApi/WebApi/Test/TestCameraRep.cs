@@ -16,7 +16,7 @@ namespace WebApiTest
             this.fs = fs;
         }
 
-        //readonly CameraSourceSettings[] settings = {
+        //readonly CameraSourceSettings[] Settings = {
         //    //new CameraSourceSettings(1, "http://192.168.88.10/tmpfs/auto.jpg"),
         //    //new CameraSourceSettings(2, "http://192.168.88.242/webcapture.jpg?command=snap&amp;channel=1"),
         //    //new CameraSourceSettings(3, "http://192.168.88.82/ISAPI/Streaming/channels/101/picture?snapShotImageType=JPEG"),

@@ -12,7 +12,7 @@ namespace WebApi.OnlineVideo
 {
     public class HttpImgRepNetworkException : Exception
     {
-        public HttpImgRepNetworkException(string url, Exception e) : base($"got exception then for GET img from {url}", e)
+        public HttpImgRepNetworkException(string url, Exception e) : base($"got exception then for GET Image from {url}", e)
         {
         }
     }

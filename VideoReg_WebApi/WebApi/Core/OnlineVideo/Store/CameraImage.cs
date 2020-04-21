@@ -4,13 +4,14 @@ namespace WebApi.OnlineVideo.Store
 {
     public class CameraImage
     {
-        public CameraImage(ImageSettings settings, byte[] img)
+        public readonly ImageSettings Settings;
+        public byte[] Image { get; set; }
+        public int ConvertMs { get; set; }
+        public CameraImage(ImageSettings settings, byte[] image, int convertMs)
         {
-            this.settings = settings;
-            this.img = img;
+            this.Settings = settings;
+            this.Image = image;
+            this.ConvertMs = convertMs;
         }
-
-        public readonly ImageSettings settings;
-        public volatile byte[] img;
     }
 }

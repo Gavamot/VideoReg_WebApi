@@ -7,7 +7,9 @@ using WebApi.Configuration;
 using WebApi.OnlineVideo.Store;
 using WebApi.Services;
 using System.Diagnostics;
+using System.ServiceModel.Channels;
 using Microsoft.Extensions.Hosting;
+using WebApi.Core;
 
 namespace WebApi.OnlineVideo
 {
@@ -37,11 +39,12 @@ namespace WebApi.OnlineVideo
 
         public override async Task DoWorkAsync(object context, CancellationToken cancellationToken)
         {
-            var stopwatch = Stopwatch.StartNew();
-            var settings = await sourceRep.GetAll();
-            Parallel.ForEach(settings, UpdateCameraImage);
-            stopwatch.Stop();
-            await SleepIfNeedMsAsync(stopwatch.ElapsedMilliseconds, cancellationToken);
+            await Measure.Invoke(async () =>
+            {
+                var settings = await sourceRep.GetAll();
+                Parallel.ForEach(settings, UpdateCameraImage);
+            }, out var time);
+            await SleepIfNeedMsAsync((long)time.TotalMilliseconds, cancellationToken);
         }
 
         public override Task<bool> BeforeStart(object context, CancellationToken cancellationToken) => Task.FromResult(true);
@@ -50,7 +53,8 @@ namespace WebApi.OnlineVideo
         {
             try
             {
-                var img = await imgRep.GetImgAsync(url, config.CameraGetImageTimeoutMs, CancellationToken.None);
+                var img = await Measure.Invoke(async ()=> await imgRep.GetImgAsync(url, config.CameraGetImageTimeoutMs, CancellationToken.None), 
+                    time => log.Info($"imgRep.GetImgAsync time - {time.TotalMilliseconds}ms"));
                 cameraCache.SetCamera(setting.number, img);
             }
             catch (HttpImgRepStatusCodeException e)
@@ -77,7 +81,6 @@ namespace WebApi.OnlineVideo
                 log.Error($"Camera[{setting.number}] has incorrect url {setting.snapshotUrl}");
                 return;
             }
-
             executingTask[setting.number] = true;
             _ = UpdateImage(uri, setting);
         }

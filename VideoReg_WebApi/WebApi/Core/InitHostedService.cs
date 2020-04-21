@@ -39,12 +39,12 @@ namespace WebApi.Archive
             TryStart(trendsArchiveRep);
             TryStart(videoArchiveRep);
 
-            clientHub.OnTrendsArchiveTask = async (pdt) => 
+            clientHub.OnTrendsArchiveUploadFile = async (pdt) => 
             {
                 await archiveTransmitter.UploadTrendsFileAsync(pdt);
             };
 
-            clientHub.OnCameraArchiveTask = async (pdt,camera) =>
+            clientHub.OnCameraArchiveUploadFile = async (pdt,camera) =>
             {
                 await archiveTransmitter.UploadCameraFileAsync(pdt,camera);
             };

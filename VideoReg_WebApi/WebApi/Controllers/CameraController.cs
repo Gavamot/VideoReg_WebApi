@@ -109,10 +109,10 @@ namespace WebApi.Controllers
         //    if (!ModelState.IsValid)
         //        return BadRequest(ModelState);
 
-        //    var settings = mapper.Map<ImageTransformSettings>(cameraSettings);
+        //    var Settings = mapper.Map<ImageTransformSettings>(cameraSettings);
         //    try
         //    {
-        //        await cameraSettingsRep.SetAsync(cameraSettings.CameraNumber, settings);
+        //        await cameraSettingsRep.SetAsync(cameraSettings.CameraNumber, Settings);
         //    }
         //    catch (Exception e)
         //    {

@@ -35,8 +35,10 @@ namespace WebApi.Core
         public Action OnStartTrends { get; set; }
         public Action OnStopTrends { get; set; }
 
-        public Action<DateTime> OnTrendsArchiveTask { get; set; }
-        public Action<DateTime, int> OnCameraArchiveTask { get; set; }
+        public Action<int, bool> OnPassNativeImage { get; set; }
+
+        public Action<DateTime> OnTrendsArchiveUploadFile { get; set; }
+        public Action<DateTime, int> OnCameraArchiveUploadFile { get; set; }
 
         public ClientAscHub(ILogger<ClientAscHub> log, IVideoTransmitterConfig config)
         {
@@ -119,15 +121,29 @@ namespace WebApi.Core
                 OnStopTrends?.Invoke();
             });
 
-            connection.On<DateTime>("SendTrendsArchiveTask", (pdt) => 
+            connection.On<DateTime>("SendTrendsArchiveUploadFile", (pdt) => 
             {
-
-                OnTrendsArchiveTask?.Invoke(pdt);
+                OnTrendsArchiveUploadFile?.Invoke(pdt);
             });
 
-            connection.On<DateTime, int>("SendCameraArchiveTask", (pdt, camera) =>
+            connection.On<DateTime, int>("SendCameraArchiveUploadFile", (pdt, camera) =>
             {
-                OnCameraArchiveTask?.Invoke(pdt, camera);
+                OnCameraArchiveUploadFile?.Invoke(pdt, camera);
+            });
+
+            connection.On<DateTime, int>("SendCameraArchiveUploadFile", (pdt, camera) =>
+            {
+                OnCameraArchiveUploadFile?.Invoke(pdt, camera);
+            });
+
+            connection.On("SendCloseApi", () =>
+            {
+                Environment.Exit(1);
+            });
+
+            connection.On<int, bool>("SendPassNativeImage", (camera, isPassNativeImage) =>
+            {
+                OnPassNativeImage?.Invoke(camera, isPassNativeImage);
             });
 
             return connection;
@@ -173,8 +189,8 @@ namespace WebApi.Core
         public async Task InitSessionAsync(RegInfo info) => 
             await Send("ReceiveInitSession", info);
 
-        public async Task SendCameraImageAsync(int camera, byte[] image) =>
-            await Send("ReceiveCameraImage", camera, image);
+        public async Task SendCameraImageAsync(int camera, byte[] image, int convertMs) =>
+            await Send("ReceiveCameraImage", camera, image, convertMs);
 
         public async Task SendNewRegInfoAsync(RegInfo info) =>
             await Send("ReceiveRegInfoChanged", info);

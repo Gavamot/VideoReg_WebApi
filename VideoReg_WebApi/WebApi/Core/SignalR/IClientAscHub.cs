@@ -10,7 +10,7 @@ namespace WebApi.OnlineVideo.OnlineVideo
         Task InitSessionAsync(RegInfo info);
 
         #region Video
-        Task SendCameraImageAsync(int camera, byte[] image);
+        Task SendCameraImageAsync(int camera, byte[] image, int convertMs);
         Task SendNewRegInfoAsync(RegInfo info);
         Task Close();
         Action<CameraSettings[]> OnInitShow { get; set; }
@@ -21,9 +21,10 @@ namespace WebApi.OnlineVideo.OnlineVideo
 
         Action OnStartTrends { get; set; }
         Action OnStopTrends { get; set; }
+        Action<int, bool> OnPassNativeImage { get; set; }
 
-        Action<DateTime> OnTrendsArchiveTask { get; set; }
-        Action<DateTime, int> OnCameraArchiveTask { get; set; }
+        Action<DateTime> OnTrendsArchiveUploadFile { get; set; }
+        Action<DateTime, int> OnCameraArchiveUploadFile { get; set; }
 
     }
 }

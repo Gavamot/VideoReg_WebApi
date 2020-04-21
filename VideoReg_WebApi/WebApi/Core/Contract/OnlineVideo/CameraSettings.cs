@@ -6,6 +6,8 @@
         public bool Enabled { get; set; }
         public ImageSettings Settings { get; set; }
 
+        public bool IsPassNativeImage { get; set; }
+
         public CameraSettings() { }
 
         public CameraSettings(int camera, ImageSettings settings)

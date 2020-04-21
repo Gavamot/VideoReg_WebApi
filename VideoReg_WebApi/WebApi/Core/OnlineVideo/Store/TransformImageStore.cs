@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using WebApi.Configuration;
 using WebApi.Contract;
+using WebApi.Core;
 using WebApi.Services;
 
 namespace WebApi.OnlineVideo.Store
 {
-    class CameraImageTimestamp
+    public class CameraImageTimestamp
     {
         public CameraImageTimestamp(int cameraNumber)
         {
@@ -17,7 +19,7 @@ namespace WebApi.OnlineVideo.Store
         public volatile byte[] NativeImg;
         public CameraImage ConvertedImg { get; set; }
 
-        public byte[] GetConvertedIfPossibleOrNative() => ConvertedImg?.img ?? NativeImg;
+        public byte[] GetConvertedIfPossibleOrNative() => ConvertedImg?.Image ?? NativeImg;
 
         public DateTime? Timestamp { get; private set; }
 
@@ -115,9 +117,16 @@ namespace WebApi.OnlineVideo.Store
         {
             byte[] convertedImg = img;
             var imgSettings = settings.GetOrDefault(cameraNumber);
-            if(imgSettings.IsNotDefault())
-                convertedImg = videoConvector.ConvertVideo(img, imgSettings);
-            store.AddOrUpdate(cameraNumber, new CameraImage(imgSettings, convertedImg), img);
+
+            int convertMs = 0;
+            if (imgSettings.IsNotDefault())
+            {
+                convertedImg = Measure.Invoke(() => videoConvector.ConvertVideo(img, imgSettings), out var time);
+                log.Info($"camera[{cameraNumber}] ConvertVideo duration - {time.TotalMilliseconds}ms");
+                convertMs = (int)time.TotalMilliseconds;
+            }
+              
+            store.AddOrUpdate(cameraNumber, new CameraImage(imgSettings, convertedImg, convertMs), img);
 
             OnImageChanged?.Invoke(cameraNumber, convertedImg);
 
@@ -144,12 +153,12 @@ namespace WebApi.OnlineVideo.Store
 
                 if (timeStamp == null || curTimestamp != timeStamp) // временная метка изображения не соответвует переданной. Возвращаем изображение
                 {
-                    byte[] imgBytes = img.ConvertedImg.img; // Устанавливаем конвертированное значение из кэша
+                    byte[] imgBytes = img.ConvertedImg.Image; // Устанавливаем конвертированное значение из кэша
                     if (imgSettings == null) // Настройки не переданны берем исходное изображение
                     {
                         imgBytes = img.NativeImg;
                     }
-                    else if (!img.ConvertedImg.settings.Equals(imgSettings)) // переданные настройки не соответствуют настройкам в кэше.
+                    else if (!img.ConvertedImg.Settings.Equals(imgSettings)) // переданные настройки не соответствуют настройкам в кэше.
                     {
                         imgBytes = videoConvector.ConvertVideo(img.NativeImg, imgSettings);
                     }
@@ -169,10 +178,9 @@ namespace WebApi.OnlineVideo.Store
             throw new NoNModifiedException();
         }
 
-        public byte[] GetOrDefaultTransformedImage(int cameraNumber)
+        public CameraImageTimestamp GetImage(int cameraNumber)
         {
-            var img = store.GetOrDefault(cameraNumber);
-            return img?.ConvertedImg?.img;
+            return store.GetOrDefault(cameraNumber);
         }
 
         public IEnumerable<int> GetAvailableCameras() => store.GetAvailableCameras();
