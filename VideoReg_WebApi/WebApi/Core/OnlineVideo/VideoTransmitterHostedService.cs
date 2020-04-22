@@ -34,10 +34,6 @@ namespace WebApi.OnlineVideo.OnlineVideo
         /// </summary>
         readonly bool[] updatedCameras = new bool[CamerasArraySize];
 
-        /// <summary>
-        /// Когда изображдение в cameraStore обновляется обновляется выставляется флаг, после отправки флаг снимается
-        /// </summary>
-        readonly bool[] passNativeImageCameras = new bool[CamerasArraySize];
 
         public VideoTransmitterHostedService(
             ILog log,
@@ -71,27 +67,16 @@ namespace WebApi.OnlineVideo.OnlineVideo
                 {
                     var img = cameraStore.GetImage(camNum);
                     if (img == default) return;
-                    byte[] imgData = passNativeImageCameras[camNum] ? img.NativeImg : img.ConvertedImg.Image;
+                    var settings = settingsStore.Get(camNum);
+                    byte[] imgData = settings.EnableConversion ?  img.ConvertedImg.Image : img.NativeImg;
                     await hub.SendCameraImageAsync(camNum, imgData, img.ConvertedImg?.ConvertMs ?? 0);
                     updatedCameras[camNum] = false;
                     log.Info($"ReceiveCameraImage[{camNum}]");
                 });
                 tasks.Add(task);
-            }
-
-            if(tasks.Any())
-            {
-                try
-                {
-                    Task.WaitAll(tasks.ToArray());
-                }
-                catch(Exception e)
-                {
-                    log.Error(e.Message, e);
-                }
-                return tasks.Count;
-            }
-            return 0;
+            } 
+            Task.WaitAll(tasks.ToArray()); 
+            return tasks.Count;
         }
 
         private async Task SendCameraImagesLoop(CancellationToken cancellationToken)
@@ -161,7 +146,6 @@ namespace WebApi.OnlineVideo.OnlineVideo
                 log.Info($"Have got new camera[{settings.Camera}] Settings {settings.Settings}");
                 settingsStore.Set(settings);
             };
-            hub.OnPassNativeImage = (camera, pass) => passNativeImageCameras[camera - 1] = pass;
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
@@ -204,7 +188,6 @@ namespace WebApi.OnlineVideo.OnlineVideo
         private void OnCameras(CameraSettings[] cameras)
         {
             InitEnableCameras(cameras);
-            InitPassNativeImage(cameras);
         }
 
         private void InitEnableCameras(CameraSettings[] cameras)
@@ -216,19 +199,6 @@ namespace WebApi.OnlineVideo.OnlineVideo
             for (int cameraNumber = FirstCamera; cameraNumber < enabledCameras.Length; cameraNumber++)
             {
                 enabledCameras[cameraNumber] = enabled.Contains(cameraNumber);
-            }
-        }
-
-        private void InitPassNativeImage(CameraSettings[] cameras)
-        {
-            var native = cameras
-                .Where(x=>x.IsPassNativeImage)
-                .Select(x => x.Camera)
-                .ToArray();
-
-            for (int cameraNumber = FirstCamera; cameraNumber < enabledCameras.Length; cameraNumber++)
-            {
-                passNativeImageCameras[cameraNumber] = native.Contains(cameraNumber);
             }
         }
 

@@ -13,9 +13,12 @@
 
     public class ImageSettings
     {
+        public readonly static ImageSettings DefaultSettings = new ImageSettings();
+
         public int Width { get; set; } = 0;
         public int Height { get; set; } = 0;
         public int Quality { get; set; } = 0;
+
         public override string ToString() => $"Size={Width}x{Height} | Quality={Quality}";
         public override int GetHashCode()
         {

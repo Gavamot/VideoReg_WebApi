@@ -21,8 +21,7 @@ namespace WebApi.OnlineVideo.OnlineVideo
 
         Action OnStartTrends { get; set; }
         Action OnStopTrends { get; set; }
-        Action<int, bool> OnPassNativeImage { get; set; }
-
+        Action<int, bool> OnEnableConversion { get; set; }
         Action<DateTime> OnTrendsArchiveUploadFile { get; set; }
         Action<DateTime, int> OnCameraArchiveUploadFile { get; set; }
 

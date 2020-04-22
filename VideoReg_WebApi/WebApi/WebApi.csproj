@@ -19,21 +19,129 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Core\Entity\**" />
-    <Content Remove="Core\Entity\**" />
-    <EmbeddedResource Remove="Core\Entity\**" />
-    <None Remove="Core\Entity\**" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.00.15_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.01.16_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.02.17_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.03.18_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.04.20_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.05.21_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.06.22_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.07.23_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.08.24_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.09.25_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.10.26_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.11.27_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.12.29_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.13.30_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.14.31_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.15.32_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.16.33_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.17.34_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.18.35_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.19.36_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.20.38_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.21.39_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.22.40_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.23.41_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.24.42_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.25.43_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.26.44_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.27.45_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.28.46_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.29.48_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.30.49_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.31.50_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.32.51_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.33.52_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.34.53_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.35.54_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.36.55_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.37.57_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.38.58_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.39.59_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.41.00_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.42.01_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.43.02_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.44.03_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.45.04_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.46.05_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.47.06_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.48.08_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.49.09_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.50.10_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.51.11_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.52.12_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.53.13_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.54.14_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.55.15_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.56.17_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.57.18_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.58.19_14_22072_0_22072.json" />
+    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.59.20_14_22072_0_22072.json" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Test\brigade.history" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.00.15_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.01.16_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.02.17_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.03.18_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.04.20_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.05.21_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.06.22_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.07.23_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.08.24_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.09.25_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.10.26_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.11.27_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.12.29_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.13.30_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.14.31_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.15.32_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.16.33_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.17.34_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.18.35_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.19.36_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.20.38_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.21.39_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.22.40_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.23.41_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.24.42_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.25.43_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.26.44_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.27.45_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.28.46_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.29.48_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.30.49_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.31.50_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.32.51_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.33.52_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.34.53_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.35.54_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.36.55_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.37.57_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.38.58_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.39.59_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.41.00_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.42.01_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.43.02_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.44.03_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.45.04_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.46.05_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.47.06_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.48.08_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.49.09_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.50.10_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.51.11_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.52.12_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.53.13_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.54.14_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.55.15_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.56.17_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.57.18_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.58.19_14_22072_0_22072.json" />
+    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.59.20_14_22072_0_22072.json" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Content Include="Test\brigade.history">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="9.0.0" />
@@ -68,88 +176,7 @@
     <None Update="public.crt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Test\video_arc\1\2018\7\16\1\2018.07.16T01.00.00_14_14422_0_14422_60.mp4">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Test\video_arc\1\2018\7\16\1\2018.07.16T01.01.00_14_14422_0_14422_60.mp4">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Test\video_arc\1\2018\7\16\1\2018.07.16T01.02.00_14_14422_0_14422_60.mp4">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Test\video_arc\1\2018\7\16\1\2018.07.16T01.03.00_14_14422_0_14422_60.mp4">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Test\video_arc\1\2018\7\16\1\2018.07.16T01.04.00_14_14422_0_14422_60.mp4">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Test\video_arc\1\2018\7\16\1\2018.07.16T01.05.00_14_14422_0_14422_60.mp4">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Test\video_arc\1\2018\7\16\1\2018.07.16T01.06.00_14_14422_0_14422_60.mp4">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Test\video_arc\1\2018\7\16\1\2018.07.16T01.07.00_14_14422_0_14422_60.mp4">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Test\video_arc\1\2018\7\16\1\2018.07.16T01.08.00_14_14422_0_14422_60.mp4">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Test\video_arc\1\2018\7\16\1\2018.07.16T01.09.00_14_14422_0_14422_60.mp4">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Test\video_arc\1\2018\7\16\1\2018.07.16T01.10.00_14_14422_0_14422_60.mp4">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Test\video_arc\1\2018\7\16\1\2018.07.16T01.11.00_14_14422_0_14422_60.mp4">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Test\video_arc\1\2018\7\16\1\2018.07.16T01.12.00_14_14422_0_14422_60.mp4">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Test\video_arc\1\2018\7\16\1\2018.07.16T01.13.00_14_14422_0_14422_60.mp4">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Test\video_arc\1\2018\7\16\1\2018.07.16T01.14.00_14_14422_0_14422_60.mp4">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Test\video_arc\1\2018\7\16\1\2018.07.16T01.15.00_14_14422_0_14422_60.mp4">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Test\video_arc\1\2018\7\16\1\2018.07.16T01.16.00_14_14422_0_14422_60.mp4">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
-
-  <ItemGroup>
-    <Folder Include="Test\trends_arc\2020\4\11\11\0\" />
-    <Folder Include="Test\trends_arc\2020\4\11\11\10\" />
-    <Folder Include="Test\trends_arc\2020\4\11\11\11\" />
-    <Folder Include="Test\trends_arc\2020\4\11\11\1\" />
-    <Folder Include="Test\trends_arc\2020\4\11\11\2\" />
-    <Folder Include="Test\trends_arc\2020\4\11\11\3\" />
-    <Folder Include="Test\trends_arc\2020\4\11\11\4\" />
-    <Folder Include="Test\trends_arc\2020\4\11\11\5\" />
-    <Folder Include="Test\trends_arc\2020\4\11\11\6\" />
-    <Folder Include="Test\trends_arc\2020\4\11\11\7\" />
-    <Folder Include="Test\trends_arc\2020\4\11\11\8\" />
-    <Folder Include="Test\trends_arc\2020\4\11\11\9\" />
-    <Folder Include="Test\trends_arc\2020\4\11\1\0\" />
-    <Folder Include="Test\trends_arc\2020\4\11\1\10\" />
-    <Folder Include="Test\trends_arc\2020\4\11\1\11\" />
-    <Folder Include="Test\trends_arc\2020\4\11\1\12\" />
-    <Folder Include="Test\trends_arc\2020\4\11\1\13\" />
-    <Folder Include="Test\trends_arc\2020\4\11\1\14\" />
-    <Folder Include="Test\trends_arc\2020\4\11\1\15\" />
-    <Folder Include="Test\trends_arc\2020\4\11\1\16\" />
-    <Folder Include="Test\trends_arc\2020\4\11\1\17\" />
-    <Folder Include="Test\trends_arc\2020\4\11\1\18\" />
-    <Folder Include="Test\trends_arc\2020\4\11\1\19\" />
-    <Folder Include="Test\trends_arc\2020\4\11\1\1\" />
-    <Folder Include="Test\trends_arc\2020\4\11\1\20\" />
-    <Folder Include="Test\trends_arc\2020\4\11\1\21\" />
-    <Folder Include="Test\trends_arc\2020\4\11\1\2\" />
-  </ItemGroup>
 
 </Project>

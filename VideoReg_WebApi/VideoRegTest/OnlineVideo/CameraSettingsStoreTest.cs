@@ -9,7 +9,7 @@ namespace WebApiTest.OnlineVideo
     class CameraSettingsStoreTest
     {
         private ICameraSettingsStore store;
-        private readonly ImageSettings DefaultSettings = CameraSettingsStore.DefaultSettings;
+        private readonly ImageSettings DefaultSettings = ImageSettings.DefaultSettings;
         private int FirstCamera = 1;
         private int LastCamera = 9;
 
@@ -39,7 +39,7 @@ namespace WebApiTest.OnlineVideo
         {
             LoopByAllCameras(camera =>
             {
-                var res = store.GetOrDefault(camera);
+                var res = store.Get(camera);
                 Assert.AreEqual(res, DefaultSettings);
             });
         }
@@ -50,7 +50,7 @@ namespace WebApiTest.OnlineVideo
         [TestCase(7867)]
         public void GetOrDefault_WrongCamera(int camera)
         {
-            Assert.Throws<ArgumentException>(() => store.GetOrDefault(camera),
+            Assert.Throws<ArgumentException>(() => store.Get(camera),
                 $"The camera number has value [{camera}], but it must be in the interval [{FirstCamera}-{LastCamera}]");
         }
 
@@ -59,7 +59,7 @@ namespace WebApiTest.OnlineVideo
         {
             LoopByAllCameras((camera) =>
             {
-                var res = store.GetOrDefault(camera);
+                var res = store.Get(camera);
                 Assert.AreNotEqual(res, Settings);
             });
         }
@@ -70,7 +70,7 @@ namespace WebApiTest.OnlineVideo
         [TestCase(7867)]
         public void Set_WrongCamera(int camera)
         {
-            store.Set(new CameraSettings(camera, Settings));
+            store.Set(new CameraSettings(camera, true, Settings));
             GetOrDefault_SettingsNotSet();
         }
 
@@ -98,14 +98,14 @@ namespace WebApiTest.OnlineVideo
             settingsArr[1].Settings = Settings; 
             settingsArr[3].Settings = Settings2;
             store.SetAll(settingsArr);
-            Assert.AreEqual(store.GetOrDefault(1), Settings);
-            Assert.AreEqual(store.GetOrDefault(3), Settings2);
+            Assert.AreEqual(store.Get(1), Settings);
+            Assert.AreEqual(store.Get(3), Settings2);
         }
 
         private void LoopBySetSettings_AssertAreEqual(ImageSettings settings) => LoopByAllCameras(camera =>
         {
-            store.Set(new CameraSettings(camera, settings));
-            Assert.AreEqual(store.GetOrDefault(camera), settings);
+            store.Set(new CameraSettings(camera, true, settings));
+            Assert.AreEqual(store.Get(camera), settings);
         });
 
         private void LoopByAllCameras(Action<int> action)

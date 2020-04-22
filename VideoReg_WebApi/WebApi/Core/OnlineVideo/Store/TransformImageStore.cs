@@ -116,21 +116,22 @@ namespace WebApi.OnlineVideo.Store
         public void SetCamera(int cameraNumber, byte[] img)
         {
             byte[] convertedImg = img;
-            var imgSettings = settings.GetOrDefault(cameraNumber);
-
+            var imgSettings = settings.Get(cameraNumber);
+            
             int convertMs = 0;
-            if (imgSettings.IsNotDefault())
+
+            if (imgSettings.EnableConversion)
             {
-                convertedImg = Measure.Invoke(() => videoConvector.ConvertVideo(img, imgSettings), out var time);
+                convertedImg = Measure.Invoke(() => videoConvector.ConvertVideo(img, imgSettings.Settings), out var time);
                 log.Info($"camera[{cameraNumber}] ConvertVideo duration - {time.TotalMilliseconds}ms");
                 convertMs = (int)time.TotalMilliseconds;
             }
-              
-            store.AddOrUpdate(cameraNumber, new CameraImage(imgSettings, convertedImg, convertMs), img);
+
+            store.AddOrUpdate(cameraNumber, new CameraImage(imgSettings.Settings, convertedImg, convertMs), img);
 
             OnImageChanged?.Invoke(cameraNumber, convertedImg);
 
-            log.Info($"camera[{cameraNumber}] was updated. Converted={imgSettings.IsNotDefault()} ({imgSettings})");
+            log.Info($"camera[{cameraNumber}] was updated. Converted={imgSettings.Settings.IsNotDefault()} ({imgSettings})");
         }
 
         /// <returns>return null if image is not exist</returns>
@@ -139,7 +140,7 @@ namespace WebApi.OnlineVideo.Store
         {
             if (imgSettings != null)
             {
-                settings.Set(cameraNumber, imgSettings);
+                settings.Set(cameraNumber, true, imgSettings);
             }
 
             int attempts = config.ImagePollingAttempts;

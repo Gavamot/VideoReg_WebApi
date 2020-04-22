@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using WebApi.Configuration;
 using WebApi.Contract;
 using WebApi.OnlineVideo.OnlineVideo;
+using WebApi.OnlineVideo.Store;
 
 namespace WebApi.Core
 {
@@ -31,23 +32,26 @@ namespace WebApi.Core
         public Action<int> OnStartShow { get; set; }
         public Action<CameraSettings> OnSetCameraSettings { get; set; }
         
-        
         public Action OnStartTrends { get; set; }
         public Action OnStopTrends { get; set; }
 
-        public Action<int, bool> OnPassNativeImage { get; set; }
+        public Action<int, bool> OnEnableConversion { get; set; }
 
         public Action<DateTime> OnTrendsArchiveUploadFile { get; set; }
         public Action<DateTime, int> OnCameraArchiveUploadFile { get; set; }
 
-        public ClientAscHub(ILogger<ClientAscHub> log, IVideoTransmitterConfig config)
+        private readonly ICameraSettingsStore cameraSettingsStore;
+
+        public ClientAscHub(ILogger<ClientAscHub> log, IVideoTransmitterConfig config, ICameraSettingsStore cameraSettingsStore)
         {
             this.log = log;
             this.config = config;
+          
             if (!string.IsNullOrEmpty(config.AscRegServiceEndpoint))
             {
                 this.serverUrl = new Uri(config.AscRegServiceEndpoint);
                 this.connection = ConfigureConnection(serverUrl, token);
+                this.cameraSettingsStore = cameraSettingsStore;
             }
         }
 
@@ -141,9 +145,11 @@ namespace WebApi.Core
                 Environment.Exit(1);
             });
 
-            connection.On<int, bool>("SendPassNativeImage", (camera, isPassNativeImage) =>
+            connection.On<int, bool>("SendEnableConversion", (camera, enableConversion) =>
             {
-                OnPassNativeImage?.Invoke(camera, isPassNativeImage);
+                var settings = cameraSettingsStore.Get(camera);
+                settings.EnableConversion = enableConversion;
+                OnEnableConversion?.Invoke(camera, enableConversion);
             });
 
             return connection;

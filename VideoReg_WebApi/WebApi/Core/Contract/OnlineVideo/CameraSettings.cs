@@ -6,13 +6,14 @@
         public bool Enabled { get; set; }
         public ImageSettings Settings { get; set; }
 
-        public bool IsPassNativeImage { get; set; }
+        public bool EnableConversion { get; set; }
 
         public CameraSettings() { }
 
-        public CameraSettings(int camera, ImageSettings settings)
+        public CameraSettings(int camera, bool enableConversion, ImageSettings settings)
         {
             this.Camera = camera;
+            this.EnableConversion = enableConversion;
             this.Settings = settings;
         }
 
