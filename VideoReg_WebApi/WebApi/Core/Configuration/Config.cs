@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using WebApi.Configuration;
 using WebApi.Services;
 
@@ -35,14 +36,14 @@ namespace WebApi.Configuration
         public string SetCameraArchiveUrl { get; set; }
         public string SetTrendsArchiveUrl { get; set; }
 
-        public void Validate(ILog log)
+        public void Validate(ILogger log)
         {
             ShowErrorAndThrowException(log);
             TryFixAndShowWarning(log);
         }
 
 
-        private void ShowErrorAndThrowException(ILog log)
+        private void ShowErrorAndThrowException(ILogger log)
         {
             CheckReq(log, nameof(TrendsArchivePath), TrendsArchivePath);
             CheckReq(log, nameof(VideoArchivePath), VideoArchivePath);
@@ -59,24 +60,24 @@ namespace WebApi.Configuration
 #endif
         }
 
-        private void CheckWarning(ILog log, string parameterName, string value)
+        private void CheckWarning(ILogger log, string parameterName, string value)
         {
             if (string.IsNullOrEmpty(value))
             {
-                log.Warning($"In config parameter {parameterName} should having value.");
+                log.LogWarning($"In config parameter {parameterName} should having value.");
             }
         }
 
-        private void CheckReq(ILog log, string parameterName, string value)
+        private void CheckReq(ILogger log, string parameterName, string value)
         {
             if (string.IsNullOrEmpty(value))
             {
-                log.Fatal($"In config parameter {parameterName} must having value.");
+                log.LogCritical($"In config parameter {parameterName} must having value.");
                 throw new System.Exception();
             }
         }
 
-        private void TryFixAndShowWarning(ILog log)
+        private void TryFixAndShowWarning(ILogger log)
         {
             TrendsArchiveUpdateTimeMs = CheckDelay(log, nameof(TrendsArchiveUpdateTimeMs), TrendsArchiveUpdateTimeMs);
             VideoArchiveUpdateTimeMs = CheckDelay(log, nameof(VideoArchiveUpdateTimeMs), VideoArchiveUpdateTimeMs);
@@ -88,11 +89,11 @@ namespace WebApi.Configuration
             TrendsIterationMs = CheckDelay(log, nameof(TrendsIterationMs), TrendsIterationMs);
         }
 
-        private int CheckDelay(ILog log, string parameterName, int value)
+        private int CheckDelay(ILogger log, string parameterName, int value)
         {
             if (value <= 0)
             {
-                log.Warning($"In config parameter {parameterName} should be more then 0 fix it. Now value changed to 1");
+                log.LogWarning($"In config parameter {parameterName} should be more then 0 fix it. Now value changed to 1");
                 return 1;
             }
             return value;

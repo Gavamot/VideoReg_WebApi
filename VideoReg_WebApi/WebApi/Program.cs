@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Serilog;
+using Microsoft.Extensions.Logging;
+//using Serilog;
 using WebApi.Archive;
 using WebApi.OnlineVideo;
 using WebApi.OnlineVideo.OnlineVideo;
@@ -19,7 +20,15 @@ namespace WebApi
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .UseSerilog()
+                 //.UseSerilog()
+                 .ConfigureLogging((hostingContext, logging) =>
+                 {
+                     string v = hostingContext.Configuration["DisableLog"];
+                     if (!Startup.IsOn(v))
+                     {
+                         logging.ClearProviders();
+                     }
+                 })
                 .ConfigureServices(services =>
                 {
                     services.AddHostedService<CameraHostedService>();

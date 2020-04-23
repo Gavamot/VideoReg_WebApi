@@ -1,0 +1,239 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>WebApi</name>
+    </assembly>
+    <members>
+        <member name="M:WebApi.Controllers.AdminController.RestartService">
+            <summary>
+            Выключить сервис. Он будет запущен заново скриптом через какоето время
+            </summary>
+            <response code="200">Настройки были изменены</response>
+            <response code="500">Произошла ошибка</response>  
+        </member>
+        <member name="M:WebApi.Controllers.CameraController.GetAvailableCameras">
+            <summary>
+            Получить доступные камеры
+            </summary>
+            <response code="200">Настройки были изменены</response>
+        </member>
+        <member name="M:WebApi.Controllers.CameraController.GenerateFileContentResultAsync(System.Func{System.Nullable{System.DateTime},System.Threading.Tasks.Task{WebApi.OnlineVideo.Store.CameraResponse}})">
+            <summary>
+            Установить настройки для одной камеры
+            </summary>
+            <param name="cameraSettings">Номер камеры с настройками камеры</param>
+            <response code="200">Настройки были изменены</response>
+            <response code="400">Неверные входные параметры</response>  
+            <response code="500">Произошла ошибка</response>  
+        </member>
+        <member name="M:WebApi.Controllers.CameraController.GetImageFromCache(System.Int32)">
+            <summary>
+            Получить картинку из кэша либо нативную
+            </summary>
+            <response code="200">Картинка</response> 
+            <response code="404">Изображение не найдено</response>
+        </member>
+        <member name="M:WebApi.Controllers.TrendsArchiveController.GetStructure(System.DateTime)">
+            <summary>
+            Получить структуру видеоархива
+            </summary>
+            <response code="200">Возвращает последнюю актуальную информацию о видеорегистраторе</response>
+        </member>
+        <member name="M:WebApi.Controllers.TrendsArchiveController.GetFile(System.DateTime)">
+            <summary>
+            Получить информацию по трендам
+            </summary>
+            <response code="200">Возвращает информацию о приборе и тренды</response>
+            <response code="404">Запрошенный файл не существует</response>  
+        </member>
+        <member name="T:WebApi.Controllers.VideoArchiveController">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:WebApi.Controllers.VideoArchiveController.GetStructure(System.DateTime)">
+            <summary>
+            Получить структуру видеоархива
+            </summary>
+            <response code="200">Возвращает последнюю актуальную структуру видеоархива</response>
+        </member>
+        <member name="M:WebApi.Controllers.VideoArchiveController.GetFile(System.Int32,System.DateTime)">
+            <summary>
+            Получить информацию по трендам
+            </summary>
+            <response code="200">Возвращает информацию о приборе и тренды</response>
+            <response code="404">Запрошенный файл не существует</response>  
+        </member>
+        <member name="M:WebApi.Controllers.VideoRegController.GetInfo">
+            <summary>
+            Получить последнюю актуальную информацию о видеорегистраторе.
+            </summary>
+            <response code="200">Возвращает о последнюю актуальную информацию о видеорегистраторе</response>
+            <response code="500">Источниек информации о регистраторе оказался недоступен по каким либо причинам</response>  
+        </member>
+        <member name="M:WebApi.Controllers.VideoRegController.GetTrends">
+             <summary>
+             Получить информацию по трендам
+             </summary>
+             <remarks>
+             Sample request:
+            
+                 GET VideoReg/Trends
+                 { "actual":"Apr 12, 2019 8:56:17 AM",
+                    "data": {  
+                         "device": { 
+                             "serial":"000E000011110000",
+                             "version":"IVE-ASC 14.9.10\\x16","type":"14" 
+                         },
+                         "position" : {"brigade":34,"work":0,"cluster":"5","well":"513","field":"уньва"},
+                         "archive":{"size":10.98,"load":0.4},
+                         "info":{"time":"01/01/2001","video":true,"available":true,"active":true,"goodConnect":true,"location":{"x":55.68,"y":33.89}},
+                         "channels":[ 
+                             {"code":1,"num":0,"value":"89","limitLow":-80.0,"limitHigh":50.0,"alarmLow":-80.0,"alarmHigh":80.0}
+                            ,{"code":17,"num":0,"value":"0","limitLow":-40.0,"limitHigh":40.0,"alarmLow":-40.0,"alarmHigh":40.0}
+                         ]
+                     }
+                 }
+            
+             </remarks>
+             <returns> * actual - дата получения информации (чтобы определить актуальность информации клиенту
+             надо сделать еще один запрос и сравнить изменилась ли эта дата, либо VideoReg/Info содержит
+             текужую дату можно взять ее и сравнить с какорйлибо погрешностью с полученой),
+              * device - информация об устройстве
+              * position - текущие код бригады, местророждение, куст, скважина, код работы
+              * archive - данные об архиве
+              * info - дополнительная информация с прибора
+              * channels - информация по текущая(?) каналам (тренды)
+             </returns>
+             <response code="200">Возвращает информацию о приборе и тренды</response>
+             <response code="500">Произошла ошибка получения информации</response>  
+        </member>
+        <member name="T:WebApi.Core.ClientAscHub">
+            <summary>
+            Hub is not thread-safe ( Use only in 1 thread this instance)
+            </summary>
+        </member>
+        <member name="T:WebApi.Core.IRegInfoRep">
+            <summary>
+            Получение информации о видеорегистраторе
+            </summary>
+        </member>
+        <member name="M:WebApi.Core.IRegInfoRep.GetInfoAsync">
+            <summary>
+            Получить общюю информацию о видеорегистраторе
+            </summary>
+        </member>
+        <member name="F:WebApi.Archive.ArchiveFiles.ArchiveFile.fullArchiveName">
+            <summary>
+            Полное имя файла относительно папки с архивами
+            </summary>
+        </member>
+        <member name="M:WebApi.Archive.ArchiveFiles.IArchiveFileGenerator.CreteJson(System.String)">
+            <exception cref = "T:System.FormatException">Unrecognizable file format</exception>
+        </member>
+        <member name="M:WebApi.Archive.ArchiveFiles.IArchiveFileGenerator.CreateVideoMp4(System.String,System.Int32)">
+            <exception cref = "T:System.FormatException">Unrecognizable file format</exception>
+        </member>
+        <member name="T:WebApi.Archive.CameraArchiveRep">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:WebApi.Archive.TrendsArchiveUpCacheRep.BeginUpdate">
+            <summary>
+             Dont call me oftel
+            </summary>
+        </member>
+        <member name="M:WebApi.Collection.ITimestampCollection`2.AddOrUpdate(`0,`1)">
+            <returns>true - add, update - false</returns>
+        </member>
+        <member name="M:WebApi.Collection.TimestampConcurrentDictionary`2.AddOrUpdate(`0,`1)">
+            <returns> true-added, false-updated </returns>
+        </member>
+        <member name="M:WebApi.OnlineVideo.Store.ICameraStore.GetCameraAsync(System.Int32,WebApi.Contract.ImageSettings,System.Nullable{System.DateTime})">
+            <exception cref="T:WebApi.OnlineVideo.Store.NoNModifiedException">Then camera image exist but timestamp is same and all attentions is waited.</exception>
+        </member>
+        <member name="M:WebApi.OnlineVideo.Store.TransformImageStore.GetCameraAsync(System.Int32,WebApi.Contract.ImageSettings,System.Nullable{System.DateTime})">
+            <returns>return null if image is not exist</returns>
+            <exception cref="T:WebApi.OnlineVideo.Store.NoNModifiedException">Then camera image exist but timestamp is same and all attentions is waited.</exception>
+        </member>
+        <member name="F:WebApi.OnlineVideo.OnlineVideo.VideoTransmitterHostedService.enabledCameras">
+            <summary>
+            Камеры по которым необходимо передавать изображения
+            </summary>
+        </member>
+        <member name="F:WebApi.OnlineVideo.OnlineVideo.VideoTransmitterHostedService.updatedCameras">
+            <summary>
+            Когда изображдение в cameraStore обновляется обновляется выставляется флаг, после отправки флаг снимается
+            </summary>
+        </member>
+        <member name="F:WebApi.Services.DateTimeService.DateDotSeparatorTimeFormat">
+            <summary>
+            Формат архивных файлов .json и .mp4
+            </summary>
+        </member>
+        <member name="M:WebApi.ServiceUpdater.BeforeStart(System.Object,System.Threading.CancellationToken)">
+            <summary>
+            Происходит перед вызовом основного цикла
+            </summary>
+            <returns>true - запустить цикл постоянного обновления, false - не запускать  цикл постоянного обновления</returns>
+        </member>
+        <member name="M:WebApi.DateTimeMvc.DateTimeModelBinderProvider.GetBinder(Microsoft.AspNetCore.Mvc.ModelBinding.ModelBinderProviderContext)">
+            <inheritdoc />
+        </member>
+        <member name="P:WebApi.Dto.ImageTransformSettingsDto.Width">
+            <summary>
+            Ширина изображения (px)
+            </summary>
+        </member>
+        <member name="P:WebApi.Dto.ImageTransformSettingsDto.Height">
+            <summary>
+            Высота изображения (px)
+            </summary>
+        </member>
+        <member name="P:WebApi.Dto.ImageTransformSettingsDto.Quality">
+            <summary>
+            Качество изображения (%)
+            </summary>
+        </member>
+        <member name="M:WebApi.Ext.MoreEnumerable.MaxBy``2(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1})">
+            <summary>
+            Returns the maximal element of the given sequence, based on
+            the given projection.
+            </summary>
+            <remarks>
+            If more than one element has the maximal projected value, the first
+            one encountered will be returned. This overload uses the default comparer
+            for the projected type. This operator uses immediate execution, but
+            only buffers a single result (the current maximal element).
+            </remarks>
+            <typeparam name="TSource">Type of the source sequence</typeparam>
+            <typeparam name="TKey">Type of the projected element</typeparam>
+            <param name="source">Source sequence</param>
+            <param name="selector">Selector to use to pick the results to compare</param>
+            <returns>The maximal element, according to the projection.</returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="source"/> or <paramref name="selector"/> is null</exception>
+            <exception cref="T:System.InvalidOperationException"><paramref name="source"/> is empty</exception>
+        </member>
+        <member name="M:WebApi.Ext.MoreEnumerable.MaxBy``2(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1},System.Collections.Generic.IComparer{``1})">
+            <summary>
+            Returns the maximal element of the given sequence, based on
+            the given projection and the specified comparer for projected values. 
+            </summary>
+            <remarks>
+            If more than one element has the maximal projected value, the first
+            one encountered will be returned. This operator uses immediate execution, but
+            only buffers a single result (the current maximal element).
+            </remarks>
+            <typeparam name="TSource">Type of the source sequence</typeparam>
+            <typeparam name="TKey">Type of the projected element</typeparam>
+            <param name="source">Source sequence</param>
+            <param name="selector">Selector to use to pick the results to compare</param>
+            <param name="comparer">Comparer to use to compare projected values</param>
+            <returns>The maximal element, according to the projection.</returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="source"/>, <paramref name="selector"/> 
+            or <paramref name="comparer"/> is null</exception>
+            <exception cref="T:System.InvalidOperationException"><paramref name="source"/> is empty</exception>
+        </member>
+    </members>
+</doc>

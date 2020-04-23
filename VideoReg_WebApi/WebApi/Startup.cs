@@ -1,9 +1,10 @@
+using System.Security.Policy;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Serilog;
+//using Serilog;
 using WebApi.Core;
 using WebApi.CoreService.Core;
 using WebApi.Archive;
@@ -15,6 +16,7 @@ using WebApi.OnlineVideo.OnlineVideo;
 using WebApi.OnlineVideo.Store;
 using WebApi.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using WebApi.Core.SignalR;
 
 namespace WebApi
@@ -23,24 +25,37 @@ namespace WebApi
     {
         private readonly IConfiguration configuration;
         readonly Config config = new Config();
+        private readonly bool swagger = false;
+        private readonly bool disableLog = false;
+        public static bool IsOn(string v) => v.ToLower() == "on";
 
         public Startup(IConfiguration configuration)
         {
             this.configuration = configuration;
             configuration.GetSection("Settings").Bind(config);
-            config.Validate(new AppLogger());
+            this.swagger = IsOn(configuration["Swagger"]);
+            this.disableLog = IsOn(configuration["DisableLog"]);
         }
 
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddHttpClient();
-            services.AddSerilogServices(configuration);
+            //services.AddSerilogServices(configuration);
             services.AddConfig(config);
             services.AddMemoryCache();
 
             services.AddTransient<IDateTimeService, DateTimeService>();
             services.AddTransient<IFileSystemService, FileSystemService>();
-            services.AddTransient<ILog, AppLogger>();
+
+            if (disableLog)
+            {
+                services.AddTransient<ILog, EmptyLogger>();
+            }
+            else
+            {
+                services.AddTransient<ILog, AppLogger>();
+            }
+           
             services.AddSingleton<IRedisRep>(x => new RedisRep(config.Redis));
 
             services.AddDbContext<AppDbContext>(opt => opt.UseInMemoryDatabase("AppDbContext"));
@@ -74,13 +89,19 @@ namespace WebApi
                     opt.SerializerSettings.Converters.Add(new DateTimeMvc.DateTimeConverter(new DateTimeService()));
                 });
 
-            services.AddSwagger();
+            if (swagger)
+            {
+                services.AddSwagger();
+            }
+           
 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> log)
         {
+            config.Validate(log);
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -88,21 +109,23 @@ namespace WebApi
 
             app.UseStaticFiles();
             app.UseRouting();
-            app.UseEndpoints( endpoints => { endpoints.MapControllers(); });
             app.UseCors();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
 
-            app.UseSerilogRequestLogging();
+            //app.UseSerilogRequestLogging();
 
-            app.UseSwagger();
-            app.UseSwaggerUI(c =>
+            if (swagger)
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-                c.RoutePrefix = string.Empty;
-            });
+                app.UseSwagger();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+                    c.RoutePrefix = string.Empty;
+                });
+            }
         }
     }
 }

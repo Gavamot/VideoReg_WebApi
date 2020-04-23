@@ -9,164 +9,26 @@
     <DocumentationFile>C:\Projects\WebApi.Core_WebApi\WebApi.Core_WebApi\WebApi\WebApi.xml</DocumentationFile>
     <PlatformTarget>x64</PlatformTarget>
     <Optimize>false</Optimize>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>C:\Projects\WebApi.Core_WebApi\WebApi.Core_WebApi\WebApi\WebApi.xml</DocumentationFile>
+    <DocumentationFile>C:\Projects\VideoReg_WebApi\VideoReg_WebApi\WebApi\WebApi.xml</DocumentationFile>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
     <Optimize>true</Optimize>
     <PlatformTarget>x64</PlatformTarget>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.00.15_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.01.16_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.02.17_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.03.18_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.04.20_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.05.21_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.06.22_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.07.23_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.08.24_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.09.25_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.10.26_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.11.27_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.12.29_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.13.30_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.14.31_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.15.32_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.16.33_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.17.34_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.18.35_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.19.36_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.20.38_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.21.39_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.22.40_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.23.41_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.24.42_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.25.43_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.26.44_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.27.45_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.28.46_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.29.48_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.30.49_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.31.50_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.32.51_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.33.52_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.34.53_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.35.54_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.36.55_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.37.57_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.38.58_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.39.59_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.41.00_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.42.01_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.43.02_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.44.03_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.45.04_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.46.05_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.47.06_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.48.08_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.49.09_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.50.10_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.51.11_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.52.12_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.53.13_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.54.14_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.55.15_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.56.17_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.57.18_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.58.19_14_22072_0_22072.json" />
-    <Content Remove="Test\trends_arc\2020\4\11\0\2020.04.11T00.59.20_14_22072_0_22072.json" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.00.15_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.01.16_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.02.17_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.03.18_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.04.20_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.05.21_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.06.22_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.07.23_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.08.24_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.09.25_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.10.26_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.11.27_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.12.29_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.13.30_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.14.31_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.15.32_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.16.33_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.17.34_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.18.35_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.19.36_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.20.38_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.21.39_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.22.40_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.23.41_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.24.42_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.25.43_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.26.44_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.27.45_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.28.46_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.29.48_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.30.49_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.31.50_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.32.51_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.33.52_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.34.53_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.35.54_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.36.55_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.37.57_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.38.58_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.39.59_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.41.00_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.42.01_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.43.02_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.44.03_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.45.04_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.46.05_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.47.06_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.48.08_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.49.09_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.50.10_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.51.11_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.52.12_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.53.13_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.54.14_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.55.15_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.56.17_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.57.18_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.58.19_14_22072_0_22072.json" />
-    <None Include="Test\trends_arc\2020\4\11\0\2020.04.11T00.59.20_14_22072_0_22072.json" />
-  </ItemGroup>
-
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="9.0.0" />
     <PackageReference Include="BeetleX.Redis" Version="0.6.8" />
     <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="7.16.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" />
-
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.1.3" />
-
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="3.1.3" />
-
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="3.1.3" />
-
     <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.3" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="Serilog.AspNetCore" Version="3.2.0" />
-    <PackageReference Include="Serilog.Enrichers.AspNetCore" Version="1.0.0" />
-    <PackageReference Include="Serilog.Enrichers.AspNetCore.HttpContext" Version="1.0.1" />
-    <PackageReference Include="Serilog.Enrichers.Context" Version="4.2.0" />
-    <PackageReference Include="Serilog.Enrichers.Environment" Version="2.1.3" />
-    <PackageReference Include="Serilog.Enrichers.Thread" Version="3.1.0" />
-    <PackageReference Include="Serilog.Settings.Configuration" Version="3.1.0" />
-    <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
-    <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.3.3" />
     <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="5.1.1" />
   </ItemGroup>

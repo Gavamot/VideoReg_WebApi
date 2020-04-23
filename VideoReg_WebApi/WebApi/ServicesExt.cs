@@ -5,7 +5,7 @@ using AutoMapper;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
-using Serilog;
+//using Serilog;
 using Swashbuckle.AspNetCore.Filters;
 using WebApi.Core;
 using WebApiTest;
@@ -19,14 +19,14 @@ namespace WebApi
 {
     public static class ServicesExt
     {
-        public static IServiceCollection AddSerilogServices(this IServiceCollection services, IConfiguration configuration)
-        {
-            Log.Logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(configuration)
-                .CreateLogger();
-            AppDomain.CurrentDomain.ProcessExit += (s, e) => Log.CloseAndFlush();
-            return services.AddSingleton(Log.Logger);
-        }
+        //public static IServiceCollection AddSerilogServices(this IServiceCollection services, IConfiguration configuration)
+        //{
+        //    Log.Logger = new LoggerConfiguration()
+        //        .ReadFrom.Configuration(configuration)
+        //        .CreateLogger();
+        //    AppDomain.CurrentDomain.ProcessExit += (s, e) => Log.CloseAndFlush();
+        //    return services.AddSingleton(Log.Logger);
+        //}
 
         public static void AddConfig(this IServiceCollection services, Config config)
         {
