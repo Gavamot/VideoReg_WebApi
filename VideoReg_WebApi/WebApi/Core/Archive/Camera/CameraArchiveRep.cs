@@ -119,7 +119,7 @@ namespace WebApi.Archive
 
         private FileVideoMp4[] GetCache()
         {
-            if (cache.TryGetValue(CacheKeys.TrendsArchive, out object value))
+            if (cache.TryGetValue(CacheKeys.VideoArchive, out object value))
             {
                 return (FileVideoMp4[])value;
             }

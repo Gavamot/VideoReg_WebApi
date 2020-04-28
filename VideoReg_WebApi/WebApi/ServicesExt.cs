@@ -82,7 +82,6 @@ namespace WebApi
             services.AddSingleton<IRegInfoRep, TestRegInfo>();
             services.AddSingleton<ITrendsRep, TestTrendsRep>();
             services.AddSingleton<IImgRep, HttpImgRep>();
-     
             //services.AddSingleton<IImgRep, TestRandomImgRep>();
         }
 

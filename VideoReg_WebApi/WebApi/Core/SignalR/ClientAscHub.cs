@@ -37,8 +37,8 @@ namespace WebApi.Core
 
         public Action<int, bool> OnEnableConversion { get; set; }
 
-        public Action<DateTime> OnTrendsArchiveUploadFile { get; set; }
-        public Action<DateTime, int> OnCameraArchiveUploadFile { get; set; }
+        public Action<DateTime, DateTime> OnTrendsArchiveUploadFile { get; set; }
+        public Action<DateTime, DateTime, int> OnCameraArchiveUploadFile { get; set; }
 
         private readonly ICameraSettingsStore cameraSettingsStore;
 
@@ -125,19 +125,14 @@ namespace WebApi.Core
                 OnStopTrends?.Invoke();
             });
 
-            connection.On<DateTime>("SendTrendsArchiveUploadFile", (pdt) => 
+            connection.On<DateTime, DateTime>("SendTrendsArchiveUploadFile", (pdt, end) => 
             {
-                OnTrendsArchiveUploadFile?.Invoke(pdt);
+                OnTrendsArchiveUploadFile?.Invoke(pdt, end);
             });
 
-            connection.On<DateTime, int>("SendCameraArchiveUploadFile", (pdt, camera) =>
+            connection.On<DateTime, DateTime, int>("SendCameraArchiveUploadFile", (pdt, end, camera) =>
             {
-                OnCameraArchiveUploadFile?.Invoke(pdt, camera);
-            });
-
-            connection.On<DateTime, int>("SendCameraArchiveUploadFile", (pdt, camera) =>
-            {
-                OnCameraArchiveUploadFile?.Invoke(pdt, camera);
+                OnCameraArchiveUploadFile?.Invoke(pdt, end, camera);
             });
 
             connection.On("SendCloseApi", () =>
@@ -195,8 +190,11 @@ namespace WebApi.Core
         public async Task InitSessionAsync(RegInfo info) => 
             await Send("ReceiveInitSession", info);
 
-        public async Task SendCameraImageAsync(int camera, byte[] image, int convertMs) =>
-            await Send("ReceiveCameraImage", camera, image, convertMs);
+        //public async Task SendCameraImageAsync(int camera, byte[] image, int convertMs) =>
+        //    await Send("ReceiveCameraImage", camera, image, convertMs);
+
+        public async Task SendTestConnectionAsync() => 
+            await Send("ReceiveTestConnection");
 
         public async Task SendNewRegInfoAsync(RegInfo info) =>
             await Send("ReceiveRegInfoChanged", info);

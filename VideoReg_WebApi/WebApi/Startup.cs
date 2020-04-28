@@ -15,7 +15,6 @@ using WebApi.OnlineVideo;
 using WebApi.OnlineVideo.OnlineVideo;
 using WebApi.OnlineVideo.Store;
 using WebApi.Services;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using WebApi.Core.SignalR;
 
@@ -26,15 +25,15 @@ namespace WebApi
         private readonly IConfiguration configuration;
         readonly Config config = new Config();
         private readonly bool swagger = false;
-        private readonly bool disableLog = false;
-        public static bool IsOn(string v) => v.ToLower() == "on";
+        private readonly bool log = false;
+        public static bool IsOn(string v) => v?.ToLower() == "on";
 
         public Startup(IConfiguration configuration)
         {
             this.configuration = configuration;
             configuration.GetSection("Settings").Bind(config);
             this.swagger = IsOn(configuration["Swagger"]);
-            this.disableLog = IsOn(configuration["DisableLog"]);
+            this.log = IsOn(configuration["Log"]);
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -47,7 +46,7 @@ namespace WebApi
             services.AddTransient<IDateTimeService, DateTimeService>();
             services.AddTransient<IFileSystemService, FileSystemService>();
 
-            if (disableLog)
+            if (log)
             {
                 services.AddTransient<ILog, EmptyLogger>();
             }
@@ -58,7 +57,7 @@ namespace WebApi
            
             services.AddSingleton<IRedisRep>(x => new RedisRep(config.Redis));
 
-            services.AddDbContext<AppDbContext>(opt => opt.UseInMemoryDatabase("AppDbContext"));
+            //services.AddDbContext<AppDbContext>(opt => opt.UseInMemoryDatabase("AppDbContext"));
 
             //Архивы 
             services.AddTransient<IBrigadeHistoryRep, BrigadeHistoryRep>();
@@ -71,12 +70,11 @@ namespace WebApi
             services.AddSingleton<ICameraStore, TransformImageStore>();
             services.AddSingleton<ICameraSettingsStore, CameraSettingsStore>();
             services.AddSingleton<IArchiveTransmitter, ArchiveTransmitter>();
+#if (DEBUG)
             services.AddTestDependencies();
-//#if (DEBUG)
-//            services.AddTestDependencies();
-//            #else
-//                services.AddDependencies();
-//            #endif
+#else
+            services.AddDependencies();
+#endif
 
             services.AddMapper();
             services.AddControllers()

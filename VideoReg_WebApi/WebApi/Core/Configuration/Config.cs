@@ -30,11 +30,12 @@ namespace WebApi.Configuration
         public string BrigadeCodePath { get; set; }
 
         public string TrendsFileName { get; set; }
-        public string TrendsSetUrl { get; set; }
+        public string SetTrendsUrl { get; set; }
         public int TrendsIterationMs { get; set; }
 
         public string SetCameraArchiveUrl { get; set; }
         public string SetTrendsArchiveUrl { get; set; }
+        public string SetImageUrl { get; set; }
 
         public void Validate(ILogger log)
         {

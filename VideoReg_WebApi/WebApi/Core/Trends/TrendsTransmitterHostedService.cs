@@ -42,7 +42,6 @@ namespace WebApi.Trends
             this.dateTimeService = dateTimeService;
             this.regInfoRep = regInfoRep;
             this.hub = hub;
-
         }
 
         public override async Task DoWorkAsync(object context, CancellationToken cancellationToken)
@@ -62,10 +61,11 @@ namespace WebApi.Trends
             content.Add(new StringContent(vpn), "vpn");
             content.Add(new StringContent(trends), "trendsJson");
             var ascRegService = httpClientFactory.CreateClient(Global.AscWebClient);
-            using var response = await ascRegService.PostAsync(config.TrendsSetUrl, content);
+
+            using var response = await ascRegService.PostAsync(config.SetTrendsUrl, content);
             if (!response.IsSuccessStatusCode)
             {
-                log.Error($"{config.TrendsSetUrl} - return BadStatusCode");
+                log.Error($"{config.SetTrendsUrl} - return BadStatusCode");
             }
         }
 
@@ -76,7 +76,7 @@ namespace WebApi.Trends
 
         public override async Task<bool> BeforeStart(object context, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrEmpty(config.TrendsSetUrl))
+            if (string.IsNullOrEmpty(config.SetTrendsUrl))
             {
                 log.Warning("In the file [appsettings.json] parameter [Settings.TrendsAscWebSetUrl] - is empty. Trends will not pass to asc_reg_service.");
                 return false;

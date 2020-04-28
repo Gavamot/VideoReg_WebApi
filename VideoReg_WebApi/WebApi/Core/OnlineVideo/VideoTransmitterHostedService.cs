@@ -9,6 +9,9 @@ using WebApi.Contract;
 using WebApi.OnlineVideo.Store;
 using WebApi.Core;
 using WebApi.Services;
+using System.Net.Http;
+using System.Text.Unicode;
+using System.Text;
 
 namespace WebApi.OnlineVideo.OnlineVideo
 {
@@ -24,7 +27,20 @@ namespace WebApi.OnlineVideo.OnlineVideo
         const int AllCameras = 0;
         private const int FirstCamera = 1;
         private const int CamerasArraySize = 10;
-        
+
+        string vpn = null;
+        string Vpn
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(vpn))
+                {
+                    vpn = regInfoRep.GetInfoAsync().Result.Vpn;
+                }
+                return vpn;
+            }
+        }
+
         /// <summary>
         /// Камеры по которым необходимо передавать изображения
         /// </summary>
@@ -33,7 +49,9 @@ namespace WebApi.OnlineVideo.OnlineVideo
         /// Когда изображдение в cameraStore обновляется обновляется выставляется флаг, после отправки флаг снимается
         /// </summary>
         readonly bool[] updatedCameras = new bool[CamerasArraySize];
-
+        readonly HttpClient http;
+        readonly IDateTimeService dateTimeService;
+        private volatile bool isInited = false; 
 
         public VideoTransmitterHostedService(
             ILog log,
@@ -41,7 +59,9 @@ namespace WebApi.OnlineVideo.OnlineVideo
             IRegInfoRep regInfoRep,
             IClientAscHub hub,
             ICameraStore cameraStore,
-            ICameraSettingsStore settingsStore)
+            ICameraSettingsStore settingsStore,
+            IHttpClientFactory httpClientFactory,
+            IDateTimeService dateTimeService)
         {
             this.config = config;
             this.cameraStore = cameraStore;
@@ -49,6 +69,21 @@ namespace WebApi.OnlineVideo.OnlineVideo
             this.regInfoRep = regInfoRep;
             this.hub = hub;
             this.log = log;
+            http = httpClientFactory.CreateClient(Global.AscWebClient);
+            this.dateTimeService = dateTimeService;
+        }
+
+        public Task StartAsync(CancellationToken cancellationToken)
+        {
+            TransmitDataLoop(cancellationToken);
+            CheckConnectionLoop(cancellationToken);
+            return Task.CompletedTask;
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            UnsubscribeHubForEvents();
+            return Task.CompletedTask;
         }
 
         private void RegInfoChanged(RegInfo regInfo)
@@ -69,7 +104,8 @@ namespace WebApi.OnlineVideo.OnlineVideo
                     if (img == default) return;
                     var settings = settingsStore.Get(camNum);
                     byte[] imgData = settings.EnableConversion ?  img.ConvertedImg.Image : img.NativeImg;
-                    await hub.SendCameraImageAsync(camNum, imgData, img.ConvertedImg?.ConvertMs ?? 0);
+                    await SendCameraImagesHttpAsync(camNum, imgData, img.ConvertedImg?.ConvertMs ?? 0);
+                    //await hub.SendCameraImageAsync(camNum, imgData, img.ConvertedImg?.ConvertMs ?? 0);
                     updatedCameras[camNum] = false;
                     log.Info($"ReceiveCameraImage[{camNum}]");
                 });
@@ -77,6 +113,21 @@ namespace WebApi.OnlineVideo.OnlineVideo
             } 
             Task.WaitAll(tasks.ToArray()); 
             return tasks.Count;
+        }
+
+        private async Task SendCameraImagesHttpAsync(int cameraNumber, byte[] img, int convertedMs)
+        {
+            var content = new MultipartFormDataContent();
+            content.Add(new StringContent(Vpn), "vpn");
+            content.Add(new StringContent(cameraNumber.ToString()), "camera");
+            var imgEncode = Convert.ToBase64String(img);
+            content.Add(new StringContent(imgEncode), "file");
+            content.Add(new StringContent(convertedMs.ToString()), "convertMs");
+            var responce = await http.PostAsync(config.SetImageUrl, content);
+            if (!responce.IsSuccessStatusCode)
+            {
+               
+            }
         }
 
         private async Task SendCameraImagesLoop(CancellationToken cancellationToken)
@@ -96,33 +147,37 @@ namespace WebApi.OnlineVideo.OnlineVideo
                     log.Error($"can not send SendCameraImages message={e.Message}", e);
                     SwitchCamera(AllCameras, false);
                     await Task.Delay(500, cancellationToken);
-                    await InitSession(cancellationToken);
+                    await InitSessionAsync(cancellationToken);
                 }
-    
             }
         }
 
-        private async Task TransmitDataLoopAsync(CancellationToken cancellationToken)
+        private void TransmitDataLoop(CancellationToken token)
         {
-            if (string.IsNullOrEmpty(config.AscRegServiceEndpoint))
+            Task task = new Task(async () =>
             {
-                log.Info($"VideoTransmitterService is off. config.AscRegServiceEndpoint is empty ");
-                return;
-            }
-                
-            log.Info($"VideoTransmitterService connect to {config.AscRegServiceEndpoint}");
-            
-            hub.OnInitShow = InitShow;
-            await InitSession(cancellationToken);
+                if (string.IsNullOrEmpty(config.AscRegServiceEndpoint))
+                {
+                    log.Info($"VideoTransmitterService is off. config.AscRegServiceEndpoint is empty ");
+                    return;
+                }
 
-            cameraStore.OnImageChanged = GotSnapshot;
-            regInfoRep.RegInfoChanged = RegInfoChanged;
-            
-            await SendCameraImagesLoop(cancellationToken);
+                log.Info($"VideoTransmitterService connect to {config.AscRegServiceEndpoint}");
+
+                hub.OnInitShow = InitShow;
+                await InitSessionAsync(token);
+
+                cameraStore.OnImageChanged = GotSnapshot;
+                regInfoRep.RegInfoChanged = RegInfoChanged;
+
+                await SendCameraImagesLoop(token);
+            }, token, TaskCreationOptions.LongRunning);
+            task.Start();
         }
 
-        private async Task InitSession(CancellationToken cancellationToken)
+        private async Task InitSessionAsync(CancellationToken cancellationToken)
         {
+            isInited = false;
             log.Info($"Get reg info ...");
             RegInfo regInfo = await Must.Do(async () => await regInfoRep.GetInfoAsync(), 1000, cancellationToken, exception =>
             {
@@ -132,7 +187,7 @@ namespace WebApi.OnlineVideo.OnlineVideo
             await Must.Do(async () =>
             {
                 await hub.ConnectWithRetryAsync();
-                log.Info($"VideoTransmitterService InitSession() to {config.AscRegServiceEndpoint}");
+                log.Info($"VideoTransmitterService InitSessionAsync() to {config.AscRegServiceEndpoint}");
                 await hub.InitSessionAsync(regInfo);
             }, 1000, cancellationToken, exception =>
             {
@@ -146,22 +201,33 @@ namespace WebApi.OnlineVideo.OnlineVideo
                 log.Info($"Have got new camera[{settings.Camera}] Settings {settings.Settings}");
                 settingsStore.Set(settings);
             };
+            isInited = true;
         }
 
-        public Task StartAsync(CancellationToken cancellationToken)
+        private void CheckConnectionLoop(CancellationToken token)
         {
-            Task.Run(async () =>
+            Task task = new Task(async () =>
             {
-                await TransmitDataLoopAsync(cancellationToken);
-            }, cancellationToken);
-            return Task.CompletedTask;
-        }
-
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            UnsubscribeHubForEvents();
-            return Task.CompletedTask;
-        }
+                while (true)
+                {
+                    await Task.Delay(1000);
+                    if (isInited)
+                    {
+                        try
+                        {
+                            await hub.SendTestConnectionAsync();
+                        }
+                        catch
+                        {
+                            await InitSessionAsync(token);
+                        }
+                        
+                    }
+                    token.ThrowIfCancellationRequested();
+                }
+            }, token, TaskCreationOptions.LongRunning);
+            task.Start();
+        } 
 
         private void UnsubscribeHubForEvents()
         {
