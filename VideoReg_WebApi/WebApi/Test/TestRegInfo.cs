@@ -12,7 +12,7 @@ namespace WebApiTest
     {
         public async Task<RegInfo> GetInfoAsync()
         {
-            var json = await File.ReadAllTextAsync("Test\\reg_info.json");
+            var json = await File.ReadAllTextAsync("Test/reg_info.json");
             var res = JsonConvert.DeserializeObject<RegInfo>(json);
             return res;
         }

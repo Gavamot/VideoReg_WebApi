@@ -104,7 +104,7 @@ namespace WebApi.Archive
                             try
                             {
                                 var files = GetCompletedFiles();
-                                cache.Set(CacheKeys.TrendsArchive, files);
+                                cache.Set(CacheKeys.VideoArchive, files);
                             }
                             catch (Exception e)
                             {

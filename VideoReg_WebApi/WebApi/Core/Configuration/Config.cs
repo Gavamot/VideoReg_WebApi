@@ -26,7 +26,6 @@ namespace WebApi.Configuration
         public int ImagePollingDelayMs { get; set; }
         public string BrigadeHistoryFileName { get; set; }
         public string AscRegServiceEndpoint { get; set; }
-        public string AscRegServiceBufferSize { get; set; }
         public string BrigadeCodePath { get; set; }
 
         public string TrendsFileName { get; set; }

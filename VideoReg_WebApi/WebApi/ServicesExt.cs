@@ -80,7 +80,8 @@ namespace WebApi
         {
             services.AddSingleton<ICameraSourceRep, TestCameraRep>();
             services.AddSingleton<IRegInfoRep, TestRegInfo>();
-            services.AddSingleton<ITrendsRep, TestTrendsRep>();
+            services.AddTransient<ITrendsRep, FileTrendsRep>();
+            //services.AddSingleton<ITrendsRep, TestTrendsRep>();
             services.AddSingleton<IImgRep, HttpImgRep>();
             //services.AddSingleton<IImgRep, TestRandomImgRep>();
         }

@@ -118,13 +118,14 @@ namespace WebApi.Archive
             var brigadeHistory = brigadeHistoryRep.GetBrigadeHistory();
             var fileFactory = ArchiveFileGenerator.Create(brigadeHistory, config);
             var root = config.TrendsArchivePath;
-            const string pattern = "*T*_*_*_*_*_*.mp4";
-            var files =
-                fs.GetFiles(root, SearchOption.AllDirectories, pattern)
+            const string pattern = "*T*_*_*_*_*.json";
+            var files = fs.GetFiles(root, SearchOption.AllDirectories, pattern);
+            var res = files
                     .TrySelect(fileFactory.CreteJson,
-                        (file, e) =>
-                            log.Error($"The file {file} has bad name. It must match to patten {pattern} [{e.Message}]"));
-            return files.OrderBy(x => x.pdt).ToArray();
+                        (file, e) =>log.Error($"The file {file} has bad name. It must match to patten {pattern} [{e.Message}]"))
+                   .OrderBy(x => x.pdt)
+                   .ToArray();
+            return res;
         }
     }
 }
