@@ -5,39 +5,37 @@ namespace WebApi.Dto
 {
     public class ImageTransformSettingsDto
     {
-        public const int MinSizePx = 0;
-        public const int MaxSizePx = 1920;
-        public const int MinQuality = 0;
-        public const int MaxQuality = 100;
-
+        public const int ResetValue = -1;
         /// <summary>
         /// Ширина изображения (px)
         /// </summary>
-        [Range(MinSizePx, MaxSizePx)]
+        [Range(ResetValue, 1024)]
         [Display(Name = "Ширина")]
-        [DefaultValue(0)]
         public int Width { get; set; }
 
         /// <summary>
         /// Высота изображения (px)
         /// </summary>
-        [Range(MinSizePx, MaxSizePx)]
+        [Range(ResetValue, 768)]
         [Display(Name = "Высота")]
-        [DefaultValue(0)]
         public int Height { get; set; }
 
         /// <summary>
         /// Качество изображения (%)
         /// </summary>
-        [Range(MinQuality, MaxQuality)]
+        [Range(ResetValue, 100)]
         [Display(Name = "Качество изображения  %")]
-        [DefaultValue(0)]
         public int Quality { get; set; }
 
-        public bool IsDefault() => 
-            Height == 0 
-            || Width == 0 
-            || Quality == 0;
-        
+        public bool IsResetValue() => 
+            Height == ResetValue
+            || Width == ResetValue
+            || Quality == ResetValue;
+
+        public bool IsDefaultValue() =>
+           Height == 0
+           || Width == 0
+           || Quality == 0;
+
     }
 }

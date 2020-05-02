@@ -10,5 +10,5 @@ namespace WebApi.Core.Archive
     {
         public ArchiveFile File { get; set; }
         public byte[] Data { get; set; }
-     }
+    }
 }

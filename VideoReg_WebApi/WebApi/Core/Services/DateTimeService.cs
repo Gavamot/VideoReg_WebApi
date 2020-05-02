@@ -5,14 +5,14 @@ namespace WebApi.Services
 {
     public class DateTimeService : IDateTimeService
     {
-        public const string DefaultMsFormat = "dd.MM.yyyyTHH:mm:ss.fff";
-        public const string DefaultFormat = "dd.MM.yyyyTHH:mm:ss";
+        public const string DefaultMsFormat = "yyyy-MM-ddTHH:mm:ss.fff";
+        public const string DefaultFormat = "yyyy-MM-ddTHH:mm:ss";
 
         /// <summary>
         /// Формат архивных файлов .json и .mp4
         /// </summary>
         public const string DateDotSeparatorTimeFormat = "yyyy.MM.ddTHH.mm.ss";
-        public const string DateDashSeparatorTimeFormat = "yyyy-MM-ddTHH:mm:ss";
+        public const string DateDotSeparatorTimeFormatShortFormat = "yyyy.M.dTH.m.s";
 
 
         static readonly CultureInfo culture = CultureInfo.InvariantCulture;
@@ -20,8 +20,7 @@ namespace WebApi.Services
         {
             DefaultFormat,
             DefaultMsFormat,
-            DateDotSeparatorTimeFormat,
-            DateDashSeparatorTimeFormat
+            DateDotSeparatorTimeFormatShortFormat
         };
 
         public DateTime Parse(string date)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
@@ -56,11 +57,10 @@ namespace WebApi.Controllers
             var file = await videoArc.TryGetVideoFileAsync(pdt, camera);
             if (file == default)
                 return NotFound();
-            
-            SetHeaderToResponseBrigade(file.File.brigade);
 
+            SetHeaderToResponseBrigade(file.File.brigade);
             Response.StatusCode = StatusCodes.Status206PartialContent;
-            return File(file.Data, "video/mp4", enableRangeProcessing: true);
+            return File(file.Data, "video/mp4",  true);
         }
     }
 }

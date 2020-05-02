@@ -13,20 +13,14 @@ namespace WebApi.Archive
         private readonly ILog log;
         private ITrendsArchiveRep trendsArchiveRep;
         private readonly ICameraArchiveRep videoArchiveRep;
-        private readonly IClientAscHub clientHub;
-        private readonly IArchiveTransmitter archiveTransmitter;
 
         public InitHostedService(ILog log,
             ITrendsArchiveRep trendsArchiveRep, 
-            ICameraArchiveRep videoArchiveRep,
-            IClientAscHub clientHub,
-            IArchiveTransmitter archiveTransmitter)
+            ICameraArchiveRep videoArchiveRep)
         {
             this.log = log;
             this.trendsArchiveRep = trendsArchiveRep;
             this.videoArchiveRep = videoArchiveRep;
-            this.archiveTransmitter = archiveTransmitter;
-            this.clientHub = clientHub;
         }
 
         private void TryStart<T>(T obj)
@@ -39,17 +33,6 @@ namespace WebApi.Archive
         {
             TryStart(trendsArchiveRep);
             TryStart(videoArchiveRep);
-
-            clientHub.OnTrendsArchiveUploadFile = async (pdt, end) => 
-            {
-                await archiveTransmitter.UploadTrendsFileAsync(pdt, end);
-            };
-
-            clientHub.OnCameraArchiveUploadFile = async (pdt, end, camera) =>
-            {
-                await archiveTransmitter.UploadCameraFileAsync(pdt, end, camera);
-            };
-
             return Task.CompletedTask;
         }
 

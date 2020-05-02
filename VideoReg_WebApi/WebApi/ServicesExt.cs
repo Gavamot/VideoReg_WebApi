@@ -72,17 +72,13 @@ namespace WebApi
         {
             services.AddTransient<ICameraSourceRep, RedisCameraSourceRep>();
             services.AddTransient<IRegInfoRep, RegInfoRep>();
-            services.AddTransient<ITrendsRep, FileTrendsRep>();
-            services.AddSingleton<IImgRep, HttpImgRep>();
         }
 
         public static void AddTestDependencies(this IServiceCollection services)
         {
             services.AddSingleton<ICameraSourceRep, TestCameraRep>();
             services.AddSingleton<IRegInfoRep, TestRegInfo>();
-            services.AddTransient<ITrendsRep, FileTrendsRep>();
             //services.AddSingleton<ITrendsRep, TestTrendsRep>();
-            services.AddSingleton<IImgRep, HttpImgRep>();
             //services.AddSingleton<IImgRep, TestRandomImgRep>();
         }
 

@@ -17,6 +17,7 @@ using WebApi.OnlineVideo.Store;
 using WebApi.Services;
 using Microsoft.Extensions.Logging;
 using WebApi.Core.SignalR;
+using WebApi.Trends;
 
 namespace WebApi
 {
@@ -26,7 +27,9 @@ namespace WebApi
         readonly Config config = new Config();
         private readonly bool swagger = false;
         private readonly bool log = false;
+        private readonly bool passDataToServer = false;
         public static bool IsOn(string v) => v?.ToLower() == "on";
+        
 
         public Startup(IConfiguration configuration)
         {
@@ -34,6 +37,7 @@ namespace WebApi
             configuration.GetSection("Settings").Bind(config);
             this.swagger = IsOn(configuration["Swagger"]);
             this.log = IsOn(configuration["Log"]);
+            this.passDataToServer = IsOn(configuration["PassDataToServer"]);
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -42,39 +46,44 @@ namespace WebApi
             //services.AddSerilogServices(configuration);
             services.AddConfig(config);
             services.AddMemoryCache();
-
-            services.AddTransient<IDateTimeService, DateTimeService>();
-            services.AddTransient<IFileSystemService, FileSystemService>();
-
-            if (log)
-            {
-                services.AddTransient<ILog, EmptyLogger>();
-            }
-            else
-            {
-                services.AddTransient<ILog, AppLogger>();
-            }
-           
-            services.AddSingleton<IRedisRep>(x => new RedisRep(config.Redis));
-
             //services.AddDbContext<AppDbContext>(opt => opt.UseInMemoryDatabase("AppDbContext"));
 
+            // Передача на сервер asc web
+            if (passDataToServer)
+            {
+                services.AddHostedService<VideoTransmitterHostedService>();
+                services.AddHostedService<TrendsTransmitterHostedService>();
+                services.AddSingleton<IClientAscHub, ClientAscHub>();
+                services.AddSingleton<IArchiveTransmitter, ArchiveTransmitter>();
+            }
+
+            // Обновление камер
+            services.AddHostedService<CameraHostedService>();
+            services.AddSingleton<IRedisRep>(x => new RedisRep(config.Redis));
+
+            services.AddHostedService<InitHostedService>();
+          
             //Архивы 
-            services.AddTransient<IBrigadeHistoryRep, BrigadeHistoryRep>();
-            services.AddTransient<IArchiveFileGeneratorFactory, ArchiveFileGeneratorFactory>();
+            services.AddSingleton<IBrigadeHistoryRep, BrigadeHistoryRep>();
+            services.AddSingleton<IArchiveFileGeneratorFactory, ArchiveFileGeneratorFactory>();
             services.AddSingleton<ICameraArchiveRep, CameraArchiveRep>();
             services.AddSingleton<ITrendsArchiveRep, TrendsArchiveUpCacheRep>();
 
-            services.AddTransient<IVideoConvector, ImagicVideoConvector>();
-            services.AddSingleton<IClientAscHub, ClientAscHub>();
+            services.AddSingleton<IImgRep, HttpImgRep>();
             services.AddSingleton<ICameraStore, TransformImageStore>();
             services.AddSingleton<ICameraSettingsStore, CameraSettingsStore>();
-            services.AddSingleton<IArchiveTransmitter, ArchiveTransmitter>();
+            services.AddSingleton<IVideoConvector, ImagicVideoConvector>();
+
+            services.AddSingleton<ITrendsRep, FileTrendsRep>();
+
 #if (DEBUG)
             services.AddTestDependencies();
 #else
             services.AddDependencies();
 #endif
+
+            services.AddTransient<IDateTimeService, DateTimeService>();
+            services.AddTransient<IFileSystemService, FileSystemService>();
 
             services.AddMapper();
             services.AddControllers()
@@ -91,8 +100,15 @@ namespace WebApi
             {
                 services.AddSwagger();
             }
-           
 
+            if (log)
+            {
+                services.AddTransient<ILog, EmptyLogger>();
+            }
+            else
+            {
+                services.AddTransient<ILog, AppLogger>();
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

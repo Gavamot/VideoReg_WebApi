@@ -17,21 +17,26 @@
             </summary>
             <response code="200">Настройки были изменены</response>
         </member>
-        <member name="M:WebApi.Controllers.CameraController.GenerateFileContentResultAsync(System.Func{System.Nullable{System.DateTime},System.Threading.Tasks.Task{WebApi.OnlineVideo.Store.CameraResponse}})">
+        <member name="M:WebApi.Controllers.CameraController.GetImage(System.Int32,WebApi.Dto.ImageTransformSettingsDto)">
             <summary>
-            Установить настройки для одной камеры
+            Получить изображение по камере.
+            Если не пепредавать настройки (или передать любую по умолчанию значение 0) то будет отдано оригинальное изображение.
+            Если передать настройки хоть одну из настроек передать -1 то конвертация отключится.
+            !Конвертация изображений позволяет уменьшить обьем передаваемого трафика но занимает много времени.
+            Выставлять высокие настройки конвертации не имеет смысла так как изображение лучше исходного не станет
+            Но увеличится в размерах и долго будет конвертироватся. Что значительно уменьшит fps.
+            Пережимать изображения стоит только если канал связи плохой и выставлять низкие настройки. 
+            Также в тело http запроса следует добавлять заголовок "X-TIMESTAMP" в формате yyyy-MM-ddTHH:mm:ss.fff
+            Каждому кадру взятому с камеры присваевается временная метка
+            Это позволит не отдавать кадр пока не изменится эта временная метка тоесть кадр.
+            Также этот же заголовок будет установлен в ответе. И его следует использовать при следующем запросе чтобы получить измененное изображение а не копию предыдущего.
             </summary>
-            <param name="cameraSettings">Номер камеры с настройками камеры</param>
-            <response code="200">Настройки были изменены</response>
-            <response code="400">Неверные входные параметры</response>  
-            <response code="500">Произошла ошибка</response>  
-        </member>
-        <member name="M:WebApi.Controllers.CameraController.GetImageFromCache(System.Int32)">
-            <summary>
-            Получить картинку из кэша либо нативную
-            </summary>
-            <response code="200">Картинка</response> 
-            <response code="404">Изображение не найдено</response>
+            <param name="camera">Номер камеры от 1-9</param>
+            <param name="settings">Настройки камеры</param>
+            <response code="200">Изображение с камеры</response>
+            <response code="404">Переданная камера не найдена</response>
+            <response code="400">Неверные параметры запроса</response>
+            <response code="304">Изображение с камеры не изменялось</response>
         </member>
         <member name="M:WebApi.Controllers.TrendsArchiveController.GetStructure(System.DateTime)">
             <summary>

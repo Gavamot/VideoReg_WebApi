@@ -7,7 +7,7 @@ namespace WebApi.Converters
     {
         public DateDashSeparatorTimeFormatConverter()
         {
-            base.DateTimeFormat = DateTimeService.DateDashSeparatorTimeFormat;
+            base.DateTimeFormat = DateTimeService.DefaultFormat;
         }
     }
 }

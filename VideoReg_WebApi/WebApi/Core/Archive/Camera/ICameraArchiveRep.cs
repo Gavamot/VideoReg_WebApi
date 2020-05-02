@@ -7,6 +7,8 @@ namespace WebApi.Archive
 {
     public interface ICameraArchiveRep
     {
+        string GetFullArchiveFileName(ArchiveFile file);
+        bool TryGetVideoFilInfo(DateTime pdt, int camera, out ArchiveFile file);
         Task<ArchiveFileData> GetNearestFrontTrendFileAsync(DateTime pdt, int camera);
         Task<ArchiveFileData> TryGetVideoFileAsync(DateTime pdt, int camera);
         FileVideoMp4[] GetFullStructure(DateTime startWith = default);

@@ -6,7 +6,9 @@ namespace WebApi.OnlineVideo.Store
     {
         void SetAll(CameraSettings[] settings);
         CameraSettings Get(int camera);
+        CameraSettings[] GetAll();
         void Set(CameraSettings settings);
         void Set(int camera, bool enableConversion, ImageSettings settings);
+        void Set(int camera, bool enableConversion);
     }
 }

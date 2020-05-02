@@ -46,7 +46,7 @@ namespace WebApi.Archive
             var file = GetCache().FirstOrDefault(selector);
             if (file == default)
                 return null;
-            string filePath = Path.Combine(config.VideoArchivePath, file.fullArchiveName);
+            string filePath = GetFullArchiveFileName(file);
             var data = await fs.ReadFileAsync(filePath);
             return new ArchiveFileData
             {
@@ -163,6 +163,17 @@ namespace WebApi.Archive
                 .Where(x => x.IsComplete)
                 .OrderBy(x=>x.pdt);
             return files;
+        }
+
+        public string GetFullArchiveFileName(ArchiveFile file)
+        {
+            return Path.GetFullPath(Path.Combine(config.VideoArchivePath, file.fullArchiveName));
+        }
+
+        public bool TryGetVideoFilInfo(DateTime pdt, int camera, out ArchiveFile file)
+        {
+            file = GetCache().FirstOrDefault(x => x.pdt == pdt && x.cameraNumber == camera);
+            return file != default;
         }
     }
 }

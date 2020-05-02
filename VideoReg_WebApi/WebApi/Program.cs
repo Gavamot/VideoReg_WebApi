@@ -29,14 +29,6 @@ namespace WebApi
                          logging.ClearProviders();
                      }
                  })
-                .ConfigureServices(services =>
-                {
-                    services.AddHostedService<CameraHostedService>();
-                    services.AddHostedService<VideoTransmitterHostedService>();
-
-                    services.AddHostedService<InitHostedService>();
-                    services.AddHostedService<TrendsTransmitterHostedService>();
-                })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();

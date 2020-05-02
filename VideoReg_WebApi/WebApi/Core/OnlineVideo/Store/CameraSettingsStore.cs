@@ -21,6 +21,8 @@ namespace WebApi.OnlineVideo.Store
             return GetSettings(camera);
         }
 
+        public CameraSettings[] GetAll() => store.GetAll();
+
         public void Set(CameraSettings setting) => Set(setting.Camera, setting.EnableConversion, setting.Settings);
 
         public void Set(int camera, bool enableConversion, ImageSettings settings)
@@ -28,6 +30,12 @@ namespace WebApi.OnlineVideo.Store
             var cameraSettings = store[camera];
             cameraSettings.EnableConversion = enableConversion;
             cameraSettings.Settings = settings;
+        }
+
+        public void Set(int camera, bool enableConversion)
+        {
+            var cameraSettings = store[camera];
+            cameraSettings.EnableConversion = enableConversion;
         }
 
         public void SetAll(CameraSettings[] settings)

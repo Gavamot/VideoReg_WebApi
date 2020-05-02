@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using WebApi.Contract;
 using WebApi.Dto;
 using WebApi.OnlineVideo.Store;
@@ -21,16 +18,18 @@ namespace WebApi.Controllers
         readonly IMapper mapper;
         private readonly ICameraStore cameraCache;
         private readonly ILog log;
+        readonly ICameraSettingsStore cameraSettingsStore;
 
         public CameraController(//ICameraSettingsRep cameraSettingsRep,
             IMapper mapper, 
             ICameraStore cameraCache,
             IDateTimeService dateTimeService,
+            ICameraSettingsStore cameraSettingsStore,
             ILog log) : base(dateTimeService)
         {
-            //this.cameraSettingsRep = cameraSettingsRep;
             this.mapper = mapper;
             this.cameraCache = cameraCache;
+            this.cameraSettingsStore = cameraSettingsStore;
             this.log = log;
         }
 
@@ -46,80 +45,6 @@ namespace WebApi.Controllers
             var cameras = cameraCache.GetAvailableCameras();
             return Ok(cameras);
         }
-
-        /// <summary>
-        /// Получить настройки камер
-        /// </summary>
-        /// <response code="200">Настройки были изменены</response> 
-        /// <response code="500">Произошла ошибка</response>  
-        //[HttpGet]
-        //[ProducesResponseType(typeof(CameraTransformSettingsMV[]), StatusCodes.Status200OK)]
-        //[ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        //[Route("/[controller]/[action]")]
-        //public async Task<IActionResult> GetSettings()
-        //{
-        //    try
-        //    {
-        //        var cameras = await cameraSettingsRep.GetAllAsync();
-        //        return Ok(mapper.Map<CameraTransformSettingsMV[]>(cameras));
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        return StatusCode(500, e.Message);
-        //    }
-        //}
-
-        /// <summary>
-        /// Установить настройки для всех камер 
-        /// </summary>
-        /// <param name="cameraSettings">Настройки камеры</param>
-        /// <response code="200">Настройки были изменены</response>
-        /// <response code="400">Неверные входные параметры</response>  
-        /// <response code="500">Произошла ошибка</response>  
-        //[HttpPost]
-        //[Route("/[controller]/[action]")]
-        //public async Task<IActionResult> SetSettingsForAll([FromBody]ImageTransformSettingsDto cameraSettings)
-        //{
-        //    if (!ModelState.IsValid)
-        //        return BadRequest(ModelState);
-
-        //    var camera = mapper.Map<ImageTransformSettings>(cameraSettings);
-        //    try
-        //    {
-        //        await cameraSettingsRep.SetForAllCamerasAsync(camera);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        return StatusCode(500, e.Message);
-        //    }
-        //    return Ok();
-        //}
-
-        /// <summary>
-        /// Установить настройки для одной камеры
-        /// </summary>
-        /// <param name="cameraSettings">Номер камеры с настройками камеры</param>
-        /// <response code="200">Настройки были изменены</response>
-        /// <response code="400">Неверные входные параметры</response>  
-        /// <response code="500">Произошла ошибка</response>  
-        //[HttpPost]
-        //[Route("/[controller]/[action]")]
-        //public async Task<IActionResult> SetSettings([FromBody]CameraTransformSettingsMV cameraSettings)
-        //{
-        //    if (!ModelState.IsValid)
-        //        return BadRequest(ModelState);
-
-        //    var Settings = mapper.Map<ImageTransformSettings>(cameraSettings);
-        //    try
-        //    {
-        //        await cameraSettingsRep.SetAsync(cameraSettings.CameraNumber, Settings);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        return StatusCode(500, e.Message);
-        //    }
-        //    return Ok();
-        //}
 
         private async Task<IActionResult> GenerateFileContentResultAsync(Func<DateTime?, Task<CameraResponse>> getImg)
         {
@@ -141,42 +66,50 @@ namespace WebApi.Controllers
             return File(img.Img, "image/jpeg");
         }
 
+        /// <summary>
+        /// Получить изображение по камере.
+        /// Если не пепредавать настройки (или передать любую по умолчанию значение 0) то будет отдано оригинальное изображение.
+        /// Если передать настройки хоть одну из настроек передать -1 то конвертация отключится.
+        /// !Конвертация изображений позволяет уменьшить обьем передаваемого трафика но занимает много времени.
+        /// Выставлять высокие настройки конвертации не имеет смысла так как изображение лучше исходного не станет
+        /// Но увеличится в размерах и долго будет конвертироватся. Что значительно уменьшит fps.
+        /// Пережимать изображения стоит только если канал связи плохой и выставлять низкие настройки. 
+        /// Также в тело http запроса следует добавлять заголовок "X-TIMESTAMP" в формате yyyy-MM-ddTHH:mm:ss.fff
+        /// Каждому кадру взятому с камеры присваевается временная метка
+        /// Это позволит не отдавать кадр пока не изменится эта временная метка тоесть кадр.
+        /// Также этот же заголовок будет установлен в ответе. И его следует использовать при следующем запросе чтобы получить измененное изображение а не копию предыдущего.
+        /// </summary>
+        /// <param name="camera">Номер камеры от 1-9</param>
+        /// <param name="settings">Настройки камеры</param>
+        /// <response code="200">Изображение с камеры</response>
+        /// <response code="404">Переданная камера не найдена</response>
+        /// <response code="400">Неверные параметры запроса</response>
+        /// <response code="304">Изображение с камеры не изменялось</response>
         [HttpGet]
         [ProducesResponseType(typeof(byte[]),StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status304NotModified)]
-        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         [Route("/[controller]/[action]")]
         public async Task<IActionResult> GetImage([FromQuery]int camera, [FromQuery]ImageTransformSettingsDto settings = default)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState.Values.ToArray()[0].Errors);
+
             ImageSettings imgSettings = null;
-            if (settings != null && !settings.IsDefault())
+            if (settings.IsResetValue())
+            {
+                cameraSettingsStore.Set(camera, false);
+            }
+            else if (!settings.IsDefaultValue())
             {
                 imgSettings = mapper.Map<ImageSettings>(settings);
+                cameraSettingsStore.Set(camera, true, imgSettings);
+                await Task.Delay(600); // Чтобы настройки успели изменится
             }
+
             return await GenerateFileContentResultAsync(timeStamp => cameraCache.GetCameraAsync(camera, imgSettings, timeStamp));
         }
 
-        /// <summary>
-        /// Получить картинку из кэша либо нативную
-        /// </summary>
-        /// <response code="200">Картинка</response> 
-        /// <response code="404">Изображение не найдено</response>
-        [HttpGet]
-        [ProducesResponseType(typeof(byte[]), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status304NotModified)]
-        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
-        [Route("/[controller]/[action]")]
-        public async Task<IActionResult> GetImageFromCache([FromQuery]int camera)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState.Values.ToArray()[0].Errors);
-            return await GenerateFileContentResultAsync(timeStamp => cameraCache.GetCameraAsync(camera, null, timeStamp));
-        }
     }
 }

@@ -19,7 +19,6 @@ namespace WebApi.Archive.ArchiveFiles
         public readonly int brigade;
         public readonly DateTime pdt;
         public readonly DeviceSerialNumber serialNumber;
-        public readonly string fileName;
 
         /// <summary>
         /// Полное имя файла относительно папки с архивами

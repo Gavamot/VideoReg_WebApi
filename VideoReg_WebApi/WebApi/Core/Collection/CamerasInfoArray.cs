@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Linq;
 
 namespace WebApi
 {
@@ -67,6 +68,11 @@ namespace WebApi
         public CamerasInfoArray(T defaultValue) 
         {
             SetInitValues(defaultValue);
+        }
+
+        public T[] GetAll()
+        {
+            return store.ToArray();
         }
 
         public T this[int camera]

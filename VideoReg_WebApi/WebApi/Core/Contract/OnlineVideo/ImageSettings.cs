@@ -19,7 +19,10 @@
         public int Height { get; set; } = 0;
         public int Quality { get; set; } = 0;
 
+        public bool IsDefaultSettings => Width == 0 || Height == 0 || Quality == 0;
+
         public override string ToString() => $"Size={Width}x{Height} | Quality={Quality}";
+
         public override int GetHashCode()
         {
             unchecked
@@ -30,6 +33,7 @@
                 return hashCode;
             }
         }
+
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj)) return false;

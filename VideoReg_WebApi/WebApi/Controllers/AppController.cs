@@ -24,7 +24,7 @@ namespace WebApi.Controllers
 
         private T? ReadFromRequest<T>(string header, Func<string, T> parseFunc) where T : struct
         {
-            if (Response.Headers.TryGetValue(HeaderTimestamp, out var dtStr))
+            if (Request.Headers.TryGetValue(HeaderTimestamp, out var dtStr))
             {
                 string parameter = dtStr.First();
                 return parseFunc(parameter);

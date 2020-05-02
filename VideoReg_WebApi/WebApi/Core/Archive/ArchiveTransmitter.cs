@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using WebApi.Archive;
 using WebApi.Configuration;
 using WebApi.Core.Archive;
+using WebApi.OnlineVideo.OnlineVideo;
 using WebApi.Services;
 
 namespace WebApi.Core.SignalR
@@ -45,6 +46,7 @@ namespace WebApi.Core.SignalR
             IDateTimeService dateTimeService,
             ICameraArchiveRep cameraArchiveRep,
             ITrendsArchiveRep trendsArchiveRep,
+            IClientAscHub clientHub,
             IHttpClientFactory httpClientFactory)
         {
             this.log = log;
@@ -54,6 +56,16 @@ namespace WebApi.Core.SignalR
             this.trendsArchiveRep = trendsArchiveRep;
             this.httpClientFactory = httpClientFactory;
             this.dateTimeService = dateTimeService;
+
+            clientHub.OnTrendsArchiveUploadFile = async (pdt, end) =>
+            {
+                await UploadTrendsFileAsync(pdt, end);
+            };
+
+            clientHub.OnCameraArchiveUploadFile = async (pdt, end, camera) =>
+            {
+                await UploadCameraFileAsync(pdt, end, camera);
+            };
         }
 
         public async Task UploadCameraFileAsync(DateTime pdt, DateTime end, int camera)
@@ -63,7 +75,7 @@ namespace WebApi.Core.SignalR
             if(IsEndOfTask(file, end))
             {
                 // В арахиве нет файла временная метка которого >= pdt. (При автозакачке это будет означать что задача закончила свое исполнение)
-                var uploadContent = CreateBaseFormData(0, string.Empty, DateTime.MaxValue, new byte[0], 0);
+                var uploadContent = CreateBaseFormData(0, string.Empty, DateTime.MaxValue, null, 0);
                 await UploadFileAsync(uploadContent, url);
             }
             else
@@ -76,7 +88,8 @@ namespace WebApi.Core.SignalR
                 {
                     return;
                 }
-                var uploadContent = CreateBaseFormData(brigadeCode, fileName, timestamp, file.Data, camera);
+                string dataBase64 = Convert.ToBase64String(file.Data);
+                var uploadContent = CreateBaseFormData(brigadeCode, fileName, timestamp, dataBase64, camera);
                 await UploadFileAsync(uploadContent, url);
             }
         }
@@ -88,7 +101,7 @@ namespace WebApi.Core.SignalR
             if (IsEndOfTask(file, end))
             {
                 // В арахиве нет файла временная метка которого >= pdt. (При автозакачке это будет означать что задача закончила свое исполнение)
-                var uploadContent = CreateBaseFormData(0, string.Empty, DateTime.MaxValue, new byte[0]);
+                var uploadContent = CreateBaseFormData(0, string.Empty, DateTime.MaxValue, null);
                 await UploadFileAsync(uploadContent, url);
             }
             else
@@ -96,7 +109,8 @@ namespace WebApi.Core.SignalR
                 int brigadeCode = file.File.brigade;
                 string fileName = file.File.fullArchiveName;
                 DateTime timestamp = file.File.pdt;
-                var uploadContent = CreateBaseFormData(brigadeCode, fileName, timestamp, file.Data);
+                string dataBase64 = Convert.ToBase64String(file.Data);
+                var uploadContent = CreateBaseFormData(brigadeCode, fileName, timestamp, dataBase64);
                 await UploadFileAsync(uploadContent, url);
             }
         }
@@ -117,7 +131,7 @@ namespace WebApi.Core.SignalR
         }
 
         private async Task<bool> IsFileExistAsync(MultipartFormDataContent content, string url) 
-            => await ExecureWebReqvest(content, url, HttpMethod.Head, HttpStatusCode.NoContent);
+            => await ExecureWebReqvest(content, url, HttpMethod.Head, HttpStatusCode.Found);
 
         private async Task<bool> UploadFileAsync(MultipartFormDataContent content, string url)
             => await ExecureWebReqvest(content, url, HttpMethod.Post, HttpStatusCode.OK);
@@ -139,14 +153,14 @@ namespace WebApi.Core.SignalR
             return content;
         }
 
-        private MultipartFormDataContent CreateBaseFormData(int brigadeCode, string fileName, DateTime pdt, byte[] file)
+        private MultipartFormDataContent CreateBaseFormData(int brigadeCode, string fileName, DateTime pdt, string file)
         {
             var content = CreateBaseFormData(brigadeCode, fileName, pdt);
-            content.Add(new ByteArrayContent(file), "file");
+            content.Add(new StringContent(file), "file");
             return content;
         }
 
-        private MultipartFormDataContent CreateBaseFormData(int brigadeCode, string fileName, DateTime pdt, byte[] file, int camera)
+        private MultipartFormDataContent CreateBaseFormData(int brigadeCode, string fileName, DateTime pdt, string file, int camera)
         {
             var content = CreateBaseFormData(brigadeCode, fileName, pdt, file);
             content.Add(new StringContent(camera.ToString()), "camera");

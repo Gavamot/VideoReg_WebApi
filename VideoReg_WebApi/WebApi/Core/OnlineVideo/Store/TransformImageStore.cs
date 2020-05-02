@@ -120,14 +120,15 @@ namespace WebApi.OnlineVideo.Store
             
             int convertMs = 0;
 
-            if (imgSettings.EnableConversion)
+            if (imgSettings.EnableConversion && !imgSettings.Settings.IsDefaultSettings)
             {
                 convertedImg = Measure.Invoke(() => videoConvector.ConvertVideo(img, imgSettings.Settings), out var time);
                 log.Info($"camera[{cameraNumber}] ConvertVideo duration - {time.TotalMilliseconds}ms");
                 convertMs = (int)time.TotalMilliseconds;
             }
+            var image = new CameraImage(imgSettings.Settings, convertedImg, convertMs);
 
-            store.AddOrUpdate(cameraNumber, new CameraImage(imgSettings.Settings, convertedImg, convertMs), img);
+            store.AddOrUpdate(cameraNumber, image, img);
 
             OnImageChanged?.Invoke(cameraNumber, convertedImg);
 
@@ -138,11 +139,6 @@ namespace WebApi.OnlineVideo.Store
         /// <exception cref="NoNModifiedException">Then camera image exist but timestamp is same and all attentions is waited.</exception>
         public async Task<CameraResponse> GetCameraAsync(int cameraNumber, ImageSettings imgSettings, DateTime? timeStamp)
         {
-            if (imgSettings != null)
-            {
-                settings.Set(cameraNumber, true, imgSettings);
-            }
-
             int attempts = config.ImagePollingAttempts;
             while (attempts-- > 0)
             {
