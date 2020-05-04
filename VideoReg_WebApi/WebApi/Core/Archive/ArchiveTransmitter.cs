@@ -46,7 +46,6 @@ namespace WebApi.Core.SignalR
             IDateTimeService dateTimeService,
             ICameraArchiveRep cameraArchiveRep,
             ITrendsArchiveRep trendsArchiveRep,
-            IClientAscHub clientHub,
             IHttpClientFactory httpClientFactory)
         {
             this.log = log;
@@ -56,26 +55,16 @@ namespace WebApi.Core.SignalR
             this.trendsArchiveRep = trendsArchiveRep;
             this.httpClientFactory = httpClientFactory;
             this.dateTimeService = dateTimeService;
-
-            clientHub.OnTrendsArchiveUploadFile = async (pdt, end) =>
-            {
-                await UploadTrendsFileAsync(pdt, end);
-            };
-
-            clientHub.OnCameraArchiveUploadFile = async (pdt, end, camera) =>
-            {
-                await UploadCameraFileAsync(pdt, end, camera);
-            };
         }
 
         public async Task UploadCameraFileAsync(DateTime pdt, DateTime end, int camera)
         {
             string url = config.SetCameraArchiveUrl;
-            var file = await cameraArchiveRep.GetNearestFrontTrendFileAsync(pdt, camera);
+            var file = await cameraArchiveRep.GetNearestFrontVideoFileAsync(pdt, camera);
             if(IsEndOfTask(file, end))
             {
                 // В арахиве нет файла временная метка которого >= pdt. (При автозакачке это будет означать что задача закончила свое исполнение)
-                var uploadContent = CreateBaseFormData(0, string.Empty, DateTime.MaxValue, null, 0);
+                var uploadContent = CreateBaseFormData(0, string.Empty, DateTime.MaxValue, null, camera);
                 await UploadFileAsync(uploadContent, url);
             }
             else
@@ -156,7 +145,7 @@ namespace WebApi.Core.SignalR
         private MultipartFormDataContent CreateBaseFormData(int brigadeCode, string fileName, DateTime pdt, string file)
         {
             var content = CreateBaseFormData(brigadeCode, fileName, pdt);
-            content.Add(new StringContent(file), "file");
+            content.Add(new StringContent(file ?? ""), "file");
             return content;
         }
 

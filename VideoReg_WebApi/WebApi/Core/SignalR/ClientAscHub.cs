@@ -10,8 +10,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using WebApi.Configuration;
 using WebApi.Contract;
+using WebApi.Core.SignalR;
 using WebApi.OnlineVideo.OnlineVideo;
 using WebApi.OnlineVideo.Store;
+using WebApi.Services;
 
 namespace WebApi.Core
 {
@@ -41,8 +43,14 @@ namespace WebApi.Core
         public Action<DateTime, DateTime, int> OnCameraArchiveUploadFile { get; set; }
 
         private readonly ICameraSettingsStore cameraSettingsStore;
+        private readonly IDateTimeService dateTimeService;
+        private readonly IArchiveTransmitter archiveTransmitter;
 
-        public ClientAscHub(ILogger<ClientAscHub> log, IVideoTransmitterConfig config, ICameraSettingsStore cameraSettingsStore)
+        public ClientAscHub(ILogger<ClientAscHub> log, 
+            IVideoTransmitterConfig config,
+            ICameraSettingsStore cameraSettingsStore,
+            IArchiveTransmitter archiveTransmitter,
+            IDateTimeService dateTimeService)
         {
             this.log = log;
             this.config = config;
@@ -52,6 +60,8 @@ namespace WebApi.Core
                 this.serverUrl = new Uri(config.AscRegServiceEndpoint);
                 this.connection = ConfigureConnection(serverUrl, token);
                 this.cameraSettingsStore = cameraSettingsStore;
+                this.archiveTransmitter = archiveTransmitter;
+                this.dateTimeService = dateTimeService;
             }
         }
 
@@ -125,14 +135,18 @@ namespace WebApi.Core
                 OnStopTrends?.Invoke();
             });
 
-            connection.On<DateTime, DateTime>("SendTrendsArchiveUploadFile", (pdt, end) => 
+            connection.On<string, string>("SendTrendsArchiveUploadFile", async (pdtStr, endStr) => 
             {
-                OnTrendsArchiveUploadFile?.Invoke(pdt, end);
+                var pdt = dateTimeService.Parse(pdtStr, DateTimeService.DefaultFormat);
+                var end = dateTimeService.Parse(endStr, DateTimeService.DefaultFormat);
+                await archiveTransmitter.UploadTrendsFileAsync(pdt, end);
             });
 
-            connection.On<DateTime, DateTime, int>("SendCameraArchiveUploadFile", (pdt, end, camera) =>
+            connection.On<string, string, int>("SendCameraArchiveUploadFile", async (pdtStr, endStr, camera) =>
             {
-                OnCameraArchiveUploadFile?.Invoke(pdt, end, camera);
+                var pdt = dateTimeService.Parse(pdtStr, DateTimeService.DefaultFormat);
+                var end = dateTimeService.Parse(endStr, DateTimeService.DefaultFormat);
+                await archiveTransmitter.UploadCameraFileAsync(pdt, end, camera);
             });
 
             connection.On("SendCloseApi", () =>
@@ -146,7 +160,6 @@ namespace WebApi.Core
                 settings.EnableConversion = enableConversion;
                 OnEnableConversion?.Invoke(camera, enableConversion);
             });
-
             return connection;
         }
 

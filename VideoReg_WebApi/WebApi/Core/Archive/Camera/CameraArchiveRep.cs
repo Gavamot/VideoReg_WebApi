@@ -43,7 +43,8 @@ namespace WebApi.Archive
 
         private async Task<ArchiveFileData> TryGetFileAsync(Func<FileVideoMp4, bool> selector)
         {
-            var file = GetCache().FirstOrDefault(selector);
+            var files = GetCache();
+            var file = files.FirstOrDefault(selector);
             if (file == default)
                 return null;
             string filePath = GetFullArchiveFileName(file);
@@ -55,7 +56,7 @@ namespace WebApi.Archive
             };
         }
 
-        public async Task<ArchiveFileData> GetNearestFrontTrendFileAsync(DateTime pdt, int camera)
+        public async Task<ArchiveFileData> GetNearestFrontVideoFileAsync(DateTime pdt, int camera)
         {
             return await TryGetFileAsync(x => x.cameraNumber == camera && x.pdt >= pdt);
         }
