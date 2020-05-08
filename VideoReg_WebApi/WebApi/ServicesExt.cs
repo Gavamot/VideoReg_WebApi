@@ -2,18 +2,16 @@ using System;
 using System.IO;
 using System.Reflection;
 using AutoMapper;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 //using Serilog;
-using Swashbuckle.AspNetCore.Filters;
+//using Swashbuckle.AspNetCore.Filters;
 using WebApi.Core;
-using WebApiTest;
 using WebApi.CoreService;
 using WebApi.Configuration;
-using WebApi.Controllers;
 using WebApi.OnlineVideo;
 using WebApi.Trends;
+using WebApiTest;
 
 namespace WebApi
 {
@@ -54,8 +52,8 @@ namespace WebApi
                 c.DescribeAllEnumsAsStrings();
                 c.DescribeStringEnumsInCamelCase();
 
-                c.OperationFilter<AddHeaderOperationFilter>(AppController.HeaderTimestamp, AppController.ImageDateHeaderFormat, false);
-                c.OperationFilter<AddResponseHeadersFilter>();
+                //c.OperationFilter<AddHeaderOperationFilter>(AppController.HeaderTimestamp, AppController.ImageDateHeaderFormat, false);
+                //c.OperationFilter<AddResponseHeadersFilter>();
 
                 //c.OperationFilter<SecurityRequirementsOperationFilter>();
                 //c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
@@ -78,8 +76,8 @@ namespace WebApi
         {
             services.AddSingleton<ICameraSourceRep, TestCameraRep>();
             services.AddSingleton<IRegInfoRep, TestRegInfo>();
-            //services.AddSingleton<ITrendsRep, TestTrendsRep>();
-            //services.AddSingleton<IImgRep, TestRandomImgRep>();
+           // services.AddSingleton<ITrendsRep, TestTrendsRep>();
+            services.AddSingleton<IImgRep, TestRandomImgRep>();
         }
 
         public static void AddMapper(this IServiceCollection services)

@@ -18,6 +18,7 @@ using WebApi.Services;
 using Microsoft.Extensions.Logging;
 using WebApi.Core.SignalR;
 using WebApi.Trends;
+using System;
 
 namespace WebApi
 {
@@ -51,6 +52,7 @@ namespace WebApi
             // Передача на сервер asc web
             if (passDataToServer)
             {
+                Console.WriteLine("passDataToServer is active.");
                 services.AddHostedService<VideoTransmitterHostedService>();
                 services.AddHostedService<TrendsTransmitterHostedService>();
                 services.AddSingleton<IClientAscHub, ClientAscHub>();
@@ -62,7 +64,7 @@ namespace WebApi
             services.AddSingleton<IRedisRep>(x => new RedisRep(config.Redis));
 
             services.AddHostedService<InitHostedService>();
-          
+
             //Архивы 
             services.AddSingleton<IBrigadeHistoryRep, BrigadeHistoryRep>();
             services.AddSingleton<IArchiveFileGeneratorFactory, ArchiveFileGeneratorFactory>();
@@ -81,7 +83,6 @@ namespace WebApi
 #else
             services.AddDependencies();
 #endif
-
             services.AddTransient<IDateTimeService, DateTimeService>();
             services.AddTransient<IFileSystemService, FileSystemService>();
 
