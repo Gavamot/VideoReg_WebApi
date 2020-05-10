@@ -17,6 +17,20 @@ namespace WebApi
         private readonly IRegInfoConfig config;
         public Action<RegInfo> RegInfoChanged { get; set; }
         public string BrigadeCodeFile => config.BrigadeCodePath;
+
+        string vpn = string.Empty;
+        public string Vpn
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(vpn))
+                {
+                    vpn = GetInfoAsync().Result.Vpn;
+                }
+                return vpn;
+            }
+        }
+
         private const string VpnStartWith = "10.";
        
         public RegInfoRep(ILog log, IRegInfoConfig config)

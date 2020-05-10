@@ -18,5 +18,7 @@ namespace WebApiTest
         }
 
         public Action<RegInfo> RegInfoChanged { get; set; }
+
+        public string Vpn => "";
     }
 }

@@ -10,8 +10,7 @@ using WebApi.OnlineVideo.Store;
 using WebApi.Core;
 using WebApi.Services;
 using System.Net.Http;
-using System.Text.Unicode;
-using System.Text;
+
 
 namespace WebApi.OnlineVideo.OnlineVideo
 {
@@ -27,19 +26,6 @@ namespace WebApi.OnlineVideo.OnlineVideo
         const int AllCameras = 0;
         private const int FirstCamera = 1;
         private const int CamerasArraySize = 10;
-
-        string vpn = null;
-        string Vpn
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(vpn))
-                {
-                    vpn = regInfoRep.GetInfoAsync().Result.Vpn;
-                }
-                return vpn;
-            }
-        }
 
         /// <summary>
         /// Камеры по которым необходимо передавать изображения
@@ -115,14 +101,16 @@ namespace WebApi.OnlineVideo.OnlineVideo
             return tasks.Count;
         }
 
+
         private async Task SendCameraImagesHttpAsync(int cameraNumber, byte[] img, int convertedMs)
         {
             var content = new MultipartFormDataContent();
-            content.Add(new StringContent(Vpn), "vpn");
+            content.Add(new StringContent(regInfoRep.Vpn), "vpn");
             content.Add(new StringContent(cameraNumber.ToString()), "camera");
-            var imgEncode = Convert.ToBase64String(img);
-            content.Add(new StringContent(imgEncode), "file");
+           
+            content.Add(new ByteArrayContent(img), "file", "c");
             content.Add(new StringContent(convertedMs.ToString()), "convertMs");
+          
             var responce = await http.PostAsync(config.SetImageUrl, content);
             if (!responce.IsSuccessStatusCode)
             {

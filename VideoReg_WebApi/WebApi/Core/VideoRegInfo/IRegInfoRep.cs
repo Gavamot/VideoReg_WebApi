@@ -14,5 +14,6 @@ namespace WebApi.Core
         /// </summary>
         Task<RegInfo> GetInfoAsync();
         Action<RegInfo> RegInfoChanged { get; set; }
+        string Vpn { get; }
     }
 }

@@ -77,7 +77,7 @@ namespace WebApi
             services.AddSingleton<ICameraSourceRep, TestCameraRep>();
             services.AddSingleton<IRegInfoRep, TestRegInfo>();
            // services.AddSingleton<ITrendsRep, TestTrendsRep>();
-            services.AddSingleton<IImgRep, TestRandomImgRep>();
+          //  services.AddSingleton<IImgRep, TestRandomImgRep>();
         }
 
         public static void AddMapper(this IServiceCollection services)
