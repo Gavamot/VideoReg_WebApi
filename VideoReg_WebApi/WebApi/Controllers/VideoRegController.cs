@@ -6,15 +6,22 @@ using WebApi.Contract;
 using WebApi.OnlineVideo.Store;
 using WebApi.Trends;
 using WebApi.Core;
+using Microsoft.AspNetCore.Http;
 
 namespace WebApi.Controllers
 {
+    public class RegInfoDto
+    {
+        public RegInfo Reg { get; set; }
+        public int[] Cameras { get; set; }
+    }
+
     [ApiController]
     public class VideoRegController : ControllerBase
     {
         readonly IRegInfoRep _regInfo;
         readonly ITrendsRep trendsRep;
-        readonly ICameraStore cameraStore;
+        readonly ICameraStore cameraCache;
 
         public VideoRegController(IRegInfoRep regInfo,
             ITrendsRep trendsRep, 
@@ -22,7 +29,7 @@ namespace WebApi.Controllers
         {
             this._regInfo = regInfo;
             this.trendsRep = trendsRep;
-            this.cameraStore = cameraStore;
+            this.cameraCache = cameraStore;
         }
 
         /// <summary>
@@ -32,9 +39,16 @@ namespace WebApi.Controllers
         /// <response code="500">Источниек информации о регистраторе оказался недоступен по каким либо причинам</response>  
         [HttpGet]
         [Route("/[controller]/Info")]
+        [ProducesResponseType(typeof(RegInfoDto), StatusCodes.Status200OK)]
         public async Task<ActionResult<RegInfo>> GetInfo()
         {
-            var res = await _regInfo.GetInfoAsync();
+            var reg = await _regInfo.GetInfoAsync();
+            var cameras = cameraCache.GetAvailableCameras();
+            var res = new RegInfoDto()
+            {
+                Reg = reg,
+                Cameras = cameras
+            };
             return Ok(res);
         }
 

@@ -12,9 +12,6 @@ using WebApi.Services;
 
 namespace WebApi.Controllers
 {
-    /// <summary>
-    /// 
-    /// </summary>
     [ApiController]
     public class VideoArchiveController : AppController
     {

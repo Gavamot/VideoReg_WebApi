@@ -105,10 +105,26 @@ namespace WebApi.Controllers
             {
                 imgSettings = mapper.Map<ImageSettings>(settings);
                 cameraSettingsStore.Set(camera, true, imgSettings);
-                await Task.Delay(600); // Чтобы настройки успели изменится
             }
-
             return await GenerateFileContentResultAsync(timeStamp => cameraCache.GetCameraAsync(camera, imgSettings, timeStamp));
+        }
+
+        [HttpGet]
+        [Route("/[controller]/[action]")]
+        public async Task<IActionResult> GetConvertedImage([FromQuery]int camera)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState.Values.ToArray()[0].Errors);
+            return File(cameraCache.GetImage(camera).ConvertedImg.Image, "image/jpeg");
+        }
+
+        [HttpGet]
+        [Route("/[controller]/[action]")]
+        public async Task<IActionResult> GetNativeImage([FromQuery]int camera)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState.Values.ToArray()[0].Errors);
+            return File(cameraCache.GetImage(camera).NativeImg, "image/jpeg");
         }
 
     }

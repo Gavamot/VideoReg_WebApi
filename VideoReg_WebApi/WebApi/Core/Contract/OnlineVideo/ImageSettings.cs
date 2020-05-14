@@ -1,16 +1,7 @@
-﻿namespace WebApi.Contract
-{
-    public static class ImageSettingsExt
-    {
-        public static bool IsDefault(this ImageSettings self) 
-            => self.Height == 0 || self.Width  == 0 || self.Quality == 0;
-        
-        public static bool IsNotDefault(this ImageSettings self)
-        {
-            return !self.IsDefault();
-        }
-    }
+﻿using System.Net.Http.Headers;
 
+namespace WebApi.Contract
+{
     public class ImageSettings
     {
         public readonly static ImageSettings DefaultSettings = new ImageSettings();
@@ -19,7 +10,8 @@
         public int Height { get; set; } = 0;
         public int Quality { get; set; } = 0;
 
-        public bool IsDefaultSettings => Width == 0 || Height == 0 || Quality == 0;
+        public bool IsDefault => Width == 0 || Height == 0 || Quality == 0;
+        public bool IsNotDefault => !IsDefault;
 
         public override string ToString() => $"Size={Width}x{Height} | Quality={Quality}";
 
@@ -41,6 +33,7 @@
             if (obj.GetType() != this.GetType()) return false;
             return Equals((ImageSettings)obj);
         }
+
         protected bool Equals(ImageSettings other)
         {
             return Width == other.Width

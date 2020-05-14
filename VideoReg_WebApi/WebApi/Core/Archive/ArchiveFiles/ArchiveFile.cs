@@ -27,6 +27,9 @@ namespace WebApi.Archive.ArchiveFiles
         public const string PatsSeparator = "_";
         public const string EmptySerialLetter = "N";
         public const string EmptySerial = "N_N_N_N";
+
+        public string FileName => Path.GetFileName(fullArchiveName);
+
         public override string ToString()
         {
             return $"{pdt:yyyy.M.ddTHH.mm.ss}{PatsSeparator}{serialNumber}";

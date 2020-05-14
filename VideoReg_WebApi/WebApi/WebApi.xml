@@ -51,11 +51,6 @@
             <response code="200">Возвращает информацию о приборе и тренды</response>
             <response code="404">Запрошенный файл не существует</response>  
         </member>
-        <member name="T:WebApi.Controllers.VideoArchiveController">
-            <summary>
-            
-            </summary>
-        </member>
         <member name="M:WebApi.Controllers.VideoArchiveController.GetStructure(System.DateTime)">
             <summary>
             Получить структуру видеоархива

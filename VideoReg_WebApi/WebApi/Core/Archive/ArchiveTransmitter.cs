@@ -52,37 +52,61 @@ namespace WebApi.Core.SignalR
             Data = new byte[0],
             File = new FileTrendsJson(0, DateTime.MaxValue, new DeviceSerialNumber(), "")
         };
-     
 
-        public async Task UploadCameraFileAsync(DateTime pdt, DateTime end, int camera)
+        private MultipartFormDataContent CreateFileContent(ArchiveFileData file)
         {
-            string url = config.SetCameraArchiveUrl;
-            var file = await cameraArchiveRep.GetNearestFrontVideoFileAsync(pdt, camera);
-            if(IsEndOfTask(file, end))
+            var content = new MultipartFormDataContent();
+            content.Add(new ByteArrayContent(file.Data), "file", file.FileName);
+            return content;
+        }
+
+        public const string EmptyFileName = "e";
+        private MultipartFormDataContent CreateEmptyFileContent()
+        {
+            var content = new MultipartFormDataContent();
+            content.Add(new ByteArrayContent(new byte[0]), "file", EmptyFileName);
+            return content;
+        }
+
+        private async Task UploadCameraFileAsync(ArchiveFileData file, DateTime end, UrlParameterBuilder urlBuilder)
+        {
+            urlBuilder.AddParameter("vpn", regInfoRep.Vpn);
+            if (IsEndOfTask(file, end))
             {
                 // В арахиве нет файла временная метка которого >= pdt. (При автозакачке это будет означать что задача закончила свое исполнение)
-                var content = CreateFormDataCameraUpload(EmptyFile, camera);
+                urlBuilder.AddParameter("brigade", -1);
+                var url = urlBuilder.Build();
+                var content = CreateEmptyFileContent();
                 await UploadFileAsync(content, url);
             }
             else
             {
-                var checkContent = CreateDataCameraCheck(file, camera);
-                if (await IsFileExistAsync(checkContent, url))
+                urlBuilder.AddParameter("brigade", file.File.brigade);
+                var url = urlBuilder.Build();
+                urlBuilder.AddParameter("file", file.File.fullArchiveName);
+                var urlCheck = urlBuilder.Build();
+                if (await IsFileExistAsync(urlCheck))
                 {
                     return;
                 }
-                var uploadContent = CreateFormDataCameraUpload(file, camera);
-                await UploadFileAsync(uploadContent, url);
+                var content = CreateFileContent(file);
+                await UploadFileAsync(content, url);
             }
+        }
+
+        public async Task UploadCameraFileAsync(DateTime pdt, DateTime end, int camera)
+        {
+            var file = await cameraArchiveRep.GetNearestFrontVideoFileAsync(pdt, camera);
+            var urlBuilder = new UrlParameterBuilder(config.SetCameraArchiveUrl);
+            urlBuilder.AddParameter("camera", camera);
+            await UploadCameraFileAsync(file, end, urlBuilder);
         }
 
         public async Task UploadTrendsFileAsync(DateTime pdt, DateTime end)
         {
             var file = await trendsArchiveRep.GetNearestFrontTrendFileAsync(pdt);
-            MultipartFormDataContent uploadContent = IsEndOfTask(file, end) ?
-                CreateFormDataTrendsUpload(EmptyFile) :
-                 CreateFormDataTrendsUpload(file);
-            await UploadFileAsync(uploadContent, config.SetTrendsArchiveUrl);
+            var urlBuilder = new UrlParameterBuilder(config.SetTrendsArchiveUrl);
+            await UploadCameraFileAsync(file, end, urlBuilder);
         }
 
         private bool IsEndOfTask(ArchiveFileData file, DateTime end)
@@ -94,56 +118,57 @@ namespace WebApi.Core.SignalR
         {
             var client = httpClientFactory.CreateClient(Global.AscWebClient);
             using var message = new HttpRequestMessage(method, url);
-            message.Content = content;
+            if(content != null)
+            {
+                message.Content = content;
+            }
             using var response = await client.SendAsync(message);
             content.Dispose();
             return response.StatusCode == correctCode;
         }
 
-        private async Task<bool> IsFileExistAsync(MultipartFormDataContent content, string url) 
-            => await ExecureWebReqvest(content, url, HttpMethod.Head, HttpStatusCode.Found);
+        private async Task<bool> IsFileExistAsync(string url) 
+            => await ExecureWebReqvest(null, url, HttpMethod.Head, HttpStatusCode.Found);
 
         private async Task<bool> UploadFileAsync(MultipartFormDataContent content, string url)
             => await ExecureWebReqvest(content, url, HttpMethod.Post, HttpStatusCode.OK);
 
-        private MultipartFormDataContent CreateDataBase(ArchiveFileData file)
-        {
-            int brigadeCode = file.File.brigade;
-            DateTime pdt = file.File.pdt;
-            var content = new MultipartFormDataContent();
-            content.Add(new StringContent(regInfoRep.Vpn), "vpn");
-            content.Add(new StringContent(brigadeCode.ToString()), "brigadeCode");
-            content.Add(new StringContent(dateTimeService.ToStringFull(pdt)), "pdt");
-            return content;
-        }
+        //private MultipartFormDataContent CreateDataBase(ArchiveFileData file)
+        //{
+        //    int brigadeCode = file.File.brigade;
+        //    var content = new MultipartFormDataContent();
+        //    content.Add(new StringContent(regInfoRep.Vpn), "vpn");
+        //    content.Add(new StringContent(brigadeCode.ToString()), "brigade");
+        //    return content;
+        //}
 
-        private MultipartFormDataContent CreateDataTrendsCheck(ArchiveFileData file)
-        {
-            var content = CreateDataBase(file);
-            string fileName = file.File.fullArchiveName;
-            content.Add(new StringContent(fileName), "fileName");
-            return content;
-        }
+        //private MultipartFormDataContent CreateDataTrendsCheck(ArchiveFileData file)
+        //{
+        //    var content = CreateDataBase(file);
+        //    string fileName = file.File.fullArchiveName;
+        //    content.Add(new StringContent(fileName), "fileName");
+        //    return content;
+        //}
 
-        private MultipartFormDataContent CreateDataCameraCheck(ArchiveFileData file, int camera)
-        {
-            var content = CreateDataTrendsCheck(file);
-            content.Add(new StringContent(camera.ToString()), "camera");
-            return content;
-        }
+        //private MultipartFormDataContent CreateDataCameraCheck(ArchiveFileData file, int camera)
+        //{
+        //    var content = CreateDataTrendsCheck(file);
+        //    content.Add(new StringContent(camera.ToString()), "camera");
+        //    return content;
+        //}
 
-        private MultipartFormDataContent CreateFormDataTrendsUpload(ArchiveFileData file)
-        {
-            var content = CreateDataBase(file);
-            content.Add(new ByteArrayContent(file.Data), "file", file.File.fullArchiveName);
-            return content;
-        }
+        //private MultipartFormDataContent CreateFormDataTrendsUpload(ArchiveFileData file)
+        //{
+        //    var content = CreateDataBase(file);
+        //    content.Add(new ByteArrayContent(file.Data), "file", file.File.fullArchiveName);
+        //    return content;
+        //}
 
-        private MultipartFormDataContent CreateFormDataCameraUpload(ArchiveFileData file, int camera)
-        {
-            var content = CreateFormDataTrendsUpload(file);
-            content.Add(new StringContent(camera.ToString()), "camera");
-            return content;
-        }
+        //private MultipartFormDataContent CreateFormDataCameraUpload(ArchiveFileData file, int camera)
+        //{
+        //    var content = CreateFormDataTrendsUpload(file);
+        //    content.Add(new StringContent(camera.ToString()), "camera");
+        //    return content;
+        //}
     }
 }

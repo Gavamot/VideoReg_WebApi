@@ -10,7 +10,8 @@ using WebApi.OnlineVideo.Store;
 using WebApi.Core;
 using WebApi.Services;
 using System.Net.Http;
-
+using System.Net;
+using System.Security.Policy;
 
 namespace WebApi.OnlineVideo.OnlineVideo
 {
@@ -101,20 +102,23 @@ namespace WebApi.OnlineVideo.OnlineVideo
             return tasks.Count;
         }
 
-
-        private async Task SendCameraImagesHttpAsync(int cameraNumber, byte[] img, int convertedMs)
+        private async Task SendCameraImagesHttpAsync(int cameraNumber, byte[] img, int convertMs)
         {
             var content = new MultipartFormDataContent();
-            content.Add(new StringContent(regInfoRep.Vpn), "vpn");
-            content.Add(new StringContent(cameraNumber.ToString()), "camera");
-           
+            //content.Add(new StringContent(regInfoRep.Vpn), "vpn");
+            //content.Add(new StringContent(cameraNumber.ToString()), "camera");
+            //content.Add(new StringContent(convertedMs.ToString()), "convertMs");
             content.Add(new ByteArrayContent(img), "file", "c");
-            content.Add(new StringContent(convertedMs.ToString()), "convertMs");
-          
-            var responce = await http.PostAsync(config.SetImageUrl, content);
+
+            var urlBuilder = new UrlParameterBuilder(config.SetImageUrl);
+            urlBuilder.AddParameter("vpn", regInfoRep.Vpn);
+            urlBuilder.AddParameter("camera", cameraNumber);
+            urlBuilder.AddParameter("convertMs", convertMs);
+            var paramsUrl =  urlBuilder.Build();
+            var responce = await http.PostAsync(paramsUrl, content);
             if (!responce.IsSuccessStatusCode)
             {
-               
+               log.Error($"Can not pass image to server cam={cameraNumber}");
             }
         }
 

@@ -1,13 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Net;
-//using Serilog;
-using WebApi.Archive;
-using WebApi.OnlineVideo;
-using WebApi.OnlineVideo.OnlineVideo;
-using WebApi.Trends;
 
 namespace WebApi
 {

@@ -11,7 +11,7 @@ namespace WebApi.OnlineVideo.Store
         /// <exception cref="NoNModifiedException">Then camera image exist but timestamp is same and all attentions is waited.</exception>
         Task<CameraResponse> GetCameraAsync(int cameraNumber, ImageSettings settings, DateTime? timeStamp);
         CameraImageTimestamp GetImage(int cameraNumber);
-        IEnumerable<int> GetAvailableCameras();
+        int[] GetAvailableCameras();
         Action<int, byte[]> OnImageChanged { get; set; }
     }
 }

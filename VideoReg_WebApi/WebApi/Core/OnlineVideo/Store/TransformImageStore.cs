@@ -81,7 +81,7 @@ namespace WebApi.OnlineVideo.Store
                     if(store[i].IsWork)
                         res.Add(store[i].CameraNumber);
                 }
-                return res;
+                return res ;
             }
 
             public CameraImageTimestamp GetOrDefault(int cameraNumber)
@@ -120,7 +120,7 @@ namespace WebApi.OnlineVideo.Store
             
             int convertMs = 0;
 
-            if (imgSettings.EnableConversion && !imgSettings.Settings.IsDefaultSettings)
+            if (imgSettings.EnableConversion && imgSettings.Settings.IsNotDefault)
             {
                 convertedImg = Measure.Invoke(() => videoConvector.ConvertVideo(img, imgSettings.Settings), out var time);
                 log.Info($"camera[{cameraNumber}] ConvertVideo duration - {time.TotalMilliseconds}ms");
@@ -132,7 +132,7 @@ namespace WebApi.OnlineVideo.Store
 
             OnImageChanged?.Invoke(cameraNumber, convertedImg);
 
-            log.Info($"camera[{cameraNumber}] was updated. Converted={imgSettings.Settings.IsNotDefault()} ({imgSettings})");
+            log.Info($"camera[{cameraNumber}] was updated. Converted={imgSettings.Settings.IsNotDefault} ({imgSettings})");
         }
 
         /// <returns>return null if image is not exist</returns>
@@ -180,6 +180,6 @@ namespace WebApi.OnlineVideo.Store
             return store.GetOrDefault(cameraNumber);
         }
 
-        public IEnumerable<int> GetAvailableCameras() => store.GetAvailableCameras();
+        public int[] GetAvailableCameras() => store.GetAvailableCameras().ToArray();
     }
 }
