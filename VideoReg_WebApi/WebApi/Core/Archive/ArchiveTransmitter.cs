@@ -83,7 +83,7 @@ namespace WebApi.Core.SignalR
             {
                 urlBuilder.AddParameter("brigade", file.File.brigade);
                 var url = urlBuilder.Build();
-                urlBuilder.AddParameter("file", file.File.fullArchiveName);
+                urlBuilder.AddParameter("file", file.File.FileName);
                 var urlCheck = urlBuilder.Build();
                 if (await IsFileExistAsync(urlCheck))
                 {
@@ -123,7 +123,7 @@ namespace WebApi.Core.SignalR
                 message.Content = content;
             }
             using var response = await client.SendAsync(message);
-            content.Dispose();
+            content?.Dispose();
             return response.StatusCode == correctCode;
         }
 
