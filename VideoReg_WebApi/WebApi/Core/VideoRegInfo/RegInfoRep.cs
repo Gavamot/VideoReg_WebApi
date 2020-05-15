@@ -31,6 +31,8 @@ namespace WebApi
             }
         }
 
+        public string ApiVersion => "10.0";
+
         private const string VpnStartWith = "10.";
        
         public RegInfoRep(ILog log, IRegInfoConfig config)
@@ -100,17 +102,19 @@ namespace WebApi
             string vpnIp = "";
             foreach (var netInterface in TryGetNetworkInterfaces())
             {
-                var ipProps = netInterface.GetIPProperties();
-                foreach (var addr in ipProps.UnicastAddresses)
+                foreach (var addr in netInterface.GetIPProperties().UnicastAddresses)
                 {
-                    var netAddress = addr.Address.MapToIPv4().ToString();
-                    if (netAddress.StartsWith(VpnStartWith))
+                    if(addr.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
                     {
-                        vpnIp = netAddress;
-                    }
-                    if (IsInternalAddress(netAddress))
-                    {
-                        ip = netAddress;
+                        var netAddress = addr.Address.MapToIPv4().ToString();
+                        if (netAddress.StartsWith(VpnStartWith))
+                        {
+                            vpnIp = netAddress;
+                        }
+                        if (IsInternalAddress(netAddress))
+                        {
+                            ip = netAddress;
+                        }
                     }
                 }
             }
@@ -149,7 +153,7 @@ namespace WebApi
             }
         }
 
-        private async Task<int> GetBrigadeCodeAsync()
+        public async Task<int> GetBrigadeCodeAsync()
         { 
             var brigadeString = await TryReadFirstStringFromFileAsync(BrigadeCodeFile);
             if(string.IsNullOrEmpty(brigadeString))

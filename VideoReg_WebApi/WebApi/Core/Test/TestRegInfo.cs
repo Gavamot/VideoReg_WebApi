@@ -17,8 +17,15 @@ namespace WebApiTest
             return res;
         }
 
+        public Task<int> GetBrigadeCodeAsync()
+        {
+            throw new NotImplementedException();
+        }
+
         public Action<RegInfo> RegInfoChanged { get; set; }
 
         public string Vpn => "0.0.0.1";
+
+        public string ApiVersion => "10.0";
     }
 }

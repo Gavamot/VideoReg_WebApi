@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Contract;
@@ -12,14 +11,16 @@ namespace WebApi.Controllers
 {
     public class RegInfoDto
     {
-        public RegInfo Reg { get; set; }
+        public int Brigade { get;set;}
+        public string Vpn { get;set;}
+        public string Version { get;set;}
         public int[] Cameras { get; set; }
     }
 
     [ApiController]
     public class VideoRegController : ControllerBase
     {
-        readonly IRegInfoRep _regInfo;
+        readonly IRegInfoRep regInfoRep;
         readonly ITrendsRep trendsRep;
         readonly ICameraStore cameraCache;
 
@@ -27,9 +28,34 @@ namespace WebApi.Controllers
             ITrendsRep trendsRep, 
             ICameraStore cameraStore)
         {
-            this._regInfo = regInfo;
+            this.regInfoRep = regInfo;
             this.trendsRep = trendsRep;
             this.cameraCache = cameraStore;
+        }
+
+        [HttpGet]
+        [Route("/[controller]/Brigade")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        public async Task<ActionResult<int>> GetBrigade()
+        {
+            var brigadeCode = await regInfoRep.GetBrigadeCodeAsync();
+            return Ok(brigadeCode);
+        }
+
+        [HttpGet]
+        [Route("/[controller]/ApiVersion")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        public ActionResult<string> GetApiVersion()
+        {
+            return Ok(regInfoRep.ApiVersion);
+        }
+
+        [HttpGet]
+        [Route("/[controller]/Vpn")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        public ActionResult<string> GetVpn()
+        {
+            return Ok(regInfoRep.Vpn);
         }
 
         /// <summary>
@@ -42,11 +68,13 @@ namespace WebApi.Controllers
         [ProducesResponseType(typeof(RegInfoDto), StatusCodes.Status200OK)]
         public async Task<ActionResult<RegInfo>> GetInfo()
         {
-            var reg = await _regInfo.GetInfoAsync();
+            int brigade = await regInfoRep.GetBrigadeCodeAsync();
             var cameras = cameraCache.GetAvailableCameras();
             var res = new RegInfoDto()
             {
-                Reg = reg,
+                Brigade = brigade,
+                Version = regInfoRep.ApiVersion,
+                Vpn = regInfoRep.Vpn,
                 Cameras = cameras
             };
             return Ok(res);
