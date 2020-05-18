@@ -6,6 +6,7 @@ using WebApi.Configuration;
 using WebApi.Contract;
 using WebApi.Services;
 using WebApi.Core;
+using WebApi.CoreService.Core;
 
 namespace WebApi
 {
@@ -13,6 +14,7 @@ namespace WebApi
     {
         public const int EmptyBrigadeCode = int.MinValue;
 
+        readonly IRedisRep redis;
         private readonly ILog log;
         private readonly IRegInfoConfig config;
         public Action<RegInfo> RegInfoChanged { get; set; }
@@ -33,12 +35,22 @@ namespace WebApi
 
         public string ApiVersion => "10.0";
 
+        private string regSerial;
+        public string RegSerial { get
+            {
+                if(string.IsNullOrEmpty(regSerial))
+                    regSerial = redis.Get<string>("serial_number").Result;
+                return regSerial;
+            } 
+        }
+
         private const string VpnStartWith = "10.";
-       
-        public RegInfoRep(ILog log, IRegInfoConfig config)
+
+        public RegInfoRep(ILog log, IRegInfoConfig config, IRedisRep redis)
         {
             this.log = log;
             this.config = config;
+            this.redis = redis;
             _ = WatchToBrigadeCode();
         }
 
@@ -55,7 +67,8 @@ namespace WebApi
             {
                 Ip = ip,
                 Vpn = vpn,
-                BrigadeCode = brigadeCode
+                BrigadeCode = brigadeCode,
+                RegSerial = regSerial
             };
         }
 

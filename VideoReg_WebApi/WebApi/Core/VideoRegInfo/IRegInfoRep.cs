@@ -17,5 +17,6 @@ namespace WebApi.Core
         Task<int> GetBrigadeCodeAsync();
         string ApiVersion { get; }
         string Vpn { get; }
+        string RegSerial { get; }
     }
 }

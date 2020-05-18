@@ -14,6 +14,7 @@ namespace WebApi.CoreService
         }
 
         public async Task<CameraSourceSettings[]> GetAll() => await redis.Get<CameraSourceSettings[]>("CamInfo");
+
         public async Task<CameraSourceSettings> Get(int cameraNumber)
         {
             var settings = await GetAll();

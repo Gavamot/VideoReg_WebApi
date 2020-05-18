@@ -5,6 +5,7 @@
         public int BrigadeCode { get; set; }
         public string Ip { get; set; }
         public string Vpn { get; set; }
+        public string RegSerial { get; set; }
 
         bool Equals(RegInfo other)
         {

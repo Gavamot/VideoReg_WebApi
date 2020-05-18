@@ -11,9 +11,10 @@ namespace WebApi.Controllers
 {
     public class RegInfoDto
     {
-        public int Brigade { get;set;}
-        public string Vpn { get;set;}
-        public string Version { get;set;}
+        public int Brigade { get; set; }
+        public string Vpn { get; set; }
+        public string Version { get; set; }
+        public string RegSerial { get; set; }
         public int[] Cameras { get; set; }
     }
 
@@ -31,6 +32,14 @@ namespace WebApi.Controllers
             this.regInfoRep = regInfo;
             this.trendsRep = trendsRep;
             this.cameraCache = cameraStore;
+        }
+
+        [HttpGet]
+        [Route("/[controller]/RegSerial")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        public async Task<ActionResult<string>> GetSerial()
+        {
+            return Ok(regInfoRep.RegSerial);
         }
 
         [HttpGet]
@@ -75,7 +84,8 @@ namespace WebApi.Controllers
                 Brigade = brigade,
                 Version = regInfoRep.ApiVersion,
                 Vpn = regInfoRep.Vpn,
-                Cameras = cameras
+                Cameras = cameras,
+                RegSerial = regInfoRep.RegSerial
             };
             return Ok(res);
         }

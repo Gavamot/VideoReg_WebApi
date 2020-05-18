@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -49,7 +50,7 @@ namespace WebApi.Controllers
         /// <response code="404">Запрошенный файл не существует</response>  
         [HttpGet]
         [Route("/[controller]/File")]
-        public async Task<IActionResult> GetFile(int camera, DateTime pdt)
+        public async Task<IActionResult> GetFile([Range(1, 9)]int camera, DateTime pdt)
         {
             var file = await videoArc.TryGetVideoFileAsync(pdt, camera);
             if (file == default)

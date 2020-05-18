@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -91,7 +92,7 @@ namespace WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status304NotModified)]
         [Route("/[controller]/[action]")]
-        public async Task<IActionResult> GetImage([FromQuery]int camera, [FromQuery]ImageTransformSettingsDto settings = default)
+        public async Task<IActionResult> GetImage([FromQuery][Range(1,9)]int camera, [FromQuery]ImageTransformSettingsDto settings = default)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState.Values.ToArray()[0].Errors);
@@ -111,7 +112,7 @@ namespace WebApi.Controllers
 
         [HttpGet]
         [Route("/[controller]/[action]")]
-        public async Task<IActionResult> GetConvertedImage([FromQuery]int camera)
+        public async Task<IActionResult> GetConvertedImage([FromQuery][Range(1, 9)]int camera)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState.Values.ToArray()[0].Errors);
@@ -120,7 +121,7 @@ namespace WebApi.Controllers
 
         [HttpGet]
         [Route("/[controller]/[action]")]
-        public async Task<IActionResult> GetNativeImage([FromQuery]int camera)
+        public async Task<IActionResult> GetNativeImage([FromQuery][Range(1, 9)]int camera)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState.Values.ToArray()[0].Errors);

@@ -27,5 +27,7 @@ namespace WebApiTest
         public string Vpn => "0.0.0.1";
 
         public string ApiVersion => "10.0";
+
+        public string RegSerial => "0000";
     }
 }
