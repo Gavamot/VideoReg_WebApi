@@ -7,6 +7,7 @@ using WebApi.Contract;
 using WebApi.Services;
 using WebApi.Core;
 using WebApi.CoreService.Core;
+using Microsoft.Extensions.Logging;
 
 namespace WebApi
 {
@@ -15,7 +16,7 @@ namespace WebApi
         public const int EmptyBrigadeCode = int.MinValue;
 
         readonly IRedisRep redis;
-        private readonly ILog log;
+        private readonly ILogger<RegInfoRep> log;
         private readonly IRegInfoConfig config;
         public Action<RegInfo> RegInfoChanged { get; set; }
         public string BrigadeCodeFile => config.BrigadeCodePath;
@@ -27,7 +28,7 @@ namespace WebApi
             {
                 if (string.IsNullOrEmpty(vpn))
                 {
-                    vpn = GetInfoAsync().Result.Vpn;
+                    vpn = GetIpAddress().Item2;
                 }
                 return vpn;
             }
@@ -35,18 +36,20 @@ namespace WebApi
 
         public string ApiVersion => "10.0";
 
-        private string regSerial;
-        public string RegSerial { get
+        private string regSerial = "";
+        public string RegSerial 
+        { 
+            get
             {
                 if(string.IsNullOrEmpty(regSerial))
-                    regSerial = redis.Get<string>("serial_number").Result;
+                    regSerial = redis.GetString("serial_number").Result;
                 return regSerial;
             } 
         }
 
         private const string VpnStartWith = "10.";
 
-        public RegInfoRep(ILog log, IRegInfoConfig config, IRedisRep redis)
+        public RegInfoRep(ILogger<RegInfoRep> log, IRegInfoConfig config, IRedisRep redis)
         {
             this.log = log;
             this.config = config;
@@ -77,8 +80,8 @@ namespace WebApi
             if (!File.Exists(BrigadeCodeFile))
             {
                 var message = $"Brigade code file is does not exist {BrigadeCodeFile}";
-                log.Fatal(message);
-                Environment.Exit(1);
+                log.LogError(message);
+               // Environment.Exit(1);
             }
 
             int oldBrigadeCode = -1;
@@ -89,8 +92,8 @@ namespace WebApi
                 {
                     oldBrigadeCode = newBrigadeCode;
                     var regInfo = GetInfo(newBrigadeCode);
-                    log.Info($"BrigadeCode was changed to {regInfo.BrigadeCode}");
-                    RegInfoChanged(regInfo);
+                    log.LogInformation($"BrigadeCode was changed to {regInfo.BrigadeCode}");
+                    RegInfoChanged?.Invoke(regInfo);
                 }
                 await Task.Delay(1000);
             }
@@ -104,7 +107,7 @@ namespace WebApi
             }
             catch(Exception e)
             {
-                log.Error($"Cannot get Network interfaces [RegInfoRep.TryGetNetworkInterfaces()]({e.Message})");
+                log.LogError($"Cannot get Network interfaces [RegInfoRep.TryGetNetworkInterfaces()]({e.Message})");
             }
             return new NetworkInterface[0];
         }
@@ -161,7 +164,7 @@ namespace WebApi
             }
             catch (Exception e)
             {
-                log.Error($"Cannot read file {BrigadeCodeFile}. [RegInfoRep.TryReadFirstStringFromFileAsync] ({e.Message})");
+                log.LogError($"Cannot read file {BrigadeCodeFile}. [RegInfoRep.TryReadFirstStringFromFileAsync] ({e.Message})");
                 return string.Empty;
             }
         }
@@ -177,7 +180,7 @@ namespace WebApi
             }
             catch(Exception e)
             {
-                log.Error($"Cannot parse {brigadeString} to int value. [RegInfoRep.GetBrigadeCode] ({e.Message})");
+                log.LogError($"Cannot parse {brigadeString} to int value. [RegInfoRep.GetBrigadeCode] ({e.Message})");
                 return EmptyBrigadeCode;
             }
         }

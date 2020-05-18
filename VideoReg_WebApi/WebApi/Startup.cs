@@ -77,12 +77,12 @@ namespace WebApi
             services.AddSingleton<IVideoConvector, ImagicVideoConvector>();
 
             services.AddSingleton<ITrendsRep, FileTrendsRep>();
-
-#if (DEBUG)
-            services.AddTestDependencies();
-#else
             services.AddDependencies();
-#endif
+            //#if (DEBUG)
+            //            services.AddTestDependencies();
+            //#else
+            //            services.AddDependencies();
+            //#endif
             services.AddTransient<IDateTimeService, DateTimeService>();
             services.AddTransient<IFileSystemService, FileSystemService>();
 

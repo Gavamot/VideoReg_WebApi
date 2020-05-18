@@ -68,8 +68,8 @@ namespace WebApi
 
         public static void AddDependencies(this IServiceCollection services)
         {
-            services.AddTransient<ICameraSourceRep, RedisCameraSourceRep>();
-            services.AddTransient<IRegInfoRep, RegInfoRep>();
+            services.AddSingleton<ICameraSourceRep, RedisCameraSourceRep>();
+            services.AddSingleton<IRegInfoRep, RegInfoRep>();
         }
 
         public static void AddTestDependencies(this IServiceCollection services)

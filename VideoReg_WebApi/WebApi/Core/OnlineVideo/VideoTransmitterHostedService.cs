@@ -170,7 +170,7 @@ namespace WebApi.OnlineVideo.OnlineVideo
         private async Task InitSessionAsync(CancellationToken cancellationToken)
         {
             isInited = false;
-            log.Info($"Get reg info ...");
+            log.Info($"GetObject reg info ...");
             RegInfo regInfo = await Must.Do(async () => await regInfoRep.GetInfoAsync(), 1000, cancellationToken, exception =>
             {
                 log.Error($"VideoTransmitterService can not get RegInfo ({exception.Message})", exception);
