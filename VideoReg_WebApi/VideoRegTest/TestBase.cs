@@ -16,6 +16,14 @@ namespace WebApiTest
             return (V)field.GetValue(obj);
         }
 
+        /// <summary>
+        /// SetNonPublicValue
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="filedName"></param>
+        /// <param name="value"></param>
+        /// <exception cref="FieldAccessException"></exception>
+        /// <exception cref="TargetException"></exception>
         public void SetNonPublicValue<T>(T obj, string filedName, object value)
         {
             FieldInfo field = obj.GetType().GetField(filedName, BindingFlags.Instance | BindingFlags.NonPublic);
@@ -29,6 +37,17 @@ namespace WebApiTest
             return res;
         }
 
+        /// <summary>
+        /// ReadTestFileBytes
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        /// <exception cref="PathTooLongException"></exception>
+        /// <exception cref="DirectoryNotFoundException"></exception>
+        /// <exception cref="IOException"></exception>
+        /// <exception cref="UnauthorizedAccessException"></exception>
+        /// <exception cref="FileNotFoundException"></exception>
+        /// <exception cref="System.Security.SecurityException"></exception>
         public byte[] ReadTestFileBytes(string file)
         {
             string path = Path.Combine(TestContext.CurrentContext.TestDirectory, file);

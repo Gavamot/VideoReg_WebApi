@@ -37,12 +37,19 @@ namespace WebApi.OnlineVideo
             this.config = config;
         }
 
+        /// <summary>
+        /// DoWorkAsync
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        /// <exception cref="AggregateException"></exception>
         public override async Task DoWorkAsync(object context, CancellationToken cancellationToken)
         {
             await Measure.Invoke(async () =>
             {
                 var settings = await sourceRep.GetAll();
-                Parallel.ForEach(settings, UpdateCameraImage);
+                _ = Parallel.ForEach(settings, UpdateCameraImage);
             }, out var time);
             await SleepIfNeedMsAsync((long)time.TotalMilliseconds, cancellationToken);
         }

@@ -54,25 +54,27 @@ namespace WebApi
                 {
                     if ((bool) isPause)
                     {
-                        await Task.Delay(1000, cancellationToken);
+                        await Task.Delay(1000);
                         continue;
                     }
 
                     var stopwatch = Stopwatch.StartNew();
+
                     try
                     {
                         await DoWorkAsync(Context, cancellationToken);
                     }
                     catch (OperationCanceledException)
                     {
-                        break;
+                        //break;
                     }
                     catch (Exception e)
                     {
                         log.Error($"{ServiceName} has error. ({e.Message})", e);
                     }
+
                     stopwatch.Stop();
-                    await SleepIfNeedMsAsync(stopwatch.ElapsedMilliseconds, cancellationToken);
+                    await SleepIfNeedMsAsync(stopwatch.ElapsedMilliseconds);
                 }
             }, cancellationToken, TaskCreationOptions.LongRunning).Start();
             log.Info($"{ServiceName} is started");
@@ -91,6 +93,8 @@ namespace WebApi
                 return sleepMs;
             return 1;
         }
+
+        protected async Task SleepIfNeedMsAsync(long elapsedMilliseconds) => await SleepIfNeedMsAsync(elapsedMilliseconds, CancellationToken.None);
 
         protected async Task SleepIfNeedMsAsync(long elapsedMilliseconds, CancellationToken token)
         {
