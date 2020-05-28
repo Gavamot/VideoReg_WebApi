@@ -7,7 +7,8 @@ namespace WebApi.CoreService.Core
 {
     public interface IRedisRep
     {
-        Task<T> Get<T>(string key);
+        Task<T> GetObject<T>(string key);
+        Task<string> GetString(string key);
         //void Set<T>(string key, T value);
     }
 
@@ -26,10 +27,16 @@ namespace WebApi.CoreService.Core
         protected T Deserialize<T>(string json) => JsonConvert.DeserializeObject<T>(json, GetIsoDateTimeConverter);
         protected string Serialize<T>(T obj) => JsonConvert.SerializeObject(obj, GetIsoDateTimeConverter);
 
-        public async Task<T> Get<T>(string key)
+        public async Task<T> GetObject<T>(string key)
         {
             var json = await Redis.Get<string>(key);
             var res = Deserialize<T>(json);
+            return res;
+        }
+
+        public async Task<string> GetString(string key)
+        {
+            var res = await Redis.Get<string>(key);
             return res;
         }
 
