@@ -4,7 +4,7 @@
         <name>WebApi</name>
     </assembly>
     <members>
-        <member name="M:WebApi.Controllers.AdminController.RestartService">
+        <member name="M:WebApi.Controllers.AdminController.ThrowError">
             <summary>
             Выключить сервис. Он будет запущен заново скриптом через какоето время
             </summary>

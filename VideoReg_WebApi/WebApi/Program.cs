@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Serilog;
+using System;
 using System.Net;
 
 namespace WebApi
@@ -10,7 +13,29 @@ namespace WebApi
         public static void Main(string[] args)
         {
             ServicePointManager.DefaultConnectionLimit = 10;
-            CreateHostBuilder(args).Build().Run();
+
+            var configuration =  new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                .Build();
+
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(configuration)
+                .Enrich.FromLogContext()
+                .CreateLogger();
+
+            try
+            {
+                Log.Information("Application is stating...");
+                CreateHostBuilder(args).Build().Run();
+            }
+            catch(Exception e)
+            {
+                Log.Fatal(e, $"Application failed then started ({e.Message})");
+            }
+            finally
+            {
+                Log.CloseAndFlush();
+            }
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -32,6 +57,7 @@ namespace WebApi
                  opt.ConfigureKestrel((context, options) => {
                      options.AddServerHeader = false;
                  });
-            });
+            })
+            .UseSerilog();
     }
 }

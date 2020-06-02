@@ -19,6 +19,9 @@ using Microsoft.Extensions.Logging;
 using WebApi.Core.SignalR;
 using WebApi.Trends;
 using System;
+using WebApi.Ext;
+using Serilog;
+using Microsoft.IO;
 
 namespace WebApi
 {
@@ -30,8 +33,7 @@ namespace WebApi
         private readonly bool log = false;
         private readonly bool passDataToServer = false;
         public static bool IsOn(string v) => v?.ToLower() == "on";
-        
-
+  
         public Startup(IConfiguration configuration)
         {
             this.configuration = configuration;
@@ -41,6 +43,7 @@ namespace WebApi
             this.passDataToServer = IsOn(configuration["PassDataToServer"]);
         }
 
+
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddHttpClient();
@@ -48,6 +51,8 @@ namespace WebApi
             services.AddConfig(config);
             services.AddMemoryCache();
             //services.AddDbContext<AppDbContext>(opt => opt.UseInMemoryDatabase("AppDbContext"));
+
+            services.AddRequestLogging();
 
             // Передача на сервер asc web
             if (passDataToServer)
@@ -113,7 +118,7 @@ namespace WebApi
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> log)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> log, ILoggerFactory logFactory)
         {
             config.Validate(log);
 
@@ -122,6 +127,10 @@ namespace WebApi
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseSerilogRequestLogging();
+            app.UseRequestLogging();
+            app.ConfigureException(logFactory);
+
             app.UseStaticFiles();
             app.UseRouting();
             app.UseCors();
@@ -129,8 +138,6 @@ namespace WebApi
             {
                 endpoints.MapControllers();
             });
-
-            //app.UseSerilogRequestLogging();
 
             if (swagger)
             {
