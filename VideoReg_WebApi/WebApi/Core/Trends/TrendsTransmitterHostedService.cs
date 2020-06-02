@@ -81,7 +81,7 @@ namespace WebApi.Trends
                 log.Warning("In the file [appsettings.json] parameter [Settings.TrendsAscWebSetUrl] - is empty. Trends will not pass to asc_reg_service.");
                 return false;
             }
-
+            
             hub.OnStartTrends = this.Continue;
             hub.OnStopTrends = this.Pause;
 

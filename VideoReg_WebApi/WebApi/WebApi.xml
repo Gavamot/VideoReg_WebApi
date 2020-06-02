@@ -108,7 +108,7 @@
              <response code="200">Возвращает информацию о приборе и тренды</response>
              <response code="500">Произошла ошибка получения информации</response>  
         </member>
-        <member name="T:WebApi.Core.ClientAscHub">
+        <member name="T:WebApi.Core.ClientAscVideoServiceHub">
             <summary>
             Hub is not thread-safe ( Use only in 1 thread this instance)
             </summary>

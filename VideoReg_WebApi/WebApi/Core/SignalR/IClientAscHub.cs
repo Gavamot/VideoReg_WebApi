@@ -14,14 +14,11 @@ namespace WebApi.OnlineVideo.OnlineVideo
         Task SendNewRegInfoAsync(RegInfo info);
         Task Close();
         Action<CameraSettings[]> OnInitShow { get; set; }
-        Action<int> OnStopShow { get; set; }
-        Action<int> OnStartShow { get; set; }
         Action<CameraSettings> OnSetCameraSettings { get; set; }
         #endregion
-
         Action OnStartTrends { get; set; }
         Action OnStopTrends { get; set; }
-        Action<int, bool> OnEnableConversion { get; set; }
+
         Action<DateTime, DateTime> OnTrendsArchiveUploadFile { get; set; }
         Action<DateTime, DateTime, int> OnCameraArchiveUploadFile { get; set; }
 

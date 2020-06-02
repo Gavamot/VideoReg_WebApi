@@ -55,7 +55,7 @@ namespace WebApi
                 Console.WriteLine("passDataToServer is active.");
                 services.AddHostedService<VideoTransmitterHostedService>();
                 services.AddHostedService<TrendsTransmitterHostedService>();
-                services.AddSingleton<IClientAscHub, ClientAscHub>();
+                services.AddSingleton<IClientAscHub, ClientAscVideoServiceHub>();
                 services.AddSingleton<IArchiveTransmitter, ArchiveTransmitter>();
             }
 

@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using WebApi.CoreService;
 using WebApi.Configuration;
 using WebApi.OnlineVideo.Store;
 using WebApi.Services;
-using System.Diagnostics;
-using System.ServiceModel.Channels;
 using Microsoft.Extensions.Hosting;
-using WebApi.Core;
 
 namespace WebApi.OnlineVideo
 {
@@ -24,7 +19,6 @@ namespace WebApi.OnlineVideo
         public override object Context { get; protected set; }
         public override string Name => "CameraUpdate";
 
-        //  private readonly IServiceProvider di;
         public CameraHostedService(IImgRep imgRep,
             ICameraStore cameraCache,
             ICameraSourceRep cameraSourceRep,

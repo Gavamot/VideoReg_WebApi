@@ -12,6 +12,7 @@ using WebApi.Services;
 using System.Net.Http;
 using System.Net;
 using System.Security.Policy;
+using BeetleX.Redis.Commands;
 
 namespace WebApi.OnlineVideo.OnlineVideo
 {
@@ -186,11 +187,13 @@ namespace WebApi.OnlineVideo.OnlineVideo
                 log.Error($"VideoTransmitterService ({exception.Message})", exception);
             });
 
-            hub.OnStartShow = camera => SwitchCamera(camera, true);
-            hub.OnStopShow = camera => SwitchCamera(camera, false);
+            //hub.OnStartShow = camera => SwitchCamera(camera, true);
+            //hub.OnStopShow = camera => SwitchCamera(camera, false);
             hub.OnSetCameraSettings = settings =>
             {
-                log.Info($"Have got new camera[{settings.Camera}] Settings {settings.Settings}");
+                log.Info($"Have got new settings {settings}");
+                SwitchCamera(settings.Camera, settings.Enabled);
+
                 settingsStore.Set(settings);
             };
             isInited = true;
