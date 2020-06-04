@@ -84,6 +84,10 @@ namespace WebApiTest.Test
             }
         }
 
+        /// <summary>
+        /// JsonCorrect_EmptyDevice
+        /// </summary>
+        /// <exception cref="InvalidOperationException">Ignore.</exception>
         [Test]
         public void JsonCorrect_EmptyDevice()
         {
@@ -137,6 +141,10 @@ namespace WebApiTest.Test
             }
         }
 
+        /// <summary>
+        /// VideoCorrect_EmptyDevice
+        /// </summary>
+        /// <exception cref="InvalidOperationException">Ignore.</exception>
         [Test]
         public void VideoCorrect_EmptyDevice()
         {
@@ -152,11 +160,14 @@ namespace WebApiTest.Test
             Assert.AreEqual(f.brigade, brigadeSequence.First());
         }
 
+        /// <summary>
+        /// VideoCorrect_UncompletedEmptyDevice
+        /// </summary>
+        /// <exception cref="InvalidOperationException">Ignore.</exception>
         [Test]
         public void VideoCorrect_UncompletedEmptyDevice()
         {
             int cameraNumber = 1;
-            DeviceSerialNumber? serial = null;
             var file = VideoFile(dt1Str, null);
 
             var f = _generator.CreateVideoMp4(file, cameraNumber);
@@ -177,6 +188,10 @@ namespace WebApiTest.Test
             Assert.AreEqual(f.brigade, brigadeSequence[1]);
         }
 
+        /// <summary>
+        /// VideoCorrect_Uncompleted
+        /// </summary>
+        /// <exception cref="InvalidOperationException">Ignore.</exception>
         [Test]
         public void VideoCorrect_Uncompleted()
         {

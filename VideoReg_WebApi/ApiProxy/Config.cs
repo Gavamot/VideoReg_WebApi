@@ -1,19 +1,43 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Net;
 using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
 
 namespace ApiProxy
 {
     class Config
     {
+        public const string fileName = "config.txt";
+
+        /// <summary>
+        /// ReadConfig
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="PathTooLongException"></exception>
+        /// <exception cref="DirectoryNotFoundException"></exception>
+        /// <exception cref="IOException"></exception>
+        /// <exception cref="System.UnauthorizedAccessException"></exception>
+        /// <exception cref="FileNotFoundException"></exception>
+        /// <exception cref="System.Security.SecurityException"></exception>
+        public static Config ReadConfig()
+        {
+            var lines = File.ReadAllLines(fileName);
+            var res = new Config(lines);
+            return res;
+        }
+
         public Config(string[] settings)
         {
             var _ = ReadSettings(settings);
             SetFields(_);
         }
 
+        /// <summary>
+        /// SetFields
+        /// </summary>
+        /// <param name="settings"></param>
+        /// <exception cref="System.FieldAccessException">Ignore.</exception>
+        /// <exception cref="TargetException">Ignore.</exception>
         private void SetFields(Dictionary<string, string> settings)
         {
             var fields = typeof(Config).GetFields(BindingFlags.Public | BindingFlags.Instance);
@@ -35,8 +59,8 @@ namespace ApiProxy
             foreach (var s in settings)
             {
                 var str = s.Trim();
-                if(string.IsNullOrEmpty(str) 
-                   || str.StartsWith("//") 
+                if (string.IsNullOrEmpty(str)
+                   || str.StartsWith("//")
                    || str.StartsWith("#")
                    || !str.Contains("=")) continue;
                 var keyValue = str.Split("=");

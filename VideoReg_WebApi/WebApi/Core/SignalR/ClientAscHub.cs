@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using MessagePack;
-using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,16 +24,16 @@ namespace WebApi.Core
     {
         private const int ConnectRetryTimeoutMs = 500;
         private HubConnection connection;
-        private ILogger<ClientAscHub> log;
+        private readonly ILogger<ClientAscHub> log;
         private CancellationToken token;
-        private volatile Uri serverUrl;
-        private IVideoTransmitterConfig config;
+        private readonly Uri serverUrl;
+        private readonly IVideoTransmitterConfig config;
 
         public Action<CameraSettings[]> OnInitShow { get; set; }
         public Action<int> OnStopShow { get; set; }
         public Action<int> OnStartShow { get; set; }
         public Action<CameraSettings> OnSetCameraSettings { get; set; }
-        
+
         public Action OnStartTrends { get; set; }
         public Action OnStopTrends { get; set; }
 
@@ -45,16 +45,22 @@ namespace WebApi.Core
         private readonly ICameraSettingsStore cameraSettingsStore;
         private readonly IDateTimeService dateTimeService;
         private readonly IArchiveTransmitter archiveTransmitter;
+        readonly ICertificateRep certificateRep;
+        readonly IApp app;
 
-        public ClientAscHub(ILogger<ClientAscHub> log, 
+        public ClientAscHub(ILogger<ClientAscHub> log,
             IVideoTransmitterConfig config,
             ICameraSettingsStore cameraSettingsStore,
             IArchiveTransmitter archiveTransmitter,
-            IDateTimeService dateTimeService)
+            IDateTimeService dateTimeService,
+            ICertificateRep certificateRep,
+            IApp app
+            )
         {
             this.log = log;
             this.config = config;
-          
+            this.app = app;
+
             if (!string.IsNullOrEmpty(config.AscRegServiceEndpoint))
             {
                 this.serverUrl = new Uri(config.AscRegServiceEndpoint);
@@ -62,34 +68,31 @@ namespace WebApi.Core
                 this.cameraSettingsStore = cameraSettingsStore;
                 this.archiveTransmitter = archiveTransmitter;
                 this.dateTimeService = dateTimeService;
+                this.certificateRep = certificateRep;
             }
         }
 
         private HubConnection ConfigureConnection(Uri serverUrl, CancellationToken token)
         {
             this.token = token;
-            //var reconnects = GenerateReconnects().ToArray();
-            //var cert = new X509Certificate2(Path.Combine("public.crt"), "v1336pwd");
-            //var _clientHandler = new HttpClientHandler();
-            //_clientHandler.ClientCertificates.Add(cert);
-
             this.connection = new HubConnectionBuilder()
-                .WithUrl(serverUrl, HttpTransportType.WebSockets, options =>
+                .WithUrl(serverUrl, HttpTransportType.ServerSentEvents, options =>
                 {
-                    options.Transports = HttpTransportType.WebSockets;
-                    options.DefaultTransferFormat = TransferFormat.Binary;
+                    //options.Transports = HttpTransportType.WebSockets;
+                    //options.DefaultTransferFormat = TransferFormat.Binary;
                     //options.UseDefaultCredentials = true;
                     //options.ClientCertificates.Add(cert);
                     //options.SkipNegotiation = true;
-                    //options.HttpMessageHandlerFactory = handler =>
-                    //{
-                    //    var _clientHandler = new HttpClientHandler();
-                    //    _clientHandler.CheckCertificateRevocationList = false;
-                    //    _clientHandler.PreAuthenticate = false;
-                    //    _clientHandler.ClientCertificates.Add(cert);
-                    //    return _clientHandler;
-                    //};
-                    
+                    options.HttpMessageHandlerFactory = handler =>
+                    {
+                        var _clientHandler = new HttpClientHandler();
+                        _clientHandler.CheckCertificateRevocationList = false;
+                        _clientHandler.PreAuthenticate = false;
+                        var cert = certificateRep.GetCertificate();
+                        _clientHandler.ClientCertificates.Add(cert);
+                        return _clientHandler;
+                    };
+
                     //options.WebSocketConfiguration = sockets =>
                     //{
                     //    sockets.RemoteCertificateValidationCallback = (sender, certificate, chain, policyErrors) => true;
@@ -107,12 +110,11 @@ namespace WebApi.Core
                 })
                 .Build();
 
-
             connection.On<CameraSettings[]>("SendInitShow", cameras =>
             {
                 OnInitShow?.Invoke(cameras);
             });
-               
+
             connection.On<int>("SendStopShow", camera =>
             {
                 OnStopShow?.Invoke(camera);
@@ -122,20 +124,23 @@ namespace WebApi.Core
             {
                 OnStartShow?.Invoke(camera);
             });
-                
+
             connection.On<CameraSettings>("SendCameraSettings", settings =>
             {
                 OnSetCameraSettings?.Invoke(settings);
             });
 
-            connection.On("SendStartTrends", () => { OnStartTrends?.Invoke(); });
+            connection.On("SendStartTrends", () =>
+            {
+                OnStartTrends?.Invoke();
+            });
 
             connection.On("SendStopTrends", () =>
             {
                 OnStopTrends?.Invoke();
             });
 
-            connection.On<string, string>("SendTrendsArchiveUploadFile", async (pdtStr, endStr) => 
+            connection.On<string, string>("SendTrendsArchiveUploadFile", async (pdtStr, endStr) =>
             {
                 var pdt = dateTimeService.Parse(pdtStr, DateTimeService.DefaultFormat);
                 var end = dateTimeService.Parse(endStr, DateTimeService.DefaultFormat);
@@ -151,7 +156,7 @@ namespace WebApi.Core
 
             connection.On("SendCloseApi", () =>
             {
-                Environment.Exit(1);
+                app.Close(nameof(ClientAscHub));
             });
 
             connection.On<int, bool>("SendEnableConversion", (camera, enableConversion) =>
@@ -169,6 +174,12 @@ namespace WebApi.Core
             await connection.DisposeAsync();
         }
 
+        /// <summary>
+        /// ConnectWithRetryAsync
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="TaskCanceledException">Ignore.</exception>
+        /// <exception cref="ObjectDisposedException">Ignore.</exception>
         public async Task ConnectWithRetryAsync()
         {
             while (connection.State != HubConnectionState.Connected)
@@ -200,13 +211,13 @@ namespace WebApi.Core
             await connection.SendCoreAsync(method, parameters, cancellationToken: token);
         }
 
-        public async Task InitSessionAsync(RegInfo info) => 
+        public async Task InitSessionAsync(RegInfo info) =>
             await Send("ReceiveInitSession", info);
 
         //public async Task SendCameraImageAsync(int camera, byte[] image, int convertMs) =>
         //    await Send("ReceiveCameraImage", camera, image, convertMs);
 
-        public async Task SendTestConnectionAsync() => 
+        public async Task SendTestConnectionAsync() =>
             await Send("ReceiveTestConnection");
 
         public async Task SendNewRegInfoAsync(RegInfo info) =>

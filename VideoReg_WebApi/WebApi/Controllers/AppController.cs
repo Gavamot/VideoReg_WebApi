@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Globalization;
-using System.Linq;
 using Microsoft.AspNetCore.Mvc;
-using WebApi.Archive.ArchiveFiles;
 using WebApi.Services;
 
 namespace WebApi.Controllers
@@ -26,8 +23,10 @@ namespace WebApi.Controllers
         {
             if (Request.Headers.TryGetValue(HeaderTimestamp, out var dtStr))
             {
-                string parameter = dtStr.First();
-                return parseFunc(parameter);
+                if(dtStr.Count > 0)
+                {
+                    return parseFunc(dtStr[0]);
+                }
             }
             return null;
         }

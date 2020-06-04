@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using System;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using WebApi.Dto;
 
@@ -25,6 +24,13 @@ namespace WebApi.Ext
             this._recyclableMemoryStreamManager = recyclableMemoryStreamManager;
         }
 
+        /// <summary>
+        /// ReadStreamInChunks
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
+        /// <exception cref="IOException"></exception>
+        /// <exception cref="ObjectDisposedException"></exception>
         private static string ReadStreamInChunks(Stream stream)
         {
             const int readChunkBufferLength = 4096;
@@ -43,6 +49,13 @@ namespace WebApi.Ext
             return textWriter.ToString();
         }
 
+        /// <summary>
+        /// LogRequest
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        /// <exception cref="ObjectDisposedException"></exception>
+        /// <exception cref="IOException">Ignore.</exception>
         private async Task LogRequest(HttpContext context)
         {
             context.Request.EnableBuffering();
@@ -59,9 +72,16 @@ namespace WebApi.Ext
 
         public async Task Invoke(HttpContext context)
         {
-            await LogRequest(context);
+            try
+            {
+                await LogRequest(context);
+            }
+            catch (ObjectDisposedException)
+            {
+
+            }
             await _next(context);
-            
+
         }
     }
 
@@ -90,7 +110,7 @@ namespace WebApi.Ext
                     context.Response.ContentType = "application/json";
 
                     var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
-                    if(contextFeature != null)
+                    if (contextFeature != null)
                     {
                         var log = logFactory.CreateLogger("unhanded");
                         var errorMessage = contextFeature.Error.Message;

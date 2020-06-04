@@ -86,6 +86,7 @@ namespace WebApi.Controllers
         /// <response code="404">Переданная камера не найдена</response>
         /// <response code="400">Неверные параметры запроса</response>
         /// <response code="304">Изображение с камеры не изменялось</response>
+        /// <exception cref="NoNModifiedException">code=304 Изображение с камеры не изменялось</exception>
         [HttpGet]
         [ProducesResponseType(typeof(byte[]),StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -112,7 +113,7 @@ namespace WebApi.Controllers
 
         [HttpGet]
         [Route("/[controller]/[action]")]
-        public async Task<IActionResult> GetConvertedImage([FromQuery][Range(1, 9)]int camera)
+        public IActionResult GetConvertedImage([FromQuery][Range(1, 9)]int camera)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState.Values.ToArray()[0].Errors);
@@ -121,7 +122,7 @@ namespace WebApi.Controllers
 
         [HttpGet]
         [Route("/[controller]/[action]")]
-        public async Task<IActionResult> GetNativeImage([FromQuery][Range(1, 9)]int camera)
+        public IActionResult GetNativeImage([FromQuery][Range(1, 9)]int camera)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState.Values.ToArray()[0].Errors);

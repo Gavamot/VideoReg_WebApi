@@ -14,9 +14,8 @@ namespace WebApi.Services
         public const string DateDotSeparatorTimeFormat = "yyyy.MM.ddTHH.mm.ss";
         public const string DateDotSeparatorTimeFormatShortFormat = "yyyy.M.dTH.m.s";
 
-
-        static readonly CultureInfo culture = CultureInfo.InvariantCulture;
-        static readonly string[] Formats = new string[]
+        readonly CultureInfo culture = CultureInfo.InvariantCulture;
+        readonly string[] Formats = new string[]
         {
             DefaultFormat,
             DefaultMsFormat,

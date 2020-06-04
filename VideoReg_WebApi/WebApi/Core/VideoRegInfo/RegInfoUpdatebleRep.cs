@@ -4,22 +4,57 @@ using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 using WebApi.Configuration;
 using WebApi.Contract;
-using WebApi.Services;
 using WebApi.Core;
 using WebApi.CoreService.Core;
 using Microsoft.Extensions.Logging;
+using System.Net.Sockets;
 
 namespace WebApi
 {
-    public class RegInfoRep : IRegInfoRep
+    public class RegInfoUpdatebleRep : IRegInfoRep
     {
         public const int EmptyBrigadeCode = int.MinValue;
 
         readonly IRedisRep redis;
-        private readonly ILogger<RegInfoRep> log;
+        private readonly ILogger<RegInfoUpdatebleRep> log;
         private readonly IRegInfoConfig config;
         public Action<RegInfo> RegInfoChanged { get; set; }
         public string BrigadeCodeFile => config.BrigadeCodePath;
+
+        public RegInfoUpdatebleRep(ILogger<RegInfoUpdatebleRep> log, IRegInfoConfig config, IRedisRep redis)
+        {
+            this.log = log;
+            this.config = config;
+            this.redis = redis;
+            BeginUpdate();
+        }
+
+        void BeginUpdate()
+        {
+            Task.Factory.StartNew(async () =>
+            {
+                if (!File.Exists(BrigadeCodeFile))
+                {
+                    var message = $"Brigade code file is does not exist {BrigadeCodeFile}";
+                    log.LogError(message);
+                    // Environment.Exit(1);
+                }
+
+                int oldBrigadeCode = -1;
+                while (true)
+                {
+                    var newBrigadeCode = await GetBrigadeCodeAsync();
+                    if (oldBrigadeCode != newBrigadeCode)
+                    {
+                        oldBrigadeCode = newBrigadeCode;
+                        var regInfo = GetInfo(newBrigadeCode);
+                        log.LogInformation($"BrigadeCode was changed to {regInfo.BrigadeCode}");
+                        RegInfoChanged?.Invoke(regInfo);
+                    }
+                    await Task.Delay(1000);
+                }
+            }, TaskCreationOptions.LongRunning);
+        }
 
         string vpn = string.Empty;
         public string Vpn
@@ -37,25 +72,17 @@ namespace WebApi
         public string ApiVersion => "10.0";
 
         private string regSerial = "";
-        public string RegSerial 
-        { 
+        public string RegSerial
+        {
             get
             {
-                if(string.IsNullOrEmpty(regSerial))
+                if (string.IsNullOrEmpty(regSerial))
                     regSerial = redis.GetString("serial_number").Result;
                 return regSerial;
-            } 
+            }
         }
 
         private const string VpnStartWith = "10.";
-
-        public RegInfoRep(ILogger<RegInfoRep> log, IRegInfoConfig config, IRedisRep redis)
-        {
-            this.log = log;
-            this.config = config;
-            this.redis = redis;
-            _ = WatchToBrigadeCode();
-        }
 
         public async Task<RegInfo> GetInfoAsync()
         {
@@ -75,39 +102,15 @@ namespace WebApi
             };
         }
 
-        private async Task WatchToBrigadeCode()
-        {
-            if (!File.Exists(BrigadeCodeFile))
-            {
-                var message = $"Brigade code file is does not exist {BrigadeCodeFile}";
-                log.LogError(message);
-               // Environment.Exit(1);
-            }
-
-            int oldBrigadeCode = -1;
-            while (true)
-            {
-                var newBrigadeCode = await GetBrigadeCodeAsync();
-                if (oldBrigadeCode != newBrigadeCode)
-                {
-                    oldBrigadeCode = newBrigadeCode;
-                    var regInfo = GetInfo(newBrigadeCode);
-                    log.LogInformation($"BrigadeCode was changed to {regInfo.BrigadeCode}");
-                    RegInfoChanged?.Invoke(regInfo);
-                }
-                await Task.Delay(1000);
-            }
-        }
-
         private NetworkInterface[] TryGetNetworkInterfaces()
         {
             try
             {
                 return NetworkInterface.GetAllNetworkInterfaces();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                log.LogError($"Cannot get Network interfaces [RegInfoRep.TryGetNetworkInterfaces()]({e.Message})");
+                log.LogError($"Cannot get Network interfaces [RegInfoUpdatebleRep.TryGetNetworkInterfaces()]({e.Message})");
             }
             return new NetworkInterface[0];
         }
@@ -120,16 +123,24 @@ namespace WebApi
             {
                 foreach (var addr in netInterface.GetIPProperties().UnicastAddresses)
                 {
-                    if(addr.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                    if (addr.Address.AddressFamily == AddressFamily.InterNetwork)
                     {
-                        var netAddress = addr.Address.MapToIPv4().ToString();
-                        if (netAddress.StartsWith(VpnStartWith))
+                        try
                         {
-                            vpnIp = netAddress;
+                            var netAddress = addr.Address.MapToIPv4().ToString();
+
+                            if (netAddress.StartsWith(VpnStartWith))
+                            {
+                                vpnIp = netAddress;
+                            }
+                            if (IsInternalAddress(netAddress))
+                            {
+                                ip = netAddress;
+                            }
                         }
-                        if (IsInternalAddress(netAddress))
+                        catch (SocketException e)
                         {
-                            ip = netAddress;
+                            log.LogError(e, $"cannot transform net address to string ipv4 version [var netAddress = addr.Address.MapToIPv4().ToString();] error={e.Message}");
                         }
                     }
                 }
@@ -159,28 +170,38 @@ namespace WebApi
         {
             try
             {
-                var fd = await File.ReadAllLinesAsync(BrigadeCodeFile);
+                if (!File.Exists(file))
+                {
+                    log.LogError($"[RegInfoUpdatebleRep.TryReadFirstStringFromFileAsync] File {file} doesn't exist.");
+                    return string.Empty;
+                }
+                var fd = await File.ReadAllLinesAsync(file);
+                if (fd.Length == 0)
+                {
+                    log.LogError($"[RegInfoUpdatebleRep.TryReadFirstStringFromFileAsync] File {file} is empty.");
+                    return string.Empty;
+                }
                 return fd[0];
             }
             catch (Exception e)
             {
-                log.LogError($"Cannot read file {BrigadeCodeFile}. [RegInfoRep.TryReadFirstStringFromFileAsync] ({e.Message})");
+                log.LogError($"Cannot read file {file}. [RegInfoUpdatebleRep.TryReadFirstStringFromFileAsync] ({e.Message})");
                 return string.Empty;
             }
         }
 
         public async Task<int> GetBrigadeCodeAsync()
-        { 
+        {
             var brigadeString = await TryReadFirstStringFromFileAsync(BrigadeCodeFile);
-            if(string.IsNullOrEmpty(brigadeString))
+            if (string.IsNullOrEmpty(brigadeString))
                 return EmptyBrigadeCode;
             try
             {
                 return int.Parse(brigadeString);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                log.LogError($"Cannot parse {brigadeString} to int value. [RegInfoRep.GetBrigadeCode] ({e.Message})");
+                log.LogError($"Cannot parse {brigadeString} to int value. [RegInfoUpdatebleRep.GetBrigadeCode] ({e.Message})");
                 return EmptyBrigadeCode;
             }
         }

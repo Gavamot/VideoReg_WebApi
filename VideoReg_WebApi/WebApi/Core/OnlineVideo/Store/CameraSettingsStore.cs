@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using WebApi.Contract;
 
 namespace WebApi.OnlineVideo.Store

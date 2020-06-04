@@ -10,8 +10,6 @@ using WebApi.OnlineVideo.Store;
 using WebApi.Core;
 using WebApi.Services;
 using System.Net.Http;
-using System.Net;
-using System.Security.Policy;
 
 namespace WebApi.OnlineVideo.OnlineVideo
 {
@@ -23,6 +21,7 @@ namespace WebApi.OnlineVideo.OnlineVideo
         private readonly ICameraSettingsStore settingsStore;
         private readonly IRegInfoRep regInfoRep;
         private readonly IVideoTransmitterConfig config;
+        readonly AscHttpClient ascHttp;
 
         const int AllCameras = 0;
         private const int FirstCamera = 1;
@@ -31,14 +30,12 @@ namespace WebApi.OnlineVideo.OnlineVideo
         /// <summary>
         /// Камеры по которым необходимо передавать изображения
         /// </summary>
-        readonly bool[] enabledCameras = new bool[CamerasArraySize]; 
+        readonly bool[] enabledCameras = new bool[CamerasArraySize];
         /// <summary>
         /// Когда изображдение в cameraStore обновляется обновляется выставляется флаг, после отправки флаг снимается
         /// </summary>
         readonly bool[] updatedCameras = new bool[CamerasArraySize];
-        readonly HttpClient http;
-        readonly IDateTimeService dateTimeService;
-        private volatile bool isInited = false; 
+        private volatile bool isInited = false;
 
         public VideoTransmitterHostedService(
             ILog log,
@@ -47,8 +44,8 @@ namespace WebApi.OnlineVideo.OnlineVideo
             IClientAscHub hub,
             ICameraStore cameraStore,
             ICameraSettingsStore settingsStore,
-            IHttpClientFactory httpClientFactory,
-            IDateTimeService dateTimeService)
+            AscHttpClient ascHttp
+            )
         {
             this.config = config;
             this.cameraStore = cameraStore;
@@ -56,14 +53,13 @@ namespace WebApi.OnlineVideo.OnlineVideo
             this.regInfoRep = regInfoRep;
             this.hub = hub;
             this.log = log;
-            http = httpClientFactory.CreateClient(Global.AscWebClient);
-            this.dateTimeService = dateTimeService;
+            this.ascHttp = ascHttp;
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            TransmitDataLoop(cancellationToken);
-            CheckConnectionLoop(cancellationToken);
+            TransmitDataLoop();
+            CheckConnectionLoop();
             return Task.CompletedTask;
         }
 
@@ -85,68 +81,55 @@ namespace WebApi.OnlineVideo.OnlineVideo
             {
                 var camNum = cameraNumber;
                 if (!updatedCameras[camNum]) continue;
-                var task= Task.Run(async () =>
+
+                var img = cameraStore.GetImage(camNum);
+                if (img == default) continue;
+
+                byte[] imgData = img.NativeImg;
+                var settings = settingsStore.Get(camNum);
+                if (settings != default)
+                    imgData = settings.EnableConversion ? img.ConvertedImg.Image : img.NativeImg;
+
+                int convertMs = img.ConvertedImg?.ConvertMs ?? 0;
+
+                var task = Task.Run(async () =>
                 {
-                    var img = cameraStore.GetImage(camNum);
-                    if (img == default) return;
-                    var settings = settingsStore.Get(camNum);
-                    byte[] imgData = settings.EnableConversion ?  img.ConvertedImg.Image : img.NativeImg;
-                    await SendCameraImagesHttpAsync(camNum, imgData, img.ConvertedImg?.ConvertMs ?? 0);
-                    //await hub.SendCameraImageAsync(camNum, imgData, img.ConvertedImg?.ConvertMs ?? 0);
-                    updatedCameras[camNum] = false;
-                    log.Info($"ReceiveCameraImage[{camNum}]");
+                    var imageSended = await ascHttp.SendCameraImagesHttpAsync(regInfoRep.Vpn, camNum, imgData, convertMs);
+                    if (imageSended)
+                    {
+                        updatedCameras[camNum] = false;
+                        log.Info($"ReceiveCameraImage[{camNum}]");
+                    }
                 });
                 tasks.Add(task);
-            } 
-            Task.WaitAll(tasks.ToArray()); 
+            }
+
+            try
+            {
+                Task.WaitAll(tasks.ToArray());
+            }
+            catch (Exception e)
+            {
+                log.Error($"!!! Bug VideoTransmitterHostedService.SendCameraImages fix it fast {e.Message}", e);
+            }
             return tasks.Count;
         }
 
-        private async Task SendCameraImagesHttpAsync(int cameraNumber, byte[] img, int convertMs)
+        private async Task SendCameraImagesLoop()
         {
-            var content = new MultipartFormDataContent();
-            //content.Add(new StringContent(regInfoRep.Vpn), "vpn");
-            //content.Add(new StringContent(cameraNumber.ToString()), "camera");
-            //content.Add(new StringContent(convertedMs.ToString()), "convertMs");
-            content.Add(new ByteArrayContent(img), "file", "c");
-
-            var urlBuilder = new UrlParameterBuilder(config.SetImageUrl);
-            urlBuilder.AddParameter("vpn", regInfoRep.Vpn);
-            urlBuilder.AddParameter("camera", cameraNumber);
-            urlBuilder.AddParameter("convertMs", convertMs);
-            var paramsUrl =  urlBuilder.Build();
-            var responce = await http.PostAsync(paramsUrl, content);
-            if (!responce.IsSuccessStatusCode)
+            while (true)
             {
-               log.Error($"Can not pass image to server cam={cameraNumber}");
-            }
-        }
-
-        private async Task SendCameraImagesLoop(CancellationToken cancellationToken)
-        {
-            while (!cancellationToken.IsCancellationRequested)
-            {
-                try
+                int sendImages = SendCameraImages();
+                if (sendImages == 0)
                 {
-                    int sendImages = SendCameraImages();
-                    if (sendImages == 0)
-                    {
-                        await Task.Delay(5, cancellationToken);
-                    }
-                }
-                catch (Exception e)
-                {
-                    log.Error($"can not send SendCameraImages message={e.Message}", e);
-                    SwitchCamera(AllCameras, false);
-                    await Task.Delay(500, cancellationToken);
-                    await InitSessionAsync(cancellationToken);
+                    await Task.Delay(5);
                 }
             }
         }
 
-        private void TransmitDataLoop(CancellationToken token)
+        private void TransmitDataLoop()
         {
-            Task task = new Task(async () =>
+            Task.Factory.StartNew(async () =>
             {
                 if (string.IsNullOrEmpty(config.AscRegServiceEndpoint))
                 {
@@ -157,21 +140,20 @@ namespace WebApi.OnlineVideo.OnlineVideo
                 log.Info($"VideoTransmitterService connect to {config.AscRegServiceEndpoint}");
 
                 hub.OnInitShow = InitShow;
-                await InitSessionAsync(token);
+                await InitSessionAsync();
 
                 cameraStore.OnImageChanged = GotSnapshot;
                 regInfoRep.RegInfoChanged = RegInfoChanged;
 
-                await SendCameraImagesLoop(token);
-            }, token, TaskCreationOptions.LongRunning);
-            task.Start();
+                await SendCameraImagesLoop();
+            }, TaskCreationOptions.LongRunning);
         }
 
-        private async Task InitSessionAsync(CancellationToken cancellationToken)
+        private async Task InitSessionAsync()
         {
             isInited = false;
             log.Info($"GetObject reg info ...");
-            RegInfo regInfo = await Must.Do(async () => await regInfoRep.GetInfoAsync(), 1000, cancellationToken, exception =>
+            RegInfo regInfo = await Must.Do(async () => await regInfoRep.GetInfoAsync(), 1000, CancellationToken.None, exception =>
             {
                 log.Error($"VideoTransmitterService can not get RegInfo ({exception.Message})", exception);
             });
@@ -181,7 +163,7 @@ namespace WebApi.OnlineVideo.OnlineVideo
                 await hub.ConnectWithRetryAsync();
                 log.Info($"VideoTransmitterService InitSessionAsync() to {config.AscRegServiceEndpoint}");
                 await hub.InitSessionAsync(regInfo);
-            }, 1000, cancellationToken, exception =>
+            }, 1000, CancellationToken.None, exception =>
             {
                 log.Error($"VideoTransmitterService ({exception.Message})", exception);
             });
@@ -196,7 +178,12 @@ namespace WebApi.OnlineVideo.OnlineVideo
             isInited = true;
         }
 
-        private void CheckConnectionLoop(CancellationToken token)
+        /// <summary>
+        /// CheckConnectionLoop
+        /// </summary>
+        /// <exception cref="ObjectDisposedException">Ignore.</exception>
+        /// <exception cref="InvalidOperationException">Ignore.</exception>
+        private void CheckConnectionLoop()
         {
             Task task = new Task(async () =>
             {
@@ -209,23 +196,22 @@ namespace WebApi.OnlineVideo.OnlineVideo
                         {
                             await hub.SendTestConnectionAsync();
                         }
-                        catch
+                        catch (Exception e)
                         {
-                            await InitSessionAsync(token);
+                            log.Error(e.Message, e);
+                            await InitSessionAsync();
                         }
-                        
                     }
-                    token.ThrowIfCancellationRequested();
                 }
-            }, token, TaskCreationOptions.LongRunning);
+            }, TaskCreationOptions.LongRunning);
             task.Start();
-        } 
+        }
 
         private void UnsubscribeHubForEvents()
         {
-            hub.OnInitShow = cam => {};
+            hub.OnInitShow = cam => { };
             cameraStore.OnImageChanged = (i, bytes) => { };
-            regInfoRep.RegInfoChanged = info => {};
+            regInfoRep.RegInfoChanged = info => { };
         }
 
         private void InitShow(CameraSettings[] cameras)
@@ -251,7 +237,7 @@ namespace WebApi.OnlineVideo.OnlineVideo
         private void InitEnableCameras(CameraSettings[] cameras)
         {
             var enabled = cameras
-                .Where(x=> x.Enabled)
+                .Where(x => x.Enabled)
                 .Select(x => x.Camera)
                 .ToArray();
             for (int cameraNumber = FirstCamera; cameraNumber < enabledCameras.Length; cameraNumber++)
@@ -264,7 +250,7 @@ namespace WebApi.OnlineVideo.OnlineVideo
         {
             string cameraStatus = enabled ? "enabled" : "disabled";
             ThrowArgumentExceptionIfBadCamera(camera);
-            
+
             if (camera == AllCameras)
             {
                 log.Info($"All cameras - show {cameraStatus}");
@@ -296,7 +282,7 @@ namespace WebApi.OnlineVideo.OnlineVideo
         }
 
         private void GotSnapshot(int camera, byte[] image)
-        { 
+        {
             updatedCameras[camera] = enabledCameras[camera];
         }
     }

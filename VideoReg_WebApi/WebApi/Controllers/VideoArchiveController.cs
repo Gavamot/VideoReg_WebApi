@@ -1,13 +1,10 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using System.IO;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Archive;
-using WebApi.Archive.ArchiveFiles;
-using WebApi.Archive.BrigadeHistory;
 using WebApi.Dto;
 using WebApi.Services;
 
@@ -18,15 +15,13 @@ namespace WebApi.Controllers
     {
         readonly ICameraArchiveRep videoArc;
         private readonly IMapper mapper;
-        private readonly IBrigadeHistoryRep brigadeHistoryRep;
+
         public VideoArchiveController(ICameraArchiveRep videoArc,
             IMapper mapper,
-            IDateTimeService dateTimeService, 
-            IBrigadeHistoryRep brigadeHistoryRep) : base(dateTimeService)
+            IDateTimeService dateTimeService) : base(dateTimeService)
         {
             this.videoArc = videoArc;
             this.mapper = mapper;
-            this.brigadeHistoryRep = brigadeHistoryRep;
         }
 
         //netstat -n | wc -l

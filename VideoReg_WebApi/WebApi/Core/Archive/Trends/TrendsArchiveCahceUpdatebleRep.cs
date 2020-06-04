@@ -13,7 +13,7 @@ using WebApi.Services;
 
 namespace WebApi.Archive
 {
-    public class TrendsArchiveUpCacheRep : ITrendsArchiveRep, IUpdatedCache
+    public class TrendsArchiveCahceUpdatebleRep : ITrendsArchiveRep
     {
         private readonly IArchiveConfig config;
         private readonly IFileSystemService fs;
@@ -21,10 +21,7 @@ namespace WebApi.Archive
         private readonly IBrigadeHistoryRep brigadeHistoryRep;
         private readonly ILog log;
 
-        static readonly object cacheIsReady = new object();
-        static Task updateTask = null;
-
-        public TrendsArchiveUpCacheRep(IMemoryCache cache,
+        public TrendsArchiveCahceUpdatebleRep(IMemoryCache cache,
             IBrigadeHistoryRep brigadeHistoryRep,
             IFileSystemService fs, 
             IArchiveConfig config,
@@ -35,32 +32,30 @@ namespace WebApi.Archive
             this.config = config;
             this.fs = fs;
             this.log = log;
+            BeginUpdate();
         }
 
         /// <summary>
-        ///  Dont call me oftel
+        ///  Don't call me often
         /// </summary>
         public void BeginUpdate()
         {
-            if (updateTask == null)
+            Task.Factory.StartNew(async () =>
             {
-                new Task(async () =>
+                while (true)
                 {
-                    while (true)
+                    try
                     {
-                        try
-                        {
-                            var files = GetCompletedFiles();
-                            cache.Set(CacheKeys.TrendsArchive, files);
-                        }
-                        catch (Exception e)
-                        {
-                            log.Error($"Can not update cache in TrendsArchiveUpCacheRep. [{e.Message}]", e);
-                        }
-                        await Task.Delay(config.TrendsArchiveUpdateTimeMs);
+                        var files = GetCompletedFiles();
+                        cache.Set(CacheKeys.TrendsArchive, files);
                     }
-                }, TaskCreationOptions.LongRunning).Start();
-            }
+                    catch (Exception e)
+                    {
+                        log.Error($"Can not update cache in TrendsArchiveCahceUpdatebleRep. [{e.Message}]", e);
+                    }
+                    await Task.Delay(config.TrendsArchiveUpdateTimeMs);
+                }
+            }, TaskCreationOptions.LongRunning);
         }
 
         private FileTrendsJson[] GetCache()
@@ -78,12 +73,20 @@ namespace WebApi.Archive
             if (file == default)
                 return null;
             string filePath = Path.Combine(config.TrendsArchivePath, file.fullArchiveName);
-            var data = await fs.ReadFileAsync(filePath);
-            return new ArchiveFileData()
+            try
             {
-                File = file,
-                Data = data
-            };
+                var data = await fs.ReadFileAsync(filePath);
+                return new ArchiveFileData()
+                {
+                    File = file,
+                    Data = data
+                };
+            }
+            catch (IOException e)
+            {
+                log.Warning(e.Message);
+                return null;
+            }
         }
 
         public async Task<ArchiveFileData> GetNearestFrontTrendFileAsync(DateTime pdt)

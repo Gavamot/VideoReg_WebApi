@@ -35,6 +35,12 @@ namespace WebApi.Archive.ArchiveFiles
             return $"{pdt:yyyy.M.ddTHH.mm.ss}{PatsSeparator}{serialNumber}";
         }
 
+        /// <summary>
+        /// GetStringFile
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        /// <exception cref="OutOfMemoryException">Ignore.</exception>
         protected static string GetStringFile(params object[] args)
         {
             IEnumerable<object> arguments = args;

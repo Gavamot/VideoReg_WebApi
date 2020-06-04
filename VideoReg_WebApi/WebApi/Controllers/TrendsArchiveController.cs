@@ -4,7 +4,6 @@ using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Archive;
-using WebApi.Archive.BrigadeHistory;
 using WebApi.Dto;
 using WebApi.Services;
 

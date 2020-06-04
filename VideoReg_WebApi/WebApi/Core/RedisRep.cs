@@ -2,6 +2,7 @@
 using BeetleX.Redis;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using WebApi.Configuration;
 
 namespace WebApi.CoreService.Core
 {
@@ -14,12 +15,9 @@ namespace WebApi.CoreService.Core
 
     public class RedisRep : IRedisRep
     {
-        private readonly string connection;
-
-        public RedisRep(string connection)
+        public RedisRep(IConfig config)
         {
-            this.connection = connection;
-            Redis.Default.Host.AddWriteHost(connection);
+            Redis.Default.Host.AddWriteHost(config.Redis);
         }
 
         public const string DateTimeFormat = "d.M.yyyyTH:m:s";
@@ -42,9 +40,9 @@ namespace WebApi.CoreService.Core
 
         //public void Set<T>(string key, T value)
         //{
-        //    using var client = pool.GetClient();
+        //    using var http = pool.GetClient();
         //    var res = Serialize(value);
-        //    client.Set(key, res);
+        //    http.Set(key, res);
         //}
     }
 }

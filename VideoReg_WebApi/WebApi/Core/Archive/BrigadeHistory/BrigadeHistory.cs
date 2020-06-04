@@ -51,15 +51,15 @@ namespace WebApi.Archive.BrigadeHistory
         private List<BrigadeDateInterval> CreateFromText(string fileText)
         {
             var res = ParseTextFile(fileText);
-            List<BrigadeDateInterval> PrepareIntervals(List<BrigadeDateInterval> list)
-            {
-                if (!list.Any()) return list.ToList();
-                var firstRow = list.First();
-                firstRow.Interval = firstRow.Interval.SetStart(DateTime.MinValue);
-                var lastRow = list.Last();
-                lastRow.Interval = lastRow.Interval.SetEnd(DateTime.MaxValue);
-                return list.ToList();
-            }
+            //List<BrigadeDateInterval> PrepareIntervals(List<BrigadeDateInterval> list)
+            //{
+            //    if (!list.Any()) return list.ToList();
+            //    var firstRow = list.First();
+            //    firstRow.Interval = firstRow.Interval.SetStart(DateTime.MinValue);
+            //    var lastRow = list.Last();
+            //    lastRow.Interval = lastRow.Interval.SetEnd(DateTime.MaxValue);
+            //    return list.ToList();
+            //}
             //res = PrepareIntervals(res);
             return res;
         }

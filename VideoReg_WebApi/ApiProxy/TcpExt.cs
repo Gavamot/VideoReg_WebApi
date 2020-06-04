@@ -9,6 +9,13 @@ namespace ApiProxy
 {
     static class TcpExt
     {
+        /// <summary>
+        /// GetState
+        /// </summary>
+        /// <param name="socket"></param>
+        /// <returns></returns>
+        /// <exception cref="NetworkInformationException">Ignore.</exception>
+        /// <exception cref="InvalidOperationException">Ignore.</exception>
         public static TcpState GetState(this Socket socket)
         {
             var foo = IPGlobalProperties.GetIPGlobalProperties()
@@ -22,6 +29,12 @@ namespace ApiProxy
             var state = socket.GetState();
             return state != TcpState.Established;
         }
+
+        /// <summary>
+        /// FullClose
+        /// </summary>
+        /// <param name="socket"></param>
+        /// <exception cref="System.IO.IOException">Ignore.</exception>
         public static void FullClose(this Socket socket)
         {
             try

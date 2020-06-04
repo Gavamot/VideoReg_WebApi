@@ -17,6 +17,12 @@ namespace WebApiTest
             this.files = files;
         }
 
+        /// <summary>
+        /// ReadFile
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">Ignore.</exception>
         public byte[] ReadFile(string file)
         {
             return files.First(x => x.fullName == file).body;
@@ -28,6 +34,14 @@ namespace WebApiTest
         }
 
 
+        /// <summary>
+        /// GetFiles
+        /// </summary>
+        /// <param name="directory"></param>
+        /// <param name="options"></param>
+        /// <param name="pattern"></param>
+        /// <returns></returns>
+        /// <exception cref="RegexMatchTimeoutException">Ignore.</exception>
         public string[] GetFiles(string directory, SearchOption options = SearchOption.AllDirectories, string pattern = "*")
         {
             var regex = new Regex(pattern);
@@ -38,6 +52,12 @@ namespace WebApiTest
                 .ToArray();
         }
 
+        /// <summary>
+        /// GetDirectories
+        /// </summary>
+        /// <param name="directory"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">Ignore.</exception>
         public string[] GetDirectories(string directory)
         {
             var res = files.Where(x => x.fullName.StartsWith(directory))
@@ -50,6 +70,12 @@ namespace WebApiTest
             return res;
         }
 
+        /// <summary>
+        /// GetFileLengthBytes
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">Ignore.</exception>
         public long GetFileLengthBytes(string file)
         {
             return files.First(x => x.fullName == file).size;
@@ -60,11 +86,24 @@ namespace WebApiTest
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// GetDirName
+        /// </summary>
+        /// <param name="dir"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">Ignore.</exception>
         public string GetDirName(string dir)
         {
             return dir.Split("\\").Last();
         }
 
+        /// <summary>
+        /// ReadFileText
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="encoding"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">Ignore.</exception>
         public string ReadFileText(string file, Encoding encoding)
         {
             return encoding.GetString(files.First(x => x.fullName == file).body); 
@@ -80,6 +119,12 @@ namespace WebApiTest
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// ReadFileToMemoryAsync
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">Ignore.</exception>
         public MemoryStream ReadFileToMemoryAsync(string file)
         {
             var f = files.First(x => x.fullName == file);

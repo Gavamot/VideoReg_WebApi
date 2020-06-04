@@ -14,10 +14,7 @@ using WebApi.Services;
 
 namespace WebApi.Archive
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    public class CameraArchiveRep : ICameraArchiveRep, IUpdatedCache
+    public class CameraArchiveCahceUpdatebleRep : ICameraArchiveRep
     {
         private readonly IMemoryCache cache;
         private readonly IArchiveConfig config;
@@ -25,10 +22,7 @@ namespace WebApi.Archive
         private readonly IBrigadeHistoryRep brigadeHistoryRep;
         private readonly ILog log;
 
-        static readonly object updateTaskLock = new object();
-        static Task updateTask = null;
-
-        public CameraArchiveRep(IMemoryCache cache,
+        public CameraArchiveCahceUpdatebleRep(IMemoryCache cache,
             IFileSystemService fs,
             IArchiveConfig config,
             IBrigadeHistoryRep brigadeHistoryRep,
@@ -39,6 +33,7 @@ namespace WebApi.Archive
             this.config = config;
             this.brigadeHistoryRep = brigadeHistoryRep;
             this.log = log;
+            BeginUpdateCache();
         }
 
         private async Task<ArchiveFileData> TryGetFileAsync(Func<FileVideoMp4, bool> selector)
@@ -47,16 +42,25 @@ namespace WebApi.Archive
             var file = files.FirstOrDefault(selector);
             if (file == default)
                 return null;
+       
             string filePath = GetFullArchiveFileName(file);
-            var data = await fs.ReadFileAsync(filePath);
-            return new ArchiveFileData
+            try
             {
-                File = file,
-                Data = data
-            };
+                var data = await fs.ReadFileAsync(filePath);
+                return new ArchiveFileData
+                {
+                    File = file,
+                    Data = data
+                };
+            }
+            catch(IOException e)
+            {
+                log.Warning(e.Message);
+                return null;
+            }
         }
 
-        public async Task<ArchiveFileData> GetNearestFrontVideoFileAsync(DateTime pdt, int camera)
+        public async Task<ArchiveFileData> TryGetNearestFrontVideoFileAsync(DateTime pdt, int camera)
         {
             return await TryGetFileAsync(x => x.cameraNumber == camera && x.pdt >= pdt);
         }
@@ -92,30 +96,24 @@ namespace WebApi.Archive
                 .OrderBy(x => x.pdt).ToArray();
         }
 
-        public void BeginUpdate()
+        void BeginUpdateCache()
         {
-            lock (updateTaskLock)
+            Task.Factory.StartNew(async () =>
             {
-                if (updateTask == null)
+                while (true)
                 {
-                    new Task(async () =>
+                    try
                     {
-                        while (true)
-                        {
-                            try
-                            {
-                                var files = GetCompletedFiles();
-                                cache.Set(CacheKeys.VideoArchive, files);
-                            }
-                            catch (Exception e)
-                            {
-                                log.Error($"Can not update cache in TrendsArchiveUpCacheRep. [{e.Message}]", e);
-                            }
-                            await Task.Delay(config.TrendsArchiveUpdateTimeMs);
-                        }
-                    }, TaskCreationOptions.LongRunning).Start();
+                        var files = GetCompletedFiles();
+                        cache.Set(CacheKeys.VideoArchive, files);
+                    }
+                    catch (Exception e)
+                    {
+                        log.Error($"Can not update cache in CameraArchiveCahceUpdatebleRep. [{e.Message}]", e);
+                    }
+                    await Task.Delay(config.VideoArchiveUpdateTimeMs);
                 }
-            }
+            }, TaskCreationOptions.LongRunning);
         }
 
         private FileVideoMp4[] GetCache()
@@ -166,9 +164,17 @@ namespace WebApi.Archive
             return files;
         }
 
+        /// <summary>
+        /// GetFullArchiveFileName
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        /// <exception cref="System.Security.SecurityException">Ignore.</exception>
+        /// <exception cref="PathTooLongException">Ignore.</exception>
         public string GetFullArchiveFileName(ArchiveFile file)
         {
-            return Path.GetFullPath(Path.Combine(config.VideoArchivePath, file.fullArchiveName));
+            var path = Path.Combine(config.VideoArchivePath, file.fullArchiveName);
+            return Path.GetFullPath(path);
         }
 
         public bool TryGetVideoFilInfo(DateTime pdt, int camera, out ArchiveFile file)

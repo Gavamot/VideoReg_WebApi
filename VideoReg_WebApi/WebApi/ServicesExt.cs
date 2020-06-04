@@ -4,38 +4,26 @@ using System.Reflection;
 using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
-//using Serilog;
-//using Swashbuckle.AspNetCore.Filters;
 using WebApi.Core;
 using WebApi.CoreService;
 using WebApi.Configuration;
 using WebApi.OnlineVideo;
+using System.Net.Http;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using WebApi.Services;
+using WebApi.CoreService.Core;
+using WebApi.OnlineVideo.Store;
+using WebApi.Archive.ArchiveFiles;
+using WebApi.Archive.BrigadeHistory;
+using WebApi.Archive;
 using WebApi.Trends;
-using WebApiTest;
 
 namespace WebApi
 {
     public static class ServicesExt
     {
-        //public static IServiceCollection AddSerilogServices(this IServiceCollection services, IConfiguration configuration)
-        //{
-        //    Log.Logger = new LoggerConfiguration()
-        //        .ReadFrom.Configuration(configuration)
-        //        .CreateLogger();
-        //    AppDomain.CurrentDomain.ProcessExit += (s, e) => Log.CloseAndFlush();
-        //    return services.AddSingleton(Log.Logger);
-        //}
-
-        public static void AddConfig(this IServiceCollection services, Config config)
-        {
-            var interfaces = config.GetType().GetInterfaces();
-            foreach (var face in interfaces)
-            {
-                services.AddSingleton(face, config);
-            }
-        }
-
-        public static void AddSwagger(this IServiceCollection services)
+        [Obsolete]
+        public static IServiceCollection AddSwagger(this IServiceCollection services)
         {
             services.AddSwaggerGen(c =>
             {
@@ -64,23 +52,10 @@ namespace WebApi
                 //    Type = SecuritySchemeType.ApiKey
                 //});
             });
+            return services;
         }
 
-        public static void AddDependencies(this IServiceCollection services)
-        {
-            services.AddSingleton<ICameraSourceRep, RedisCameraSourceRep>();
-            services.AddSingleton<IRegInfoRep, RegInfoRep>();
-        }
-
-        public static void AddTestDependencies(this IServiceCollection services)
-        {
-            services.AddSingleton<ICameraSourceRep, TestCameraRep>();
-            services.AddSingleton<IRegInfoRep, TestRegInfo>();
-           // services.AddSingleton<ITrendsRep, TestTrendsRep>();
-          //  services.AddSingleton<IImgRep, TestRandomImgRep>();
-        }
-
-        public static void AddMapper(this IServiceCollection services)
+        public static IServiceCollection AddMapper(this IServiceCollection services)
         {
             var mappingConfig = new MapperConfiguration(mc =>
             {
@@ -88,7 +63,104 @@ namespace WebApi
             });
             mappingConfig.AssertConfigurationIsValid();
             IMapper mapper = mappingConfig.CreateMapper();
-            services.AddSingleton(mapper);
+            services.TryAddSingleton(mapper);
+            return services;
+        }
+
+        public static IServiceCollection AddControllerAndInfrastrusture(this IServiceCollection services)
+        {
+            services.AddMapper();
+            services.TryAddTransient<IDateTimeService, DateTimeService>();
+            services.AddControllers()
+                .AddMvcOptions(opt =>
+                {
+                    opt.ModelBinderProviders.Insert(0, new DateTimeMvc.DateTimeModelBinderProvider(new DateTimeService()));
+                })
+                .AddNewtonsoftJson(opt =>
+                {
+                    opt.SerializerSettings.Converters.Add(new DateTimeMvc.DateTimeConverter(new DateTimeService()));
+                });
+            return services;
+        }
+
+        public static IServiceCollection AddAscHttpClient(this IServiceCollection services)
+        {
+            services.TryAddSingleton<ICertificateRep, CertificateFileRep>();
+            services.AddHttpClient<AscHttpClient>()
+                .ConfigurePrimaryHttpMessageHandler(serviceProvider => {
+                    var clientHandler = new HttpClientHandler();
+                    var cert = serviceProvider.GetService<ICertificateRep>().GetCertificate();
+                    clientHandler.ClientCertificates.Add(cert);
+                    clientHandler.ClientCertificateOptions = ClientCertificateOption.Manual;
+                    clientHandler.MaxConnectionsPerServer = 12; // 9 онайн камер + 1 онлайн тренды + 1 архив камеры + 1 архив тренды
+                    return clientHandler;
+                });
+            return services;
+        }
+  
+        /// <summary>
+        /// AddCommonServices
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        /// <exception cref="TargetInvocationException">Ignore.</exception>
+        public static IServiceCollection AddCommonServices(this IServiceCollection services, Config config)
+        {
+            IServiceCollection AddConfig()
+            {
+                var interfaces = config.GetType().GetInterfaces();
+                foreach (var face in interfaces)
+                {
+                    services.AddSingleton(face, config);
+                }
+                return services;
+            }
+
+            AddConfig();
+            services.AddSingleton<ILog, AppLogger>();
+            services.AddSingleton<IFileSystemService, FileSystemService>();
+            services.AddSingleton<IDateTimeService, DateTimeService>();
+            services.AddSingleton<IApp, App>();
+            return services;
+        }
+
+        public static IServiceCollection AddOnlineVideo(this IServiceCollection services)
+        {
+            services.AddHostedService<CameraHostedService>();
+            services.AddHttpClient();
+            services.TryAddSingleton<IImgRep, HttpImgRep>();
+            services.TryAddSingleton<ICameraStore, TransformImageStore>();
+            services.TryAddSingleton<ICameraSettingsStore, CameraSettingsStore>();
+            services.TryAddSingleton<IVideoConvector, ImagicVideoConvector>();
+            services.TryAddSingleton<ICameraSourceRep, RedisCameraSourceRep>();
+            services.TryAddSingleton<IRedisRep, RedisRep>();
+            return services;
+        }
+
+        public static IServiceCollection AddOnlineTrends(this IServiceCollection services)
+        {
+            services.TryAddSingleton<ITrendsRep, FileTrendsRep>();
+            services.TryAddSingleton<IFileSystemService, FileSystemService>();
+            return services;
+        }
+
+        public static IServiceCollection AddTrendsArchive(this IServiceCollection services)
+        {
+            services.TryAddSingleton<IArchiveFileGeneratorFactory, ArchiveFileGeneratorFactory>();
+            services.TryAddSingleton<IBrigadeHistoryRep, BrigadeHistoryRep>();
+            services.AddMemoryCache();
+            services.TryAddSingleton<ITrendsArchiveRep, TrendsArchiveCahceUpdatebleRep>();
+            return services;
+        }
+
+        public static IServiceCollection AddVideoArchive(this IServiceCollection services)
+        {
+            services.TryAddSingleton<IArchiveFileGeneratorFactory, ArchiveFileGeneratorFactory>();
+            services.TryAddSingleton<IBrigadeHistoryRep, BrigadeHistoryRep>();
+            services.AddMemoryCache();
+            services.TryAddSingleton<ICameraArchiveRep, CameraArchiveCahceUpdatebleRep>();
+            return services;
         }
     }
 }

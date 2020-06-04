@@ -7,10 +7,19 @@ namespace WebApi.Archive.ArchiveFiles
     {
         public const string Extension = ".json";
         public bool IsComplete => true;
+        public const string EmptyFileName = "e"; 
+
         public override string ToString()
         {
             return $"{base.ToString()}{Extension}";
         }
+
+        public static FileTrendsJson EmptyFile => new FileTrendsJson();
+        
+        public FileTrendsJson() : this(0, DateTime.MaxValue, new DeviceSerialNumber(), EmptyFileName)
+        {
+            
+        } 
 
         public FileTrendsJson(int brigade, DateTime pdt, DeviceSerialNumber serialNumber, string fullArchiveName) 
             : base(brigade, pdt, serialNumber, fullArchiveName)

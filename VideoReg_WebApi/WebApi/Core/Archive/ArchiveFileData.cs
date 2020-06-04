@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using WebApi.Archive.ArchiveFiles;
+﻿using WebApi.Archive.ArchiveFiles;
 
 namespace WebApi.Core.Archive
 {
@@ -11,5 +7,11 @@ namespace WebApi.Core.Archive
         public ArchiveFile File { get; set; }
         public byte[] Data { get; set; }
         public string FileName => File?.FileName;
+
+        public static ArchiveFileData EmptyFile => new ArchiveFileData()
+        {
+            Data = new byte[0],
+            File = FileTrendsJson.EmptyFile,
+        };
     }
 }

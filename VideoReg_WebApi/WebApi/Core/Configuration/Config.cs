@@ -1,7 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using WebApi.Configuration;
-using WebApi.Services;
+﻿using Microsoft.Extensions.Logging;
 
 
 namespace WebApi.Configuration

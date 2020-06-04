@@ -1,10 +1,8 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Serilog;
 using System;
-using System.Net;
 
 namespace WebApi
 {
@@ -12,8 +10,6 @@ namespace WebApi
     {
         public static void Main(string[] args)
         {
-            ServicePointManager.DefaultConnectionLimit = 10;
-
             var configuration =  new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json")
                 .Build();
@@ -40,14 +36,6 @@ namespace WebApi
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                 .ConfigureLogging((hostingContext, logging) =>
-                 {
-                     string v = hostingContext.Configuration["Log"];
-                     if (!Startup.IsOn(v))
-                     {
-                         logging.ClearProviders();
-                     }
-                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();

@@ -21,7 +21,7 @@ namespace WebApi.Trends
 
         readonly ITrendsRep trends;
         readonly ITrendsConfig config;
-        readonly IHttpClientFactory httpClientFactory;
+        readonly AscHttpClient ascHttp;
         readonly IDateTimeService dateTimeService;
         readonly IRegInfoRep regInfoRep;
         private readonly IClientAscHub hub;
@@ -30,7 +30,7 @@ namespace WebApi.Trends
 
         public TrendsTransmitterHostedService(ITrendsRep trends, 
             ITrendsConfig config,
-            IHttpClientFactory httpClientFactory, 
+            AscHttpClient ascHttp, 
             ILog log,
             IDateTimeService dateTimeService,
             IRegInfoRep regInfoRep, 
@@ -38,7 +38,7 @@ namespace WebApi.Trends
         {
             this.trends = trends;
             this.config = config;
-            this.httpClientFactory = httpClientFactory;
+            this.ascHttp = ascHttp;
             this.dateTimeService = dateTimeService;
             this.regInfoRep = regInfoRep;
             this.hub = hub;
@@ -51,21 +51,7 @@ namespace WebApi.Trends
             if (res != null)
             {
                 c.Timestamp = res.Timestamp;
-                await PassTrends(c.RegInfo.Vpn, res.Value);
-            }
-        }
-
-        private async Task PassTrends(string vpn, string trends)
-        {
-            var content = new MultipartFormDataContent();
-            content.Add(new StringContent(vpn), "vpn");
-            content.Add(new StringContent(trends), "trendsJson");
-            var ascRegService = httpClientFactory.CreateClient(Global.AscWebClient);
-
-            using var response = await ascRegService.PostAsync(config.SetTrendsUrl, content);
-            if (!response.IsSuccessStatusCode)
-            {
-                log.Error($"{config.SetTrendsUrl} - return BadStatusCode");
+                await ascHttp.SendOnlineTrendsAsync(c.RegInfo.Vpn, res.Value);
             }
         }
 

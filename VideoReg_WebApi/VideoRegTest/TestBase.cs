@@ -10,6 +10,14 @@ namespace WebApiTest
 {
     class TestBase
     {
+        /// <summary>
+        /// GetNonPublicValue
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="filedName"></param>
+        /// <returns></returns>
+        /// <exception cref="TargetException">Ignore.</exception>
+        /// <exception cref="FieldAccessException">Ignore.</exception>
         public V GetNonPublicValue<T, V>(T obj, string filedName)
         {
             FieldInfo field = obj.GetType().GetField(filedName, BindingFlags.Instance | BindingFlags.NonPublic);
@@ -30,6 +38,17 @@ namespace WebApiTest
             field.SetValue(obj, value);
         }
 
+        /// <summary>
+        /// ReadTestFile
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        /// <exception cref="PathTooLongException">Ignore.</exception>
+        /// <exception cref="DirectoryNotFoundException">Ignore.</exception>
+        /// <exception cref="IOException">Ignore.</exception>
+        /// <exception cref="UnauthorizedAccessException">Ignore.</exception>
+        /// <exception cref="FileNotFoundException">Ignore.</exception>
+        /// <exception cref="System.Security.SecurityException">Ignore.</exception>
         public string ReadTestFile(string file)
         {
             string path = Path.Combine(TestContext.CurrentContext.TestDirectory, file);

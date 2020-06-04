@@ -9,13 +9,18 @@ namespace ApiProxy
     class Program
     {
         private static Config config;
-        static Config ReadConfig()
-        {
-            var lines = File.ReadAllLines("config.txt");
-            var res = new Config(lines);
-            return res;
-        }
 
+        /// <summary>
+        /// ReadConfig
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="PathTooLongException"></exception>
+        /// <exception cref="DirectoryNotFoundException"></exception>
+        /// <exception cref="IOException"></exception>
+        /// <exception cref="UnauthorizedAccessException"></exception>
+        /// <exception cref="FileNotFoundException"></exception>
+        /// <exception cref="System.Security.SecurityException"></exception>
+        /// <exception cref="SocketException">Ignore.</exception>
         static Socket SocketRun(IPEndPoint endPoint)
         {
             var res = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -42,9 +47,22 @@ namespace ApiProxy
             return res;
         }
 
+        /// <summary>
+        /// Main
+        /// </summary>
+        /// <param name="args"></param>
+        /// <exception cref="IOException">Ignore.</exception>
         static void Main(string[] args)
         {
-            config = ReadConfig();
+            try
+            {
+                config = Config.ReadConfig();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Can't read file {Config.fileName} error={e.Message}");
+            }
+
             byte[] buf = new byte[config.bufferSizeBytes];
             Socket client = null;
             Socket api = null;
