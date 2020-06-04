@@ -30,14 +30,10 @@ namespace WebApi.Core
         private readonly IVideoTransmitterConfig config;
 
         public Action<CameraSettings[]> OnInitShow { get; set; }
-        public Action<int> OnStopShow { get; set; }
-        public Action<int> OnStartShow { get; set; }
         public Action<CameraSettings> OnSetCameraSettings { get; set; }
 
         public Action OnStartTrends { get; set; }
         public Action OnStopTrends { get; set; }
-
-        public Action<int, bool> OnEnableConversion { get; set; }
 
         public Action<DateTime, DateTime> OnTrendsArchiveUploadFile { get; set; }
         public Action<DateTime, DateTime, int> OnCameraArchiveUploadFile { get; set; }
@@ -115,16 +111,6 @@ namespace WebApi.Core
                 OnInitShow?.Invoke(cameras);
             });
 
-            connection.On<int>("SendStopShow", camera =>
-            {
-                OnStopShow?.Invoke(camera);
-            });
-
-            connection.On<int>("SendStartShow", camera =>
-            {
-                OnStartShow?.Invoke(camera);
-            });
-
             connection.On<CameraSettings>("SendCameraSettings", settings =>
             {
                 OnSetCameraSettings?.Invoke(settings);
@@ -159,12 +145,6 @@ namespace WebApi.Core
                 app.Close(nameof(ClientAscHub));
             });
 
-            connection.On<int, bool>("SendEnableConversion", (camera, enableConversion) =>
-            {
-                var settings = cameraSettingsStore.Get(camera);
-                settings.EnableConversion = enableConversion;
-                OnEnableConversion?.Invoke(camera, enableConversion);
-            });
             return connection;
         }
 

@@ -8,11 +8,12 @@ namespace WebApi.OnlineVideo.OnlineVideo
     {
         Task ConnectWithRetryAsync();
         Task InitSessionAsync(RegInfo info);
+        Task Close();
 
         #region Video
         //Task SendCameraImageAsync(int camera, byte[] image, int convertMs);
         Task SendNewRegInfoAsync(RegInfo info);
-        Task Close();
+    
         Action<CameraSettings[]> OnInitShow { get; set; }
         Action<CameraSettings> OnSetCameraSettings { get; set; }
         #endregion

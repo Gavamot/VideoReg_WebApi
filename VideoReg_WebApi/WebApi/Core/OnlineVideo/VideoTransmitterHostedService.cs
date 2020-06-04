@@ -9,8 +9,6 @@ using WebApi.Contract;
 using WebApi.OnlineVideo.Store;
 using WebApi.Core;
 using WebApi.Services;
-using System.Net.Http;
-
 namespace WebApi.OnlineVideo.OnlineVideo
 {
     public class VideoTransmitterHostedService : IHostedService
@@ -168,11 +166,10 @@ namespace WebApi.OnlineVideo.OnlineVideo
                 log.Error($"VideoTransmitterService ({exception.Message})", exception);
             });
 
-            hub.OnStartShow = camera => SwitchCamera(camera, true);
-            hub.OnStopShow = camera => SwitchCamera(camera, false);
             hub.OnSetCameraSettings = settings =>
             {
-                log.Info($"Have got new camera[{settings.Camera}] Settings {settings.Settings}");
+                log.Info($"Have got new settings {settings}");
+                SwitchCamera(settings.Camera, settings.Enabled);
                 settingsStore.Set(settings);
             };
             isInited = true;
