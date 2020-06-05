@@ -46,11 +46,11 @@ namespace WebApi
                 services.AddAscHttpClient();
 
                 services.AddHostedService<VideoTransmitterHostedService>();
-                services.AddHostedService<TrendsTransmitterHostedService>();
+                //services.AddHostedService<TrendsTransmitterHostedService>();
                 services.AddSingleton<IArchiveTransmitter, ArchiveTransmitter>();
 
                 services.AddOnlineVideo();
-                services.AddOnlineTrends();
+                //services.AddOnlineTrends();
                 services.AddVideoArchive();
                 services.AddTrendsArchive();
             }

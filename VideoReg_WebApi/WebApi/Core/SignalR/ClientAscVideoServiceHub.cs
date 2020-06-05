@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using MessagePack;
+using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.DependencyInjection;
@@ -60,11 +61,12 @@ namespace WebApi.Core
             if (!string.IsNullOrEmpty(config.AscRegServiceEndpoint))
             {
                 this.serverUrl = new Uri(config.AscRegServiceEndpoint);
+                this.certificateRep = certificateRep;
                 this.connection = ConfigureConnection(serverUrl, token);
                 this.cameraSettingsStore = cameraSettingsStore;
                 this.archiveTransmitter = archiveTransmitter;
                 this.dateTimeService = dateTimeService;
-                this.certificateRep = certificateRep;
+                
             }
         }
 
@@ -72,28 +74,30 @@ namespace WebApi.Core
         {
             this.token = token;
             this.connection = new HubConnectionBuilder()
-                .WithUrl(serverUrl, HttpTransportType.ServerSentEvents, options =>
+                .WithUrl(serverUrl, HttpTransportType.LongPolling, options =>
                 {
-                    //options.Transports = HttpTransportType.WebSockets;
-                    //options.DefaultTransferFormat = TransferFormat.Binary;
-                    //options.UseDefaultCredentials = true;
-                    //options.ClientCertificates.Add(cert);
-                    //options.SkipNegotiation = true;
-                    options.HttpMessageHandlerFactory = handler =>
-                    {
-                        var _clientHandler = new HttpClientHandler();
-                        _clientHandler.CheckCertificateRevocationList = false;
-                        _clientHandler.PreAuthenticate = false;
-                        var cert = certificateRep.GetCertificate();
-                        _clientHandler.ClientCertificates.Add(cert);
-                        return _clientHandler;
-                    };
+                    var cert = certificateRep.GetCertificate();
+                    options.Transports = HttpTransportType.WebSockets;
+                    options.DefaultTransferFormat = TransferFormat.Binary;
+                    options.UseDefaultCredentials = true;
+                    options.ClientCertificates.Add(cert);
+                    options.SkipNegotiation = true;
 
-                    //options.WebSocketConfiguration = sockets =>
+                    //options.HttpMessageHandlerFactory = handler =>
                     //{
-                    //    sockets.RemoteCertificateValidationCallback = (sender, certificate, chain, policyErrors) => true;
-                    //    sockets.ClientCertificates.Add(cert);
+                    //    var _clientHandler = new HttpClientHandler();
+                    //    _clientHandler.CheckCertificateRevocationList = false;
+                    //    _clientHandler.PreAuthenticate = false;
+                    //    var cert = certificateRep.GetCertificate();
+                    //    _clientHandler.ClientCertificates.Add(cert);
+                    //    return _clientHandler;
                     //};
+
+                    options.WebSocketConfiguration = sockets =>
+                    {
+                        sockets.RemoteCertificateValidationCallback = (sender, certificate, chain, policyErrors) => true;
+                        sockets.ClientCertificates.Add(cert);
+                    };
                 })
                 .AddMessagePackProtocol(options =>
                 {
