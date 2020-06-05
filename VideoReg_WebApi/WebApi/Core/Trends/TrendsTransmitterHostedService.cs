@@ -8,6 +8,7 @@ using WebApi.Contract;
 using WebApi.Services;
 using WebApi.Core;
 using WebApi.OnlineVideo.OnlineVideo;
+using Microsoft.Extensions.Logging;
 
 namespace WebApi.Trends
 {
@@ -31,7 +32,7 @@ namespace WebApi.Trends
         public TrendsTransmitterHostedService(ITrendsRep trends, 
             ITrendsConfig config,
             AscHttpClient ascHttp, 
-            ILog log,
+            ILogger<TrendsTransmitterHostedService> log,
             IDateTimeService dateTimeService,
             IRegInfoRep regInfoRep, 
             IClientAscHub hub) : base(config.TrendsIterationMs, log)
@@ -64,7 +65,7 @@ namespace WebApi.Trends
         {
             if (string.IsNullOrEmpty(config.SetTrendsUrl))
             {
-                log.Warning("In the file [appsettings.json] parameter [Settings.TrendsAscWebSetUrl] - is empty. Trends will not pass to asc_reg_service.");
+                log.LogWarning("In the file [appsettings.json] parameter [Settings.TrendsAscWebSetUrl] - is empty. Trends will not pass to asc_reg_service.");
                 return false;
             }
             
@@ -75,7 +76,7 @@ namespace WebApi.Trends
             c.Timestamp = dateTimeService.GetNow();
             c.RegInfo = await Must.Do(async () => await regInfoRep.GetInfoAsync(), updateTimeMs, cancellationToken, exception =>
             {
-                log.Error($"TrendsTransmitterHostedService can not get RegInfo ({exception.Message})", exception);
+                log.LogError($"TrendsTransmitterHostedService can not get RegInfo ({exception.Message})");
             });
             return true;
         }

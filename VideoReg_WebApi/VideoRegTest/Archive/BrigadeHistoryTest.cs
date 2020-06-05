@@ -1,7 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Text;
 using FakeItEasy;
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using WebApi.Archive.BrigadeHistory;
 using WebApi.Services;
@@ -20,7 +20,7 @@ namespace WebApiTest
         private readonly DateTime dt_1 = new DateTime(2019, 12, 18, 11, 24, 22);
         private readonly DateTime dt_2 = new DateTime(2019, 12, 19, 11, 21, 22);
         private readonly DateTime dt_last = new DateTime(2020, 3, 28, 11, 0, 12);
-        private readonly ILog log = A.Fake<ILog>();
+        private readonly ILogger log = A.Fake<ILogger>();
 
         private BrigadeHistory Bg(string text) =>
             new BrigadeHistory(text, new DateTimeService(), log);
@@ -67,13 +67,13 @@ namespace WebApiTest
         [Test]
         public void EmptyTest()
         {
-            Assert.AreEqual(Empty.GetBrigadeCode(dt_start), null);
-            Assert.AreEqual(Empty.GetBrigadeCode(dt_1), null);
-            Assert.AreEqual(Empty.GetBrigadeCode(dt_2), null);
-            Assert.AreEqual(Empty.GetBrigadeCode(dt_last), null);
-            Assert.AreEqual(Empty.GetBrigadeCode(DateTime.MinValue), null);
-            Assert.AreEqual(Empty.GetBrigadeCode(DateTime.MaxValue), null);
-            Assert.AreEqual(Empty.GetBrigadeCode(DateTime.Now), null);
+            Assert.AreEqual(Empty.GetBrigadeCode(dt_start), BrigadeHistory.EmptyBrigadeCode);
+            Assert.AreEqual(Empty.GetBrigadeCode(dt_1), BrigadeHistory.EmptyBrigadeCode);
+            Assert.AreEqual(Empty.GetBrigadeCode(dt_2), BrigadeHistory.EmptyBrigadeCode);
+            Assert.AreEqual(Empty.GetBrigadeCode(dt_last), BrigadeHistory.EmptyBrigadeCode);
+            Assert.AreEqual(Empty.GetBrigadeCode(DateTime.MinValue), BrigadeHistory.EmptyBrigadeCode);
+            Assert.AreEqual(Empty.GetBrigadeCode(DateTime.MaxValue), BrigadeHistory.EmptyBrigadeCode);
+            Assert.AreEqual(Empty.GetBrigadeCode(DateTime.Now), BrigadeHistory.EmptyBrigadeCode);
         }
 
         [Test]
@@ -81,7 +81,7 @@ namespace WebApiTest
         {
             var dt = dt_start - new TimeSpan(1);
             int? brigade = OneRow.GetBrigadeCode(dt);
-            Assert.AreEqual(brigade, null);
+            Assert.AreEqual(brigade, BrigadeHistory.EmptyBrigadeCode);
         }
 
         [Test]
@@ -130,7 +130,7 @@ namespace WebApiTest
             brigade = WithHole.GetBrigadeCode(dt_2);
             Assert.AreEqual(brigade, 2);
             brigade = WithHole.GetBrigadeCode(dt_1 + TimeSpan.FromSeconds(1));
-            Assert.AreEqual(brigade, null);
+            Assert.AreEqual(brigade, BrigadeHistory.EmptyBrigadeCode);
         }
     }
 }

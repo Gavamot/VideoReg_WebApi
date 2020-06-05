@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using WebApi.Services;
@@ -26,17 +27,18 @@ namespace WebApi.Archive.BrigadeHistory
             }
         }
 
-        private readonly ILog log;
+        private readonly ILogger log;
         private readonly BrigadeDateInterval[] history = new BrigadeDateInterval[0];
         private readonly IDateTimeService dateTimeService;
         public const int EmptyBrigadeCode = -1;
-        public BrigadeHistory(ILog log, IDateTimeService dateTimeService)
+
+        public BrigadeHistory(ILogger log, IDateTimeService dateTimeService)
         {
             this.log = log;
             this.dateTimeService = dateTimeService;
         }
 
-        public BrigadeHistory(string fileText, IDateTimeService dateTimeService, ILog log) : this(log, dateTimeService)
+        public BrigadeHistory(string fileText, IDateTimeService dateTimeService, ILogger log) : this(log, dateTimeService)
         {
             try
             {
@@ -44,7 +46,7 @@ namespace WebApi.Archive.BrigadeHistory
             }
             catch(Exception e)
             {
-                log.Error($"Error BrigadeHistory parse. (BrigadeHistory.CreateFromText).", e);
+                log.LogError($"Error BrigadeHistory parse. (BrigadeHistory.CreateFromText). error {e.Message}");
             }
         }
 
@@ -89,7 +91,7 @@ namespace WebApi.Archive.BrigadeHistory
             }
             catch (Exception e)
             {
-                log.Error($"{nameof(BrigadeHistory)} - string[{line}] has the bad format. [{e.Message}]");
+                log.LogError($"{nameof(BrigadeHistory)} - string[{line}] has the bad format. [{e.Message}]");
                 return default;
             }
         }

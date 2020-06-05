@@ -8,12 +8,13 @@ using WebApi.Configuration;
 using WebApi.Contract;
 using WebApi.OnlineVideo.Store;
 using WebApi.Core;
-using WebApi.Services;
+using Microsoft.Extensions.Logging;
+
 namespace WebApi.OnlineVideo.OnlineVideo
 {
     public class VideoTransmitterHostedService : IHostedService
     {
-        private readonly ILog log;
+        private readonly ILogger<VideoTransmitterHostedService> log;
         private readonly IClientAscHub hub;
         private readonly ICameraStore cameraStore;
         private readonly ICameraSettingsStore settingsStore;
@@ -36,7 +37,7 @@ namespace WebApi.OnlineVideo.OnlineVideo
         private volatile bool isInited = false;
 
         public VideoTransmitterHostedService(
-            ILog log,
+            ILogger<VideoTransmitterHostedService> log,
             IVideoTransmitterConfig config,
             IRegInfoRep regInfoRep,
             IClientAscHub hub,
@@ -96,7 +97,7 @@ namespace WebApi.OnlineVideo.OnlineVideo
                     if (imageSended)
                     {
                         updatedCameras[camNum] = false;
-                        log.Info($"ReceiveCameraImage[{camNum}]");
+                        log.LogInformation($"ReceiveCameraImage[{camNum}]");
                     }
                 });
                 tasks.Add(task);
@@ -108,7 +109,7 @@ namespace WebApi.OnlineVideo.OnlineVideo
             }
             catch (Exception e)
             {
-                log.Error($"!!! Bug VideoTransmitterHostedService.SendCameraImages fix it fast {e.Message}", e);
+                log.LogError($"!!! Bug VideoTransmitterHostedService.SendCameraImages fix it fast {e.Message}");
             }
             return tasks.Count;
         }
@@ -131,11 +132,11 @@ namespace WebApi.OnlineVideo.OnlineVideo
             {
                 if (string.IsNullOrEmpty(config.AscRegServiceEndpoint))
                 {
-                    log.Info($"VideoTransmitterService is off. config.AscRegServiceEndpoint is empty ");
+                    log.LogInformation($"VideoTransmitterService is off. config.AscRegServiceEndpoint is empty ");
                     return;
                 }
 
-                log.Info($"VideoTransmitterService connect to {config.AscRegServiceEndpoint}");
+                log.LogInformation($"VideoTransmitterService connect to {config.AscRegServiceEndpoint}");
 
                 hub.OnInitShow = InitShow;
                 await InitSessionAsync();
@@ -150,25 +151,25 @@ namespace WebApi.OnlineVideo.OnlineVideo
         private async Task InitSessionAsync()
         {
             isInited = false;
-            log.Info($"GetObject reg info ...");
+            log.LogInformation($"GetObject reg info ...");
             RegInfo regInfo = await Must.Do(async () => await regInfoRep.GetInfoAsync(), 1000, CancellationToken.None, exception =>
             {
-                log.Error($"VideoTransmitterService can not get RegInfo ({exception.Message})", exception);
+                log.LogError($"VideoTransmitterService can not get RegInfo ({exception.Message})");
             });
 
             await Must.Do(async () =>
             {
                 await hub.ConnectWithRetryAsync();
-                log.Info($"VideoTransmitterService InitSessionAsync() to {config.AscRegServiceEndpoint}");
+                log.LogInformation($"VideoTransmitterService InitSessionAsync() to {config.AscRegServiceEndpoint}");
                 await hub.InitSessionAsync(regInfo);
             }, 1000, CancellationToken.None, exception =>
             {
-                log.Error($"VideoTransmitterService ({exception.Message})", exception);
+                log.LogError($"VideoTransmitterService ({exception.Message})");
             });
 
             hub.OnSetCameraSettings = settings =>
             {
-                log.Info($"Have got new settings {settings}");
+                log.LogInformation($"Have got new settings {settings}");
                 SwitchCamera(settings.Camera, settings.Enabled);
                 settingsStore.Set(settings);
             };
@@ -195,7 +196,7 @@ namespace WebApi.OnlineVideo.OnlineVideo
                         }
                         catch (Exception e)
                         {
-                            log.Error(e.Message, e);
+                            log.LogError(e.Message);
                             await InitSessionAsync();
                         }
                     }
@@ -213,7 +214,7 @@ namespace WebApi.OnlineVideo.OnlineVideo
 
         private void InitShow(CameraSettings[] cameras)
         {
-            log.Info("server InitShow");
+            log.LogInformation("server InitShow");
             InitCameraSettings(cameras);
             OnCameras(cameras);
         }
@@ -250,12 +251,12 @@ namespace WebApi.OnlineVideo.OnlineVideo
 
             if (camera == AllCameras)
             {
-                log.Info($"All cameras - show {cameraStatus}");
+                log.LogInformation($"All cameras - show {cameraStatus}");
                 SwitchAllCameras(enabled);
             }
             else
             {
-                log.Info($"{camera} camera - show {cameraStatus}");
+                log.LogInformation($"{camera} camera - show {cameraStatus}");
                 enabledCameras[camera] = enabled;
             }
         }

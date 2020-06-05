@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -97,13 +98,13 @@ namespace WebApi.OnlineVideo.Store
         readonly IVideoConvector videoConvector;
         readonly IImagePollingConfig config;
         readonly ICameraSettingsStore settings;
-        private readonly ILog log;
+        private readonly ILogger<TransformImageStore> log;
         public Action<int, byte[]> OnImageChanged { get; set; }
 
         public TransformImageStore(IDateTimeService dateService,
             ICameraSettingsStore cameraSettingsStore,
             IVideoConvector videoConvector,
-            ILog log,
+            ILogger<TransformImageStore> log,
             IImagePollingConfig config)
         {
             this.settings= cameraSettingsStore;
@@ -123,7 +124,7 @@ namespace WebApi.OnlineVideo.Store
             if (imgSettings.EnableConversion && imgSettings.Settings.IsNotDefault)
             {
                 convertedImg = Measure.Invoke(() => videoConvector.ConvertVideo(img, imgSettings.Settings), out var time);
-                log.Info($"camera[{cameraNumber}] ConvertVideo duration - {time.TotalMilliseconds}ms");
+                log.LogInformation($"camera[{cameraNumber}] ConvertVideo duration - {time.TotalMilliseconds}ms");
                 convertMs = (int)time.TotalMilliseconds;
             }
             var image = new CameraImage(imgSettings.Settings, convertedImg, convertMs);
@@ -132,7 +133,7 @@ namespace WebApi.OnlineVideo.Store
 
             OnImageChanged?.Invoke(cameraNumber, convertedImg);
 
-            log.Info($"camera[{cameraNumber}] was updated. Converted={imgSettings.Settings.IsNotDefault} ({imgSettings})");
+            log.LogInformation($"camera[{cameraNumber}] was updated. Converted={imgSettings.Settings.IsNotDefault} ({imgSettings})");
         }
 
         /// <returns>return null if image is not exist</returns>

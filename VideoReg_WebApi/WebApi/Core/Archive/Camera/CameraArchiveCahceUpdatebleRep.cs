@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using WebApi.Archive.ArchiveFiles;
 using WebApi.Archive.BrigadeHistory;
 using WebApi.Configuration;
@@ -20,13 +21,14 @@ namespace WebApi.Archive
         private readonly IArchiveConfig config;
         private readonly IFileSystemService fs;
         private readonly IBrigadeHistoryRep brigadeHistoryRep;
-        private readonly ILog log;
+        private readonly ILogger<CameraArchiveCahceUpdatebleRep> log;
+        public const string VideoArchive = nameof(VideoArchive);
 
         public CameraArchiveCahceUpdatebleRep(IMemoryCache cache,
             IFileSystemService fs,
             IArchiveConfig config,
             IBrigadeHistoryRep brigadeHistoryRep,
-            ILog log)
+            ILogger<CameraArchiveCahceUpdatebleRep> log)
         {
             this.cache = cache;
             this.fs = fs;
@@ -55,7 +57,7 @@ namespace WebApi.Archive
             }
             catch(IOException e)
             {
-                log.Warning(e.Message);
+                log.LogWarning(e.Message);
                 return null;
             }
         }
@@ -105,11 +107,11 @@ namespace WebApi.Archive
                     try
                     {
                         var files = GetCompletedFiles();
-                        cache.Set(CacheKeys.VideoArchive, files);
+                        cache.Set(VideoArchive, files);
                     }
                     catch (Exception e)
                     {
-                        log.Error($"Can not update cache in CameraArchiveCahceUpdatebleRep. [{e.Message}]", e);
+                        log.LogError($"Can not update cache in CameraArchiveCahceUpdatebleRep. [{e.Message}]");
                     }
                     await Task.Delay(config.VideoArchiveUpdateTimeMs);
                 }
@@ -118,7 +120,7 @@ namespace WebApi.Archive
 
         private FileVideoMp4[] GetCache()
         {
-            if (cache.TryGetValue(CacheKeys.VideoArchive, out object value))
+            if (cache.TryGetValue(VideoArchive, out object value))
             {
                 return (FileVideoMp4[])value;
             }
@@ -146,7 +148,7 @@ namespace WebApi.Archive
             var dirName = fs.GetDirName(dir);
             if (int.TryParse(dirName, out res))
                 return true;
-            log.Error($"The directory {dir} must be {dirType}-directory. It must have the int type.");
+            log.LogError($"The directory {dir} must be {dirType}-directory. It must have the int type.");
             return false;
         }
 
@@ -157,7 +159,7 @@ namespace WebApi.Archive
                 .Select(x => x.Replace(camDir, cameraNumberStr))
                 .TrySelect(file => fileGenerator.CreateVideoMp4(file, cameraNumber), (file, e) =>
                 {
-                    log.Error($"The file {file} has bad name. It must match to patten {pattern} [{e.Message}]");
+                    log.LogError($"The file {file} has bad name. It must match to patten {pattern} [{e.Message}]");
                 })
                 .Where(x => x.IsComplete)
                 .OrderBy(x=>x.pdt);

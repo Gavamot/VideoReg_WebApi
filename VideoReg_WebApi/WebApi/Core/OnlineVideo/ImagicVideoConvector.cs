@@ -1,17 +1,17 @@
 ﻿using System;
 using System.IO;
 using ImageMagick;
+using Microsoft.Extensions.Logging;
 using WebApi.Contract;
 using WebApi.OnlineVideo;
-using WebApi.Services;
 
 
 namespace WebApi.Core
 {
     public class ImagicVideoConvector : IVideoConvector
     {
-        readonly ILog log;
-        public ImagicVideoConvector(ILog log)
+        readonly ILogger<ImagicVideoConvector> log;
+        public ImagicVideoConvector(ILogger<ImagicVideoConvector> log)
         {
             this.log = log;
         }
@@ -30,7 +30,7 @@ namespace WebApi.Core
             }
             catch(Exception e)
             {
-                log.Error("Error then convert image", e);
+                log.LogError($"Error then convert image err={e.Message}");
                 return img;
             }
         }

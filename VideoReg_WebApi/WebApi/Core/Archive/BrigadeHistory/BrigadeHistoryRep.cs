@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Text;
 using WebApi.Services;
 
@@ -8,10 +9,10 @@ namespace WebApi.Archive.BrigadeHistory
     {
         private readonly IFileSystemService fileSystem;
         private readonly IBrigadeHistoryConfig config;
-        private readonly ILog log;
+        private readonly ILogger<BrigadeHistoryRep> log;
         private readonly IDateTimeService dateTimeService;
 
-        public BrigadeHistoryRep(IBrigadeHistoryConfig config, IDateTimeService dateTimeService, IFileSystemService fileSystem, ILog log)
+        public BrigadeHistoryRep(IBrigadeHistoryConfig config, IDateTimeService dateTimeService, IFileSystemService fileSystem, ILogger<BrigadeHistoryRep> log)
         {
             this.config = config;
             this.log = log;
@@ -30,7 +31,7 @@ namespace WebApi.Archive.BrigadeHistory
             }
             catch (Exception e)
             {
-                log.Error($"Error then GetBrigadeHistory - {e.Message}");
+                log.LogError($"Error then GetBrigadeHistory - {e.Message}");
                 return new BrigadeHistory(log, dateTimeService);
             }
         }

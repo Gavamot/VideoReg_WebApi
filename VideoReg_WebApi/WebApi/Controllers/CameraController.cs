@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using WebApi.Contract;
 using WebApi.Dto;
 using WebApi.OnlineVideo.Store;
@@ -18,20 +19,17 @@ namespace WebApi.Controllers
         //readonly ICameraSettingsRep cameraSettingsRep;
         readonly IMapper mapper;
         private readonly ICameraStore cameraCache;
-        private readonly ILog log;
         readonly ICameraSettingsStore cameraSettingsStore;
 
         public CameraController(//ICameraSettingsRep cameraSettingsRep,
             IMapper mapper, 
             ICameraStore cameraCache,
             IDateTimeService dateTimeService,
-            ICameraSettingsStore cameraSettingsStore,
-            ILog log) : base(dateTimeService)
+            ICameraSettingsStore cameraSettingsStore) : base(dateTimeService)
         {
             this.mapper = mapper;
             this.cameraCache = cameraCache;
             this.cameraSettingsStore = cameraSettingsStore;
-            this.log = log;
         }
 
         /// <summary>

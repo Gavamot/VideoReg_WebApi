@@ -5,6 +5,7 @@ using WebApi.Configuration;
 using WebApi.OnlineVideo.Store;
 using WebApi.Services;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace WebApi.OnlineVideo
 {
@@ -23,7 +24,7 @@ namespace WebApi.OnlineVideo
             ICameraStore cameraCache,
             ICameraSourceRep cameraSourceRep,
             ICameraConfig config,
-            ILog log) : base(config.CameraUpdateIntervalMs, log)
+            ILogger<CameraHostedService> log) : base(config.CameraUpdateIntervalMs, log)
         {
             this.imgRep = imgRep;
             this.cameraCache = cameraCache;
@@ -55,17 +56,17 @@ namespace WebApi.OnlineVideo
             try
             {
                 var img = await Measure.Invoke(async ()=> await imgRep.GetImgAsync(url, config.CameraGetImageTimeoutMs, CancellationToken.None), 
-                    time => log.Info($"imgRep.GetImgAsync time - {time.TotalMilliseconds}ms"));
+                    time => log.LogInformation($"imgRep.GetImgAsync time - {time.TotalMilliseconds}ms"));
                 cameraCache.SetCamera(setting.number, img);
             }
             catch (HttpImgRepStatusCodeException e)
             {
-                log.Error($"Can not update camera[{setting.number}]({setting.snapshotUrl}) - {e.Message}", e);
+                log.LogError($"Can not update camera[{setting.number}]({setting.snapshotUrl}) - {e.Message}", e);
                 await Task.Delay(config.CameraUpdateSleepIfAuthorizeErrorTimeoutMs);
             }
             catch (Exception e)
             {
-                log.Error($"Can not update camera[{setting.number}]({setting.snapshotUrl}) - {e.Message}", e);
+                log.LogError($"Can not update camera[{setting.number}]({setting.snapshotUrl}) - {e.Message}", e);
                 await Task.Delay(config.CameraUpdateSleepIfErrorTimeoutMs);
             }
             finally
@@ -79,7 +80,7 @@ namespace WebApi.OnlineVideo
             if (executingTask[setting.number]) return;
             if (!Uri.TryCreate(setting.snapshotUrl, UriKind.Absolute, out var uri))
             {
-                log.Error($"Camera[{setting.number}] has incorrect url {setting.snapshotUrl}");
+                log.LogError($"Camera[{setting.number}] has incorrect url {setting.snapshotUrl}");
                 return;
             }
             executingTask[setting.number] = true;

@@ -22,27 +22,33 @@ namespace WebApi.OnlineVideo.Store
 
         public CameraSettings[] GetAll() => store.GetAll();
 
-        public void Set(CameraSettings setting) => Set(setting.Camera, setting.EnableConversion, setting.Settings);
+        public void Set(CameraSettings newSetting)
+        {
+            if (newSetting.IsSettingsForAllCameras)
+            {
+                foreach (var settings in store.GetAll())
+                {
+                    settings.Update(newSetting);
+                }
+            }
+            else
+            {
+                var cameraSettings = store[newSetting.Camera];
+                cameraSettings.Update(newSetting);
+            }
+        }
 
         public void Set(int camera, bool enableConversion, ImageSettings settings)
         {
             var cameraSettings = store[camera];
             cameraSettings.EnableConversion = enableConversion;
-            cameraSettings.Settings = settings;
+            cameraSettings.Settings.Update(settings);
         }
 
         public void Set(int camera, bool enableConversion)
         {
             var cameraSettings = store[camera];
             cameraSettings.EnableConversion = enableConversion;
-        }
-
-        public void SetAll(CameraSettings[] settings)
-        {
-            foreach (var s in settings)
-            {
-                store[s.Camera] = s;
-            }
         }
 
         private CameraSettings GetSettings(int camera) => store[camera];

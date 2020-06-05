@@ -4,14 +4,21 @@ namespace WebApi.Contract
 {
     public class ImageSettings
     {
-        public readonly static ImageSettings DefaultSettings = new ImageSettings();
+        public static ImageSettings GetDefault() => new ImageSettings();
 
-        public int Width { get; set; } = 0;
-        public int Height { get; set; } = 0;
-        public int Quality { get; set; } = 0;
+        public int Width { get; set; } = 800;
+        public int Height { get; set; } = 600;
+        public int Quality { get; set; } = 20;
 
         public bool IsDefault => Width == 0 || Height == 0 || Quality == 0;
         public bool IsNotDefault => !IsDefault;
+
+        public void Update(ImageSettings obj)
+        {
+            Width = obj.Width;
+            Height = obj.Height;
+            Quality = obj.Quality;
+        }
 
         public override string ToString() => $"Size={Width}x{Height} | Quality={Quality}";
 

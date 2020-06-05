@@ -118,7 +118,6 @@ namespace WebApi
             }
 
             AddConfig();
-            services.AddSingleton<ILog, AppLogger>();
             services.AddSingleton<IFileSystemService, FileSystemService>();
             services.AddSingleton<IDateTimeService, DateTimeService>();
             services.AddSingleton<IApp, App>();

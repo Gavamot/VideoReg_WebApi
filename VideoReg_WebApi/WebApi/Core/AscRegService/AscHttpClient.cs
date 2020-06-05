@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using WebApi.Configuration;
 using WebApi.Core.Archive;
-using WebApi.Services;
 
 namespace WebApi.Core
 {
@@ -12,9 +12,9 @@ namespace WebApi.Core
     {
         private readonly HttpClient http;
         private readonly IConfig config;
-        private readonly ILog log;
+        private readonly ILogger<AscHttpClient> log;
 
-        public AscHttpClient(HttpClient http, IConfig config, ILog log)
+        public AscHttpClient(HttpClient http, IConfig config, ILogger<AscHttpClient> log)
         {
             this.http = http;
             this.config = config;
@@ -31,13 +31,13 @@ namespace WebApi.Core
                 using var response = await http.PostAsync(config.SetTrendsUrl, content);
                 if (!response.IsSuccessStatusCode)
                 {
-                    log.Error($"{config.SetTrendsUrl} - return BadStatusCode");
+                    log.LogError($"{config.SetTrendsUrl} - return BadStatusCode");
                 }
                 return response.IsSuccessStatusCode;
             }
             catch(Exception e)
             {
-               log.Error($"{config.SetTrendsUrl} - error ({e.Message})");
+               log.LogError($"{config.SetTrendsUrl} - error ({e.Message})");
                return false;
             }
         }
@@ -56,13 +56,13 @@ namespace WebApi.Core
                 var responce = await http.PostAsync(paramsUrl, content);
                 if (!responce.IsSuccessStatusCode)
                 {
-                    log.Error($"Can not pass image to server cam={cameraNumber}");
+                    log.LogError($"Can not pass image to server cam={cameraNumber}");
                 }
                 return responce.IsSuccessStatusCode;
             }
             catch(Exception e)
             {
-                log.Error($"{config.SetImageUrl} error - {e.Message}");
+                log.LogError($"{config.SetImageUrl} error - {e.Message}");
                 return false;
             }
         }
@@ -142,7 +142,7 @@ namespace WebApi.Core
             }
             catch(Exception e)
             {
-                log.Error($"[{url}] error - {e.Message}");
+                log.LogError($"[{url}] error - {e.Message}");
                 return false;
             }
             finally

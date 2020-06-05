@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using WebApi.Archive.ArchiveFiles;
 using WebApi.Archive.BrigadeHistory;
 using WebApi.Configuration;
@@ -19,13 +20,14 @@ namespace WebApi.Archive
         private readonly IFileSystemService fs;
         private readonly IMemoryCache cache;
         private readonly IBrigadeHistoryRep brigadeHistoryRep;
-        private readonly ILog log;
+        private readonly ILogger<TrendsArchiveCahceUpdatebleRep> log;
+        private const string TrendsArchive = nameof(TrendsArchive);
 
         public TrendsArchiveCahceUpdatebleRep(IMemoryCache cache,
             IBrigadeHistoryRep brigadeHistoryRep,
             IFileSystemService fs, 
             IArchiveConfig config,
-            ILog log)
+            ILogger<TrendsArchiveCahceUpdatebleRep> log)
         {
             this.brigadeHistoryRep = brigadeHistoryRep;
             this.cache = cache;
@@ -47,11 +49,11 @@ namespace WebApi.Archive
                     try
                     {
                         var files = GetCompletedFiles();
-                        cache.Set(CacheKeys.TrendsArchive, files);
+                        cache.Set(TrendsArchive, files);
                     }
                     catch (Exception e)
                     {
-                        log.Error($"Can not update cache in TrendsArchiveCahceUpdatebleRep. [{e.Message}]", e);
+                        log.LogError($"Can not update cache in TrendsArchiveCahceUpdatebleRep. [{e.Message}]");
                     }
                     await Task.Delay(config.TrendsArchiveUpdateTimeMs);
                 }
@@ -60,7 +62,7 @@ namespace WebApi.Archive
 
         private FileTrendsJson[] GetCache()
         {
-            if (cache.TryGetValue(CacheKeys.TrendsArchive, out object value))
+            if (cache.TryGetValue(TrendsArchive, out object value))
             {
                 return (FileTrendsJson[]) value;
             }
@@ -84,7 +86,7 @@ namespace WebApi.Archive
             }
             catch (IOException e)
             {
-                log.Warning(e.Message);
+                log.LogWarning(e.Message);
                 return null;
             }
         }
@@ -125,7 +127,7 @@ namespace WebApi.Archive
             var files = fs.GetFiles(root, SearchOption.AllDirectories, pattern);
             var res = files
                     .TrySelect(fileFactory.CreteJson,
-                        (file, e) =>log.Error($"The file {file} has bad name. It must match to patten {pattern} [{e.Message}]"))
+                        (file, e) =>log.LogError($"The file {file} has bad name. It must match to patten {pattern} [{e.Message}]"))
                    .OrderBy(x => x.pdt)
                    .ToArray();
             return res;

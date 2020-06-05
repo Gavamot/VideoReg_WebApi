@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Web;
 
 namespace WebApi.Core
@@ -15,7 +13,6 @@ namespace WebApi.Core
         {
             this.url = url;
         }
-
 
         public void AddParameter(string key, object value)
         {

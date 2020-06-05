@@ -3,21 +3,32 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using WebApi.Services;
 
 namespace WebApi
 {
+    public interface IServiceUpdater : IHostedService
+    {
+        public object Context { get; }
+        public Task<bool> BeforeStart(object context, CancellationToken cancellationToken);
+        Task DoWorkAsync(object context, CancellationToken cancellationToken);
+        public void Continue();
+        public void Pause();
+        string Name { get; }
+    }
+
     public abstract class ServiceUpdater : IServiceUpdater, IHostedService
     {
         protected readonly int updateTimeMs;
-        protected readonly ILog log;
+        protected readonly ILogger<ServiceUpdater> log;
         public abstract object Context { get; protected set; }
 
         private volatile object isPause = false;
          
         protected ServiceUpdater(
             int updateTimeMs,
-            ILog log)
+            ILogger<ServiceUpdater> log)
         {
             this.updateTimeMs = GetCorrectUpdateTimeMs(updateTimeMs);
             this.log = log;
@@ -70,19 +81,19 @@ namespace WebApi
                     }
                     catch (Exception e)
                     {
-                        log.Error($"{ServiceName} has error. ({e.Message})", e);
+                        log.LogError($"{ServiceName} has error. ({e.Message})");
                     }
 
                     stopwatch.Stop();
                     await SleepIfNeedMsAsync(stopwatch.ElapsedMilliseconds);
                 }
             }, cancellationToken, TaskCreationOptions.LongRunning).Start();
-            log.Info($"{ServiceName} is started");
+            log.LogInformation($"{ServiceName} is started");
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            log.Info($"{ServiceName} is stopped");
+            log.LogInformation($"{ServiceName} is stopped");
             return Task.CompletedTask;
         }
 
@@ -99,7 +110,7 @@ namespace WebApi
         protected async Task SleepIfNeedMsAsync(long elapsedMilliseconds, CancellationToken token)
         {
             int sleepMs = GetSleepTimeMs(elapsedMilliseconds);
-            log.Debug($"{ServiceName} update operation is completed. Execution time = {elapsedMilliseconds} ms"); 
+            log.LogDebug($"{ServiceName} update operation is completed. Execution time = {elapsedMilliseconds} ms"); 
             await Task.Delay(sleepMs, token);
         }
 
@@ -107,7 +118,7 @@ namespace WebApi
         {
             if (updateTimeMs <= 0)
             {
-                log.Warning($"{Name} - updateTimeMs have value={updateTimeMs} this value was changed to {1} (Cause for performance reasons shout have interaction between loop operations)");
+                log.LogWarning($"{Name} - updateTimeMs have value={updateTimeMs} this value was changed to {1} (Cause for performance reasons shout have interaction between loop operations)");
                 updateTimeMs = 1;
             }
             return updateTimeMs;

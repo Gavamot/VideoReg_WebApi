@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -29,9 +30,9 @@ namespace WebApi.OnlineVideo
     public class HttpImgRep : IImgRep
     {
         private readonly ICameraConfig config;
-        private readonly ILog log;
+        private readonly ILogger<HttpImgRep> log;
         private readonly IHttpClientFactory httpFactory;
-        public HttpImgRep(ICameraConfig config, ILog log, IHttpClientFactory httpFactory)
+        public HttpImgRep(ICameraConfig config, ILogger<HttpImgRep> log, IHttpClientFactory httpFactory)
         {
             this.config = config;
             this.log = log;

@@ -66,7 +66,6 @@ namespace WebApi.Core
                 this.cameraSettingsStore = cameraSettingsStore;
                 this.archiveTransmitter = archiveTransmitter;
                 this.dateTimeService = dateTimeService;
-                
             }
         }
 
@@ -95,7 +94,7 @@ namespace WebApi.Core
 
                     options.WebSocketConfiguration = sockets =>
                     {
-                        sockets.RemoteCertificateValidationCallback = (senderS
+                        sockets.RemoteCertificateValidationCallback = (sender, certificate, chain, policyErrors) => true;
                         sockets.ClientCertificates.Add(cert);
                     };
                 })
@@ -197,9 +196,6 @@ namespace WebApi.Core
 
         public async Task InitSessionAsync(RegInfo info) =>
             await Send("ReceiveInitSession", info);
-
-        //public async Task SendCameraImageAsync(int camera, byte[] image, int convertMs) =>
-        //    await Send("ReceiveCameraImage", camera, image, convertMs);
 
         public async Task SendTestConnectionAsync() =>
             await Send("ReceiveTestConnection");
