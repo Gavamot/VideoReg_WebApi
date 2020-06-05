@@ -74,7 +74,7 @@ namespace WebApi.Core
         {
             this.token = token;
             this.connection = new HubConnectionBuilder()
-                .WithUrl(serverUrl, HttpTransportType.LongPolling, options =>
+                .WithUrl(serverUrl, HttpTransportType.WebSockets, options =>
                 {
                     var cert = certificateRep.GetCertificate();
                     options.Transports = HttpTransportType.WebSockets;
@@ -83,19 +83,19 @@ namespace WebApi.Core
                     options.ClientCertificates.Add(cert);
                     options.SkipNegotiation = true;
 
-                    //options.HttpMessageHandlerFactory = handler =>
-                    //{
-                    //    var _clientHandler = new HttpClientHandler();
-                    //    _clientHandler.CheckCertificateRevocationList = false;
-                    //    _clientHandler.PreAuthenticate = false;
-                    //    var cert = certificateRep.GetCertificate();
-                    //    _clientHandler.ClientCertificates.Add(cert);
-                    //    return _clientHandler;
-                    //};
+                    options.HttpMessageHandlerFactory = handler =>
+                    {
+                        var _clientHandler = new HttpClientHandler();
+                        _clientHandler.CheckCertificateRevocationList = false;
+                        _clientHandler.PreAuthenticate = false;
+                        var cert = certificateRep.GetCertificate();
+                        _clientHandler.ClientCertificates.Add(cert);
+                        return _clientHandler;
+                    };
 
                     options.WebSocketConfiguration = sockets =>
                     {
-                        sockets.RemoteCertificateValidationCallback = (sender, certificate, chain, policyErrors) => true;
+                        sockets.RemoteCertificateValidationCallback = (senderS
                         sockets.ClientCertificates.Add(cert);
                     };
                 })
