@@ -86,7 +86,7 @@ namespace WebApi
         public static IServiceCollection AddAscHttpClient(this IServiceCollection services)
         {
             services.TryAddSingleton<ICertificateRep, CertificateFileRep>();
-            services.AddHttpClient<AscHttpClient>()
+            services.AddHttpClient<IAscHttpClient, AscHttpClient>()
                 .ConfigurePrimaryHttpMessageHandler(serviceProvider => {
                     var clientHandler = new HttpClientHandler();
                     var cert = serviceProvider.GetService<ICertificateRep>().GetCertificate();

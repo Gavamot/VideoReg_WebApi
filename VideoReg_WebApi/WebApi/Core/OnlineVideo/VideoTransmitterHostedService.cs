@@ -20,7 +20,7 @@ namespace WebApi.OnlineVideo.OnlineVideo
         private readonly ICameraSettingsStore settingsStore;
         private readonly IRegInfoRep regInfoRep;
         private readonly IVideoTransmitterConfig config;
-        readonly AscHttpClient ascHttp;
+        readonly IAscHttpClient ascHttp;
 
         const int AllCameras = 0;
         private const int FirstCamera = 1;
@@ -43,7 +43,7 @@ namespace WebApi.OnlineVideo.OnlineVideo
             IClientAscHub hub,
             ICameraStore cameraStore,
             ICameraSettingsStore settingsStore,
-            AscHttpClient ascHttp
+            IAscHttpClient ascHttp
             )
         {
             this.config = config;

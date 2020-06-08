@@ -22,7 +22,7 @@ namespace WebApi.Trends
 
         readonly ITrendsRep trends;
         readonly ITrendsConfig config;
-        readonly AscHttpClient ascHttp;
+        readonly IAscHttpClient ascHttp;
         readonly IDateTimeService dateTimeService;
         readonly IRegInfoRep regInfoRep;
         private readonly IClientAscHub hub;
@@ -31,7 +31,7 @@ namespace WebApi.Trends
 
         public TrendsTransmitterHostedService(ITrendsRep trends, 
             ITrendsConfig config,
-            AscHttpClient ascHttp, 
+            IAscHttpClient ascHttp, 
             ILogger<TrendsTransmitterHostedService> log,
             IDateTimeService dateTimeService,
             IRegInfoRep regInfoRep, 

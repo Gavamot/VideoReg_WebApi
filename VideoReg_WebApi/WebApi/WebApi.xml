@@ -110,12 +110,6 @@
             <response code="200">Возвращает о последнюю актуальную информацию о видеорегистраторе</response>
             <response code="500">Источниек информации о регистраторе оказался недоступен по каким либо причинам</response>  
         </member>
-        <member name="M:WebApi.Core.CertificateFileRep.#ctor">
-            <summary>
-            
-            </summary>
-            <exception cref="T:System.Security.Cryptography.CryptographicException">Ignore.</exception>
-        </member>
         <member name="T:WebApi.Core.ClientAscHub">
             <summary>
             Hub is not thread-safe ( Use only in 1 thread this instance)
@@ -172,11 +166,22 @@
              Don't call me often
             </summary>
         </member>
-        <member name="M:WebApi.Collection.ITimestampCollection`2.AddOrUpdate(`0,`1)">
-            <returns>true - add, update - false</returns>
+        <member name="F:WebApi.OnlineVideo.OnlineVideo.VideoTransmitterHostedService.enabledCameras">
+            <summary>
+            Камеры по которым необходимо передавать изображения
+            </summary>
         </member>
-        <member name="M:WebApi.Collection.TimestampConcurrentDictionary`2.AddOrUpdate(`0,`1)">
-            <returns> true-added, false-updated </returns>
+        <member name="F:WebApi.OnlineVideo.OnlineVideo.VideoTransmitterHostedService.updatedCameras">
+            <summary>
+            Когда изображдение в cameraStore обновляется обновляется выставляется флаг, после отправки флаг снимается
+            </summary>
+        </member>
+        <member name="M:WebApi.OnlineVideo.OnlineVideo.VideoTransmitterHostedService.CheckConnectionLoop">
+            <summary>
+            CheckConnectionLoop
+            </summary>
+            <exception cref="T:System.ObjectDisposedException">Ignore.</exception>
+            <exception cref="T:System.InvalidOperationException">Ignore.</exception>
         </member>
         <member name="M:WebApi.OnlineVideo.CameraHostedService.DoWorkAsync(System.Object,System.Threading.CancellationToken)">
             <summary>
@@ -194,22 +199,11 @@
             <returns>return null if image is not exist</returns>
             <exception cref="T:WebApi.OnlineVideo.Store.NoNModifiedException">Then camera image exist but timestamp is same and all attentions is waited.</exception>
         </member>
-        <member name="F:WebApi.OnlineVideo.OnlineVideo.VideoTransmitterHostedService.enabledCameras">
-            <summary>
-            Камеры по которым необходимо передавать изображения
-            </summary>
+        <member name="M:WebApi.Collection.ITimestampCollection`2.AddOrUpdate(`0,`1)">
+            <returns>true - add, update - false</returns>
         </member>
-        <member name="F:WebApi.OnlineVideo.OnlineVideo.VideoTransmitterHostedService.updatedCameras">
-            <summary>
-            Когда изображдение в cameraStore обновляется обновляется выставляется флаг, после отправки флаг снимается
-            </summary>
-        </member>
-        <member name="M:WebApi.OnlineVideo.OnlineVideo.VideoTransmitterHostedService.CheckConnectionLoop">
-            <summary>
-            CheckConnectionLoop
-            </summary>
-            <exception cref="T:System.ObjectDisposedException">Ignore.</exception>
-            <exception cref="T:System.InvalidOperationException">Ignore.</exception>
+        <member name="M:WebApi.Collection.TimestampConcurrentDictionary`2.AddOrUpdate(`0,`1)">
+            <returns> true-added, false-updated </returns>
         </member>
         <member name="F:WebApi.Services.DateTimeService.DateDotSeparatorTimeFormat">
             <summary>

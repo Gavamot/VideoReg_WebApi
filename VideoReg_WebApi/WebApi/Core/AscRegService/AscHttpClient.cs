@@ -8,7 +8,15 @@ using WebApi.Core.Archive;
 
 namespace WebApi.Core
 {
-    public class AscHttpClient
+    public interface IAscHttpClient
+    {
+        Task<bool> SendCameraImagesHttpAsync(string vpn, int cameraNumber, byte[] img, int convertMs);
+        Task<bool> SendOnlineTrendsAsync(string vpn, string trends);
+        Task UploadCameraFileAsync(string vpn, ArchiveFileData file, DateTime end, int camera);
+        Task UploadTrendsFileAsync(string vpn, ArchiveFileData file, DateTime end);
+    }
+
+    public class AscHttpClient : IAscHttpClient
     {
         private readonly HttpClient http;
         private readonly IConfig config;
@@ -35,10 +43,10 @@ namespace WebApi.Core
                 }
                 return response.IsSuccessStatusCode;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-               log.LogError($"{config.SetTrendsUrl} - error ({e.Message})");
-               return false;
+                log.LogError($"{config.SetTrendsUrl} - error ({e.Message})");
+                return false;
             }
         }
 
@@ -60,7 +68,7 @@ namespace WebApi.Core
                 }
                 return responce.IsSuccessStatusCode;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 log.LogError($"{config.SetImageUrl} error - {e.Message}");
                 return false;
@@ -140,7 +148,7 @@ namespace WebApi.Core
                 using var response = await http.SendAsync(message);
                 return response.StatusCode == correctCode;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 log.LogError($"[{url}] error - {e.Message}");
                 return false;

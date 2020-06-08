@@ -16,13 +16,13 @@ namespace WebApi.Core.SignalR
         private readonly IRegInfoRep regInfoRep;
         private readonly ICameraArchiveRep cameraArchiveRep;
         private readonly ITrendsArchiveRep trendsArchiveRep;
-        private readonly AscHttpClient httpAsc;
+        private readonly IAscHttpClient httpAsc;
 
         public ArchiveTransmitter(
             IRegInfoRep regInfoRep,
             ICameraArchiveRep cameraArchiveRep,
             ITrendsArchiveRep trendsArchiveRep,
-            AscHttpClient httpAsc)
+            IAscHttpClient httpAsc)
         {
             this.regInfoRep = regInfoRep;
             this.cameraArchiveRep = cameraArchiveRep;
