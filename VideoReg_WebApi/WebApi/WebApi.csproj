@@ -71,4 +71,9 @@
     </None>
   </ItemGroup>
 
+  
+  <ItemGroup>
+    <Folder Include="Core\OnlineVideoRtcp\" />
+  </ItemGroup>
+
 </Project>

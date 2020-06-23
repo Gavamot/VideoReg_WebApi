@@ -10,10 +10,10 @@ namespace WebApi.OnlineVideo.OnlineVideo
         Task InitSessionAsync(RegInfo info);
         Task Close();
 
+        Task SendNewRegInfoAsync(RegInfo info);
+
         #region Video
         //Task SendCameraImageAsync(int camera, byte[] image, int convertMs);
-        Task SendNewRegInfoAsync(RegInfo info);
-    
         Action<CameraSettings[]> OnInitShow { get; set; }
         Action<CameraSettings> OnSetCameraSettings { get; set; }
         #endregion

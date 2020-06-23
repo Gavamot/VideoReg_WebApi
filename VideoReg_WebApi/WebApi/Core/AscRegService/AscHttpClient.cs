@@ -61,12 +61,12 @@ namespace WebApi.Core
             var paramsUrl = urlBuilder.Build();
             try
             {
-                var responce = await http.PostAsync(paramsUrl, content);
-                if (!responce.IsSuccessStatusCode)
+                var response = await http.PostAsync(paramsUrl, content);
+                if (!response.IsSuccessStatusCode)
                 {
                     log.LogError($"Can not pass image to server cam={cameraNumber}");
                 }
-                return responce.IsSuccessStatusCode;
+                return response.IsSuccessStatusCode;
             }
             catch (Exception e)
             {
