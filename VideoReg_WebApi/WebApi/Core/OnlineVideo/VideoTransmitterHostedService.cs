@@ -109,8 +109,10 @@ namespace WebApi.OnlineVideo.OnlineVideo
             }
             catch (Exception e)
             {
+                Thread.Sleep(200);
                 log.LogError($"!!! Bug VideoTransmitterHostedService.SendCameraImages fix it fast {e.Message}");
             }
+
             return tasks.Count;
         }
 

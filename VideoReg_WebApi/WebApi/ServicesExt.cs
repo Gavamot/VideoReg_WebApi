@@ -89,6 +89,7 @@ namespace WebApi
             services.AddHttpClient<IAscHttpClient, AscHttpClient>()
                 .ConfigurePrimaryHttpMessageHandler(serviceProvider => {
                     var clientHandler = new HttpClientHandler();
+                    clientHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
                     var cert = serviceProvider.GetService<ICertificateRep>().GetCertificate();
                     clientHandler.ClientCertificates.Add(cert);
                     clientHandler.ClientCertificateOptions = ClientCertificateOption.Manual;

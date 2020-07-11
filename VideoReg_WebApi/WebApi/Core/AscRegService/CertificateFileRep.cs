@@ -15,14 +15,16 @@ namespace WebApi.Core
 
         public CertificateFileRep(ILogger<CertificateFileRep> log)
         {
-            const string sertificatePath = "public.crt";
+            //const string sertificatePath = "public.crt";
+            const string certificatePath = "server.pfx";
             try 
             {
-                this.cert = new X509Certificate2(sertificatePath, "v1336pwd");
+                this.cert = new X509Certificate2(certificatePath, "");
+                // this.cert = new X509Certificate2(sertificatePath, "v1336pwd");
             }
             catch(Exception e)
             {
-                log.LogError($"problem with the certificate {sertificatePath} . Error {e.Message}");
+                log.LogError($"problem with the certificate {certificatePath} . Error {e.Message}");
                 throw;
             }   
         }

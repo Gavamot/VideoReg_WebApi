@@ -69,11 +69,9 @@
     <None Update="public.crt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-  
-  <ItemGroup>
-    <Folder Include="Core\OnlineVideoRtcp\" />
+    <None Update="server.pfx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>WebApi</name>
+        <name>RegWebApi</name>
     </assembly>
     <members>
         <member name="M:WebApi.Controllers.AdminController.RestartService">
@@ -38,7 +38,7 @@
             <response code="404">Переданная камера не найдена</response>
             <response code="400">Неверные параметры запроса</response>
             <response code="304">Изображение с камеры не изменялось</response>
-            <exception cref="T:WebApi.OnlineVideo.Store.NoNModifiedException">code=304 Изображение с камеры не изменялось</exception>
+            <exception cref="T:WebApi.Core.OnlineVideo.Store.NoNModifiedException">code=304 Изображение с камеры не изменялось</exception>
         </member>
         <member name="M:WebApi.Controllers.TrendsArchiveController.GetStructure(System.DateTime)">
             <summary>
@@ -110,35 +110,12 @@
             <response code="200">Возвращает о последнюю актуальную информацию о видеорегистраторе</response>
             <response code="500">Источниек информации о регистраторе оказался недоступен по каким либо причинам</response>  
         </member>
-        <member name="T:WebApi.Core.ClientAscHub">
-            <summary>
-            Hub is not thread-safe ( Use only in 1 thread this instance)
-            </summary>
-        </member>
-        <member name="M:WebApi.Core.ClientAscHub.ConnectWithRetryAsync">
-            <summary>
-            ConnectWithRetryAsync
-            </summary>
-            <returns></returns>
-            <exception cref="T:System.Threading.Tasks.TaskCanceledException">Ignore.</exception>
-            <exception cref="T:System.ObjectDisposedException">Ignore.</exception>
-        </member>
-        <member name="T:WebApi.Core.IRegInfoRep">
-            <summary>
-            Получение информации о видеорегистраторе
-            </summary>
-        </member>
-        <member name="M:WebApi.Core.IRegInfoRep.GetInfoAsync">
-            <summary>
-            Получить общюю информацию о видеорегистраторе
-            </summary>
-        </member>
-        <member name="F:WebApi.Archive.ArchiveFiles.ArchiveFile.fullArchiveName">
+        <member name="F:WebApi.Core.Archive.ArchiveFiles.ArchiveFile.fullArchiveName">
             <summary>
             Полное имя файла относительно папки с архивами
             </summary>
         </member>
-        <member name="M:WebApi.Archive.ArchiveFiles.ArchiveFile.GetStringFile(System.Object[])">
+        <member name="M:WebApi.Core.Archive.ArchiveFiles.ArchiveFile.GetStringFile(System.Object[])">
             <summary>
             GetStringFile
             </summary>
@@ -146,13 +123,13 @@
             <returns></returns>
             <exception cref="T:System.OutOfMemoryException">Ignore.</exception>
         </member>
-        <member name="M:WebApi.Archive.ArchiveFiles.IArchiveFileGenerator.CreteJson(System.String)">
+        <member name="M:WebApi.Core.Archive.ArchiveFiles.IArchiveFileGenerator.CreteJson(System.String)">
             <exception cref = "T:System.FormatException">Unrecognizable file format</exception>
         </member>
-        <member name="M:WebApi.Archive.ArchiveFiles.IArchiveFileGenerator.CreateVideoMp4(System.String,System.Int32)">
+        <member name="M:WebApi.Core.Archive.ArchiveFiles.IArchiveFileGenerator.CreateVideoMp4(System.String,System.Int32)">
             <exception cref = "T:System.FormatException">Unrecognizable file format</exception>
         </member>
-        <member name="M:WebApi.Archive.CameraArchiveCahceUpdatebleRep.GetFullArchiveFileName(WebApi.Archive.ArchiveFiles.ArchiveFile)">
+        <member name="M:WebApi.Core.Archive.Camera.CameraArchiveCahceUpdatebleRep.GetFullArchiveFileName(WebApi.Core.Archive.ArchiveFiles.ArchiveFile)">
             <summary>
             GetFullArchiveFileName
             </summary>
@@ -161,29 +138,31 @@
             <exception cref="T:System.Security.SecurityException">Ignore.</exception>
             <exception cref="T:System.IO.PathTooLongException">Ignore.</exception>
         </member>
-        <member name="M:WebApi.Archive.TrendsArchiveCahceUpdatebleRep.BeginUpdate">
+        <member name="M:WebApi.Core.Archive.Trends.TrendsArchiveCahceUpdatebleRep.BeginUpdate">
             <summary>
              Don't call me often
             </summary>
         </member>
-        <member name="F:WebApi.OnlineVideo.OnlineVideo.VideoTransmitterHostedService.enabledCameras">
+        <member name="T:WebApi.Core.AscRegService.ClientAscHub">
             <summary>
-            Камеры по которым необходимо передавать изображения
+            Hub is not thread-safe ( Use only in 1 thread this instance)
             </summary>
         </member>
-        <member name="F:WebApi.OnlineVideo.OnlineVideo.VideoTransmitterHostedService.updatedCameras">
+        <member name="M:WebApi.Core.AscRegService.ClientAscHub.ConnectWithRetryAsync">
             <summary>
-            Когда изображдение в cameraStore обновляется обновляется выставляется флаг, после отправки флаг снимается
+            ConnectWithRetryAsync
             </summary>
-        </member>
-        <member name="M:WebApi.OnlineVideo.OnlineVideo.VideoTransmitterHostedService.CheckConnectionLoop">
-            <summary>
-            CheckConnectionLoop
-            </summary>
+            <returns></returns>
+            <exception cref="T:System.Threading.Tasks.TaskCanceledException">Ignore.</exception>
             <exception cref="T:System.ObjectDisposedException">Ignore.</exception>
-            <exception cref="T:System.InvalidOperationException">Ignore.</exception>
         </member>
-        <member name="M:WebApi.OnlineVideo.CameraHostedService.DoWorkAsync(System.Object,System.Threading.CancellationToken)">
+        <member name="M:WebApi.Core.Collection.ITimestampCollection`2.AddOrUpdate(`0,`1)">
+            <returns>true - add, update - false</returns>
+        </member>
+        <member name="M:WebApi.Core.Collection.TimestampConcurrentDictionary`2.AddOrUpdate(`0,`1)">
+            <returns> true-added, false-updated </returns>
+        </member>
+        <member name="M:WebApi.Core.OnlineVideo.CameraHostedService.DoWorkAsync(System.Object,System.Threading.CancellationToken)">
             <summary>
             DoWorkAsync
             </summary>
@@ -192,29 +171,76 @@
             <returns></returns>
             <exception cref="T:System.AggregateException"></exception>
         </member>
-        <member name="M:WebApi.OnlineVideo.Store.ICameraStore.GetCameraAsync(System.Int32,WebApi.Contract.ImageSettings,System.Nullable{System.DateTime})">
-            <exception cref="T:WebApi.OnlineVideo.Store.NoNModifiedException">Then camera image exist but timestamp is same and all attentions is waited.</exception>
+        <member name="M:WebApi.Core.OnlineVideo.Store.ICameraStore.GetCameraAsync(System.Int32,WebApi.Core.AscRegService.Contract.ImageSettings,System.Nullable{System.DateTime})">
+            <exception cref="T:WebApi.Core.OnlineVideo.Store.NoNModifiedException">Then camera image exist but timestamp is same and all attentions is waited.</exception>
         </member>
-        <member name="M:WebApi.OnlineVideo.Store.TransformImageStore.GetCameraAsync(System.Int32,WebApi.Contract.ImageSettings,System.Nullable{System.DateTime})">
+        <member name="M:WebApi.Core.OnlineVideo.Store.TransformImageStore.GetCameraAsync(System.Int32,WebApi.Core.AscRegService.Contract.ImageSettings,System.Nullable{System.DateTime})">
             <returns>return null if image is not exist</returns>
-            <exception cref="T:WebApi.OnlineVideo.Store.NoNModifiedException">Then camera image exist but timestamp is same and all attentions is waited.</exception>
+            <exception cref="T:WebApi.Core.OnlineVideo.Store.NoNModifiedException">Then camera image exist but timestamp is same and all attentions is waited.</exception>
         </member>
-        <member name="M:WebApi.Collection.ITimestampCollection`2.AddOrUpdate(`0,`1)">
-            <returns>true - add, update - false</returns>
+        <member name="F:WebApi.Core.OnlineVideo.VideoTransmitterHostedService.enabledCameras">
+            <summary>
+            Камеры по которым необходимо передавать изображения
+            </summary>
         </member>
-        <member name="M:WebApi.Collection.TimestampConcurrentDictionary`2.AddOrUpdate(`0,`1)">
-            <returns> true-added, false-updated </returns>
+        <member name="F:WebApi.Core.OnlineVideo.VideoTransmitterHostedService.updatedCameras">
+            <summary>
+            Когда изображдение в cameraStore обновляется обновляется выставляется флаг, после отправки флаг снимается
+            </summary>
         </member>
-        <member name="F:WebApi.Services.DateTimeService.DateDotSeparatorTimeFormat">
+        <member name="M:WebApi.Core.OnlineVideo.VideoTransmitterHostedService.CheckConnectionLoop">
+            <summary>
+            CheckConnectionLoop
+            </summary>
+            <exception cref="T:System.ObjectDisposedException">Ignore.</exception>
+            <exception cref="T:System.InvalidOperationException">Ignore.</exception>
+        </member>
+        <member name="F:WebApi.Core.Services.DateTimeService.DateDotSeparatorTimeFormat">
             <summary>
             Формат архивных файлов .json и .mp4
             </summary>
         </member>
-        <member name="M:WebApi.ServiceUpdater.BeforeStart(System.Object,System.Threading.CancellationToken)">
+        <member name="M:WebApi.Core.ServiceUpdater.BeforeStart(System.Object,System.Threading.CancellationToken)">
             <summary>
             Происходит перед вызовом основного цикла
             </summary>
             <returns>true - запустить цикл постоянного обновления, false - не запускать  цикл постоянного обновления</returns>
+        </member>
+        <member name="M:WebApi.Core.Test.TestRandomImgRep.GetImg(System.Uri,System.Int32)">
+            <summary>
+            GetImg
+            </summary>
+            <param name="url"></param>
+            <param name="timeoutMs"></param>
+            <returns></returns>
+            <exception cref="T:System.UnauthorizedAccessException">Ignore.</exception>
+            <exception cref="T:System.IO.DirectoryNotFoundException">Ignore.</exception>
+            <exception cref="T:System.IO.PathTooLongException">Ignore.</exception>
+            <exception cref="T:System.IO.IOException">Ignore.</exception>
+            <exception cref="T:System.Security.SecurityException">Ignore.</exception>
+        </member>
+        <member name="M:WebApi.Core.Test.TestRandomImgRep.GetImgAsync(System.Uri,System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            GetImgAsync
+            </summary>
+            <param name="url"></param>
+            <param name="timeoutMs"></param>
+            <param name="token"></param>
+            <returns></returns>
+            <exception cref="T:System.UnauthorizedAccessException">Ignore.</exception>
+            <exception cref="T:System.IO.DirectoryNotFoundException">Ignore.</exception>
+            <exception cref="T:System.IO.PathTooLongException">Ignore.</exception>
+            <exception cref="T:System.IO.IOException">Ignore.</exception>
+        </member>
+        <member name="T:WebApi.Core.VideoRegInfo.IRegInfoRep">
+            <summary>
+            Получение информации о видеорегистраторе
+            </summary>
+        </member>
+        <member name="M:WebApi.Core.VideoRegInfo.IRegInfoRep.GetInfoAsync">
+            <summary>
+            Получить общюю информацию о видеорегистраторе
+            </summary>
         </member>
         <member name="M:WebApi.DateTimeMvc.DateTimeModelBinderProvider.GetBinder(Microsoft.AspNetCore.Mvc.ModelBinding.ModelBinderProviderContext)">
             <inheritdoc />
@@ -291,7 +317,7 @@
             or <paramref name="comparer"/> is null</exception>
             <exception cref="T:System.InvalidOperationException"><paramref name="source"/> is empty</exception>
         </member>
-        <member name="M:WebApi.ServicesExt.AddCommonServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,WebApi.Configuration.Config)">
+        <member name="M:WebApi.ServicesExt.AddCommonServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,WebApi.Core.Configuration.Config)">
             <summary>
             AddCommonServices
             </summary>
@@ -299,42 +325,6 @@
             <param name="config"></param>
             <returns></returns>
             <exception cref="T:System.Reflection.TargetInvocationException">Ignore.</exception>
-        </member>
-        <member name="M:RegService.WebApi.Controllers.OnlineCameraController.SetImage(System.String,System.Int32,Microsoft.AspNetCore.Http.IFormFile,System.Int32)">
-            <summary>
-            Регистаторы через этот метод будут отправлять изображения с камер с
-            </summary>
-            <param name="vpn"></param>
-            <param name="camera"></param>
-            <param name="file"></param>
-            <param name="convertMs"></param>
-            <returns></returns>
-        </member>
-        <member name="M:WebApiTest.TestRandomImgRep.GetImg(System.Uri,System.Int32)">
-            <summary>
-            GetImg
-            </summary>
-            <param name="url"></param>
-            <param name="timeoutMs"></param>
-            <returns></returns>
-            <exception cref="T:System.UnauthorizedAccessException">Ignore.</exception>
-            <exception cref="T:System.IO.DirectoryNotFoundException">Ignore.</exception>
-            <exception cref="T:System.IO.PathTooLongException">Ignore.</exception>
-            <exception cref="T:System.IO.IOException">Ignore.</exception>
-            <exception cref="T:System.Security.SecurityException">Ignore.</exception>
-        </member>
-        <member name="M:WebApiTest.TestRandomImgRep.GetImgAsync(System.Uri,System.Int32,System.Threading.CancellationToken)">
-            <summary>
-            GetImgAsync
-            </summary>
-            <param name="url"></param>
-            <param name="timeoutMs"></param>
-            <param name="token"></param>
-            <returns></returns>
-            <exception cref="T:System.UnauthorizedAccessException">Ignore.</exception>
-            <exception cref="T:System.IO.DirectoryNotFoundException">Ignore.</exception>
-            <exception cref="T:System.IO.PathTooLongException">Ignore.</exception>
-            <exception cref="T:System.IO.IOException">Ignore.</exception>
         </member>
     </members>
 </doc>
