@@ -7,7 +7,7 @@ using WebApi.OnlineVideo;
 
 namespace WebApiTest
 {
-    public class TestRandomImgRep : IImgRep
+    public class TestRandomImgRep : IImgHttpRep
     {
         [Obsolete]
         readonly IHostingEnvironment env;

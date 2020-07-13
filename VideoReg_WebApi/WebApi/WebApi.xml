@@ -183,7 +183,16 @@
             <exception cref="T:System.ObjectDisposedException">Ignore.</exception>
             <exception cref="T:System.InvalidOperationException">Ignore.</exception>
         </member>
-        <member name="M:WebApi.OnlineVideo.CameraHostedService.DoWorkAsync(System.Object,System.Threading.CancellationToken)">
+        <member name="M:WebApi.OnlineVideo.CameraHttpHostedService.DoWorkAsync(System.Object,System.Threading.CancellationToken)">
+            <summary>
+            DoWorkAsync
+            </summary>
+            <param name="context"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <exception cref="T:System.AggregateException"></exception>
+        </member>
+        <member name="M:WebApi.OnlineVideo.CameraRedisHostedService.DoWorkAsync(System.Object,System.Threading.CancellationToken)">
             <summary>
             DoWorkAsync
             </summary>
@@ -299,16 +308,6 @@
             <param name="config"></param>
             <returns></returns>
             <exception cref="T:System.Reflection.TargetInvocationException">Ignore.</exception>
-        </member>
-        <member name="M:RegService.WebApi.Controllers.OnlineCameraController.SetImage(System.String,System.Int32,Microsoft.AspNetCore.Http.IFormFile,System.Int32)">
-            <summary>
-            Регистаторы через этот метод будут отправлять изображения с камер с
-            </summary>
-            <param name="vpn"></param>
-            <param name="camera"></param>
-            <param name="file"></param>
-            <param name="convertMs"></param>
-            <returns></returns>
         </member>
         <member name="M:WebApiTest.TestRandomImgRep.GetImg(System.Uri,System.Int32)">
             <summary>

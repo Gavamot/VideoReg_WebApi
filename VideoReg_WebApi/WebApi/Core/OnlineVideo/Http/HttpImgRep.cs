@@ -27,7 +27,7 @@ namespace WebApi.OnlineVideo
         }
     }
 
-    public class HttpImgRep : IImgRep
+    public class HttpImgRep : IImgHttpRep
     {
         private readonly ICameraConfig config;
         private readonly ILogger<HttpImgRep> log;

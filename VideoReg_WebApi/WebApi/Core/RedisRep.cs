@@ -20,14 +20,14 @@ namespace WebApi.CoreService.Core
             Redis.Default.Host.AddWriteHost(config.Redis);
         }
 
-        public const string DateTimeFormat = "d.M.yyyyTH:m:s";
-        protected IsoDateTimeConverter GetIsoDateTimeConverter => new IsoDateTimeConverter { DateTimeFormat = DateTimeFormat };
-        protected T Deserialize<T>(string json) => JsonConvert.DeserializeObject<T>(json, GetIsoDateTimeConverter);
-        protected string Serialize<T>(T obj) => JsonConvert.SerializeObject(obj, GetIsoDateTimeConverter);
+        protected readonly MultiFormatDateConverter converter = new MultiFormatDateConverter();
+        protected T Deserialize<T>(string json) => JsonConvert.DeserializeObject<T>(json, converter);
+        protected string Serialize<T>(T obj) => JsonConvert.SerializeObject(obj, converter);
 
-        public async Task<T> GetObject<T>(string key)
+        public async Task<T> GetObject<T>(string key) 
         {
             var json = await Redis.Get<string>(key);
+            if (json == null) return default;
             var res = Deserialize<T>(json);
             return res;
         }

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace WebApi.OnlineVideo
 {
-    public interface IImgRep
+    public interface IImgHttpRep
     {
         ///// <exception cref="HttpImgRepNetworkException">Network error</exception>
         ///// <exception cref="HttpImgRepStatusCodeException">Status code not equal 200</exception>

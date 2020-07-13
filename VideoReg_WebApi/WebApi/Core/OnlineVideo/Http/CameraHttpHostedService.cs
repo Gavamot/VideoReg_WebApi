@@ -9,22 +9,22 @@ using Microsoft.Extensions.Logging;
 
 namespace WebApi.OnlineVideo
 {
-    public class CameraHostedService : ServiceUpdater, IHostedService
+    public class CameraHttpHostedService : ServiceUpdater, IHostedService
     {
-        private readonly IImgRep imgRep;
+        private readonly IImgHttpRep imgRep;
         readonly ICameraStore cameraCache;
-        readonly ICameraSourceRep sourceRep;
+        readonly ICameraHttpSourceRep sourceRep;
         private ICameraConfig config;
 
         readonly CamerasInfoArray<bool> executingTask = new CamerasInfoArray<bool>(false);
         public override object Context { get; protected set; }
         public override string Name => "CameraUpdate";
 
-        public CameraHostedService(IImgRep imgRep,
+        public CameraHttpHostedService(IImgHttpRep imgRep,
             ICameraStore cameraCache,
-            ICameraSourceRep cameraSourceRep,
+            ICameraHttpSourceRep cameraSourceRep,
             ICameraConfig config,
-            ILogger<CameraHostedService> log) : base(config.CameraUpdateIntervalMs, log)
+            ILogger<CameraHttpHostedService> log) : base(config.CameraUpdateIntervalMs, log)
         {
             this.imgRep = imgRep;
             this.cameraCache = cameraCache;
@@ -51,7 +51,7 @@ namespace WebApi.OnlineVideo
 
         public override Task<bool> BeforeStart(object context, CancellationToken cancellationToken) => Task.FromResult(true);
 
-        async Task UpdateImage(Uri url, CameraSourceSettings setting)
+        async Task UpdateImage(Uri url, CameraSourceHttpSettings setting)
         {
             try
             {
@@ -75,7 +75,7 @@ namespace WebApi.OnlineVideo
             }
         }
 
-        protected void UpdateCameraImage(CameraSourceSettings setting)
+        protected void UpdateCameraImage(CameraSourceHttpSettings setting)
         {
             if (executingTask[setting.number]) return;
             if (!Uri.TryCreate(setting.snapshotUrl, UriKind.Absolute, out var uri))

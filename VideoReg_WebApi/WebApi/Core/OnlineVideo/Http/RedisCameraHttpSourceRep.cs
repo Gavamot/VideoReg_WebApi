@@ -5,17 +5,17 @@ using WebApi.OnlineVideo;
 
 namespace WebApi.CoreService
 {
-    public class RedisCameraSourceRep : ICameraSourceRep
+    public class RedisCameraHttpSourceRep : ICameraHttpSourceRep
     {
         IRedisRep  redis;
-        public RedisCameraSourceRep(IRedisRep redis)
+        public RedisCameraHttpSourceRep(IRedisRep redis)
         {
             this.redis = redis;
         }
 
-        public async Task<CameraSourceSettings[]> GetAll() => await redis.GetObject<CameraSourceSettings[]>("CamInfo");
+        public async Task<CameraSourceHttpSettings[]> GetAll() => await redis.GetObject<CameraSourceHttpSettings[]>("CamInfo");
 
-        public async Task<CameraSourceSettings> Get(int cameraNumber)
+        public async Task<CameraSourceHttpSettings> Get(int cameraNumber)
         {
             var settings = await GetAll();
             return settings.First(x => x.number == cameraNumber);

@@ -61,11 +61,12 @@ namespace WebApi
             if (!isStart) return;
             new Task(action: async () =>
             {
-                while (!cancellationToken.IsCancellationRequested)
+                while (true)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     if ((bool) isPause)
                     {
-                        await Task.Delay(1000);
+                        await Task.Delay(1000, cancellationToken);
                         continue;
                     }
 
@@ -85,7 +86,7 @@ namespace WebApi
                     }
 
                     stopwatch.Stop();
-                    await SleepIfNeedMsAsync(stopwatch.ElapsedMilliseconds);
+                    await SleepIfNeedMsAsync(stopwatch.ElapsedMilliseconds, cancellationToken);
                 }
             }, cancellationToken, TaskCreationOptions.LongRunning).Start();
             log.LogInformation($"{ServiceName} is started");

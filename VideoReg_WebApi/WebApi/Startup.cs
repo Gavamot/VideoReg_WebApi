@@ -41,23 +41,25 @@ namespace WebApi
                 // Поидее надо переделать и выделить отдельный уровень соединения 
                 // Но раз так получилось тут можно забыть о модульности.
                 // Просто включаем все сервисы если стоит передача на сервер
-                services.AddOnlineVideo();
-                services.TryAddSingleton<IClientAscHub, ClientAscHub>();
-                services.AddAscHttpClient();
 
-                services.AddHostedService<VideoTransmitterHostedService>();
-                //services.AddHostedService<TrendsTransmitterHostedService>();
+                //services.AddOnlineVideoHttp();
+                services.AddAscHttpClient();
+                services.TryAddSingleton<IClientAscHub, ClientAscHub>();
                 services.AddSingleton<IArchiveTransmitter, ArchiveTransmitter>();
 
-                services.AddOnlineVideo();
-                //services.AddOnlineTrends();
+                services.AddHostedService<VideoTransmitterHostedService>();
+                services.AddHostedService<TrendsTransmitterHostedService>();
+                
+                services.AddOnlineVideoRedis();
+                services.AddOnlineTrends();
                 services.AddVideoArchive();
                 services.AddTrendsArchive();
             }
             else
             {
-                if(startupConfig.OnlineVideo) services.AddOnlineVideo();
-                if(startupConfig.OnlineTrends) services.AddOnlineTrends();
+                //if(startupConfig.OnlineVideo) services.AddOnlineVideoHttp();
+                if (startupConfig.OnlineVideo) services.AddOnlineVideoRedis();
+                if (startupConfig.OnlineTrends) services.AddOnlineTrends();
                 if(startupConfig.ArchiveVideo) services.AddVideoArchive();
                 if(startupConfig.ArchiveTrends) services.AddTrendsArchive();
             }

@@ -162,7 +162,7 @@
         <member name="M:WebApi.Core.Collection.TimestampConcurrentDictionary`2.AddOrUpdate(`0,`1)">
             <returns> true-added, false-updated </returns>
         </member>
-        <member name="M:WebApi.Core.OnlineVideo.CameraHostedService.DoWorkAsync(System.Object,System.Threading.CancellationToken)">
+        <member name="M:WebApi.Core.OnlineVideo.HttpCameraHostedService.DoWorkAsync(System.Object,System.Threading.CancellationToken)">
             <summary>
             DoWorkAsync
             </summary>

@@ -8,7 +8,7 @@ using WebApi.Services;
 
 namespace WebApiTest
 {
-    public class TestCameraRep : ICameraSourceRep
+    public class TestCameraRep : ICameraHttpSourceRep
     {
         private readonly IFileSystemService fs;
         public TestCameraRep(IFileSystemService fs)
@@ -26,12 +26,12 @@ namespace WebApiTest
         //    new CameraSourceSettings(3, "http://192.168.20.125:80/Snapshot/GetSnapshot"),
         //};
 
-        public async Task<CameraSourceSettings> Get(int cameraNumber) => (await GetAll()).FirstOrDefault(x => x.number == cameraNumber);
+        public async Task<CameraSourceHttpSettings> Get(int cameraNumber) => (await GetAll()).FirstOrDefault(x => x.number == cameraNumber);
 
-        public async Task<CameraSourceSettings[]> GetAll()
+        public async Task<CameraSourceHttpSettings[]> GetAll()
         {
             var text = await fs.ReadFileTextAsync("Test/camera_source.json", Encoding.UTF8);
-            return JsonConvert.DeserializeObject<CameraSourceSettings[]>(text);
+            return JsonConvert.DeserializeObject<CameraSourceHttpSettings[]>(text);
         }
     }
 }

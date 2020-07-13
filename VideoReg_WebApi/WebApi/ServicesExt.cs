@@ -16,6 +16,7 @@ using WebApi.OnlineVideo.Store;
 using WebApi.Archive.ArchiveFiles;
 using WebApi.Archive.BrigadeHistory;
 using WebApi.Archive;
+using WebApi.Core.OnlineVideo;
 using WebApi.Trends;
 
 namespace WebApi
@@ -125,16 +126,27 @@ namespace WebApi
             return services;
         }
 
-        public static IServiceCollection AddOnlineVideo(this IServiceCollection services)
+        public static IServiceCollection AddOnlineVideoHttp(this IServiceCollection services)
         {
-            services.AddHostedService<CameraHostedService>();
+            services.AddHostedService<CameraHttpHostedService>();
             services.AddHttpClient();
-            services.TryAddSingleton<IImgRep, HttpImgRep>();
+            services.TryAddSingleton<IImgHttpRep, HttpImgRep>();
             services.TryAddSingleton<ICameraStore, TransformImageStore>();
             services.TryAddSingleton<ICameraSettingsStore, CameraSettingsStore>();
             services.TryAddSingleton<IVideoConvector, ImagicVideoConvector>();
-            services.TryAddSingleton<ICameraSourceRep, RedisCameraSourceRep>();
+            services.TryAddSingleton<ICameraHttpSourceRep, RedisCameraHttpSourceRep>();
             services.TryAddSingleton<IRedisRep, RedisRep>();
+            return services;
+        }
+
+        public static IServiceCollection AddOnlineVideoRedis(this IServiceCollection services)
+        {
+            services.TryAddSingleton<IRedisRep, RedisRep>();
+            services.TryAddSingleton<ISnapshotRep, RedisSnapshotRep>();
+            services.AddHostedService<CameraRedisHostedService>();
+            services.TryAddSingleton<ICameraStore, TransformImageStore>();
+            services.TryAddSingleton<ICameraSettingsStore, CameraSettingsStore>();
+            services.TryAddSingleton<IVideoConvector, ImagicVideoConvector>();
             return services;
         }
 

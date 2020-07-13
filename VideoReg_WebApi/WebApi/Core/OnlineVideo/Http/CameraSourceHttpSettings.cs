@@ -1,8 +1,8 @@
 ﻿namespace WebApi.OnlineVideo
 {
-    public struct CameraSourceSettings
+    public struct CameraSourceHttpSettings
     {
-        public CameraSourceSettings(int number, string snapshotUrl)
+        public CameraSourceHttpSettings(int number, string snapshotUrl)
         {
             this.number = number;
             this.snapshotUrl = snapshotUrl;
